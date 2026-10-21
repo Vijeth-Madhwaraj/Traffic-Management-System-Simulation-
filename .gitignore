@@ -1,0 +1,13 @@
+/build/
+/cmake-build-*/
+/.vscode/
+/.idea/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.csv
+*.log
+*.user
+*.swp
