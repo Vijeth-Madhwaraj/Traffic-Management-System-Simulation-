@@ -76,5 +76,44 @@ TEST_F(VehicleInputTest, RejectsInvalidScheduleWithoutReplacingValidOne) {
     EXPECT_THROW(manager.setSchedule({{0, "", vehicle()}}), std::invalid_argument);
     EXPECT_EQ(manager.generate(0).size(), 1U);
 }
+TEST_F(VehicleInputTest, UT_A02_A10_SeededStreamsRepeatAfterReset) {
+    manager.setStreams({{"random", "entry", 0, 100, 0.5, vehicle()}});
+    const auto run = [&]() {
+        std::vector<Tick> arrivals;
+        for (Tick tick = 0; tick < 100; ++tick) {
+            for (const auto& event : manager.generate(tick)) {
+                arrivals.push_back(tick);
+                EXPECT_EQ(event.id, arrivals.size());
+            }
+        }
+        return arrivals;
+    };
+    const auto first = run();
+    EXPECT_GT(first.size(), 0U);
+    EXPECT_LT(first.size(), 100U);
+    manager.reset();
+    EXPECT_EQ(manager.size(), 0U);
+    EXPECT_EQ(manager.seed(), 42U);
+    EXPECT_EQ(run(), first);
+}
+TEST_F(VehicleInputTest, ValidatesProbabilityAndHonorsStreamBounds) {
+    EXPECT_THROW(manager.setStreams({{"x", "entry", 0, 2, -0.1, vehicle()}}), std::invalid_argument);
+    EXPECT_THROW(manager.setStreams({{"x", "entry", 0, 2, 1.1, vehicle()}}), std::invalid_argument);
+    EXPECT_THROW(manager.setStreams({{"x", "entry", 2, 2, 1, vehicle()}}), std::invalid_argument);
+    manager.setStreams({{"never", "entry", 0, 4, 0, vehicle()}, {"always", "entry", 1, 3, 1, vehicle()}});
+    EXPECT_TRUE(manager.generate(0).empty());
+    EXPECT_EQ(manager.generate(1).size(), 1U);
+    EXPECT_EQ(manager.generate(2).size(), 1U);
+    EXPECT_TRUE(manager.generate(3).empty());
+}
+TEST_F(VehicleInputTest, StreamOrderIsStableRegardlessOfConfigurationOrder) {
+    const auto a = ArrivalStream{"a", "a-lane", 0, 1, 1, vehicle()};
+    const auto z = ArrivalStream{"z", "z-lane", 0, 1, 1, vehicle()};
+    manager.setStreams({z, a});
+    const auto arrivals = manager.generate(0);
+    ASSERT_EQ(arrivals.size(), 2U);
+    EXPECT_EQ(arrivals[0].lane, "a-lane");
+    EXPECT_EQ(arrivals[1].lane, "z-lane");
+}
 } // namespace
 } // namespace traffic

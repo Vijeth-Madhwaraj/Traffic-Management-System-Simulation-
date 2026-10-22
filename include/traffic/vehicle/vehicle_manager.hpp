@@ -3,6 +3,7 @@
 #include "traffic/types.hpp"
 
 #include <optional>
+#include <random>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -11,6 +12,15 @@ namespace traffic {
 struct ScheduledArrival {
     Tick tick{};
     std::string lane;
+    Vehicle vehicle;
+};
+
+struct ArrivalStream {
+    std::string id;
+    std::string lane;
+    Tick firstTick{};
+    Tick endTick{}; // exclusive
+    double probability{}; // at most one arrival per tick
     Vehicle vehicle;
 };
 
@@ -25,6 +35,9 @@ public:
     void configureTopology(std::vector<IntersectionId> intersections, std::vector<Road> roads);
     void validateVehicle(const Vehicle& vehicle) const;
     void setSchedule(std::vector<ScheduledArrival> arrivals);
+    void setStreams(std::vector<ArrivalStream> streams);
+    void reset();
+    std::uint64_t seed() const noexcept;
     std::vector<GeneratedArrival> generate(Tick now);
     VehicleId addVehicle(Vehicle vehicle);
     const Vehicle* find(VehicleId id) const noexcept;
@@ -34,6 +47,8 @@ public:
 private:
     std::unordered_set<IntersectionId> intersections_;
     std::unordered_map<RoadId, Road> roads_;
+    std::vector<ArrivalStream> streams_;
+    std::mt19937_64 rng_;
     std::vector<ScheduledArrival> schedule_;
     std::size_t nextArrival_{};
     std::optional<Tick> lastGenerated_;

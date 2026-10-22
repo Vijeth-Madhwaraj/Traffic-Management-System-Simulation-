@@ -1,13 +1,14 @@
 #include "traffic/vehicle/vehicle_manager.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <stdexcept>
 #include <utility>
 
 namespace traffic {
 
-VehicleManager::VehicleManager(std::uint64_t seed) : seed_(seed) {}
+VehicleManager::VehicleManager(std::uint64_t seed) : rng_(seed), seed_(seed) {}
 
 void VehicleManager::configureTopology(std::vector<IntersectionId> intersections, std::vector<Road> roads) {
     if (!vehicles_.empty()) throw std::logic_error("Cannot replace topology after vehicles are created");
@@ -55,6 +56,30 @@ void VehicleManager::setSchedule(std::vector<ScheduledArrival> arrivals) {
     nextArrival_ = 0;
 }
 
+void VehicleManager::setStreams(std::vector<ArrivalStream> streams) {
+    if (lastGenerated_) throw std::logic_error("Cannot change streams after generation starts");
+    std::unordered_set<std::string> ids;
+    for (const auto& stream : streams) {
+        if (stream.id.empty() || !ids.insert(stream.id).second || stream.lane.empty() ||
+            stream.firstTick >= stream.endTick || !std::isfinite(stream.probability) ||
+            stream.probability < 0 || stream.probability > 1)
+            throw std::invalid_argument("Invalid arrival stream");
+        validateVehicle(stream.vehicle);
+    }
+    std::sort(streams.begin(), streams.end(), [](const auto& a, const auto& b) { return a.id < b.id; });
+    streams_ = std::move(streams);
+}
+
+void VehicleManager::reset() {
+    vehicles_.clear();
+    nextId_ = 1;
+    nextArrival_ = 0;
+    lastGenerated_.reset();
+    rng_.seed(seed_);
+}
+
+std::uint64_t VehicleManager::seed() const noexcept { return seed_; }
+
 std::vector<GeneratedArrival> VehicleManager::generate(Tick now) {
     if (lastGenerated_ && now == *lastGenerated_) return {};
     if ((!lastGenerated_ && now != 0) ||
@@ -65,6 +90,13 @@ std::vector<GeneratedArrival> VehicleManager::generate(Tick now) {
         const auto& arrival = schedule_[nextArrival_];
         result.push_back({arrival.lane, addVehicle(arrival.vehicle)});
         ++nextArrival_;
+    }
+    for (const auto& stream : streams_) {
+        if (now < stream.firstTick || now >= stream.endTick) continue;
+        // Use explicit integer thresholds rather than library-specific distributions.
+        const auto threshold = static_cast<std::uint64_t>(stream.probability * 4294967296.0);
+        if ((rng_() >> 32U) < threshold)
+            result.push_back({stream.lane, addVehicle(stream.vehicle)});
     }
     lastGenerated_ = now;
     return result;
