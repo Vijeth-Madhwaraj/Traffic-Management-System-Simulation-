@@ -45,6 +45,10 @@ if(BUILD_TESTING)
     )
     target_link_libraries(traffic_signal_tests PRIVATE traffic_core GTest::gtest_main)
 
+    add_executable(traffic_vehicle_tests tests/unit/vehicle/vehicle_manager_test.cpp)
+    target_link_libraries(traffic_vehicle_tests PRIVATE traffic_core GTest::gtest_main)
+
     include(GoogleTest)
     gtest_discover_tests(traffic_signal_tests DISCOVERY_MODE PRE_TEST)
+    gtest_discover_tests(traffic_vehicle_tests DISCOVERY_MODE PRE_TEST)
 endif()
