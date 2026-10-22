@@ -23,5 +23,28 @@ target_compile_options(traffic_core PRIVATE
 add_executable(traffic_sim src/main.cpp)
 target_link_libraries(traffic_sim PRIVATE traffic_core)
 
-# Tests are intentionally left as a starter area. Add GoogleTest and register
-# module-level tests here once the team agrees on the shared interfaces.
+include(CTest)
+
+if(BUILD_TESTING)
+    include(FetchContent)
+
+    # GoogleTest is fetched at configure time when BUILD_TESTING is enabled.
+    # Pin a release tag so local and CI builds use the same test framework.
+    set(gtest_force_shared_crt ON CACHE BOOL "Use the shared MSVC runtime" FORCE)
+    set(BUILD_GMOCK OFF CACHE BOOL "Do not build Google Mock for these unit tests" FORCE)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.15.2
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(googletest)
+
+    add_executable(traffic_signal_tests
+        tests/unit/signals/signal_controller_test.cpp
+    )
+    target_link_libraries(traffic_signal_tests PRIVATE traffic_core GTest::gtest_main)
+
+    include(GoogleTest)
+    gtest_discover_tests(traffic_signal_tests DISCOVERY_MODE PRE_TEST)
+endif()

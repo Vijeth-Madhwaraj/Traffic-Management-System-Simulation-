@@ -10,6 +10,7 @@ using Tick = std::uint64_t;
 using VehicleId = std::uint64_t;
 using RoadId = std::string;
 using IntersectionId = std::string;
+using MovementId = std::string;
 
 enum class VehicleClass { Standard, Emergency };
 enum class VehicleState { Waiting, InTransit, Completed, Unroutable };
