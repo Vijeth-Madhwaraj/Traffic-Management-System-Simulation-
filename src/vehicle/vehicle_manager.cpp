@@ -1,5 +1,6 @@
 #include "traffic/vehicle/vehicle_manager.hpp"
 
+#include <algorithm>
 #include <limits>
 #include <stdexcept>
 #include <utility>
@@ -41,6 +42,32 @@ void VehicleManager::validateVehicle(const Vehicle& vehicle) const {
     }
     if (!vehicle.route.empty() && node != vehicle.destination)
         throw std::invalid_argument("Vehicle route does not reach destination");
+}
+
+void VehicleManager::setSchedule(std::vector<ScheduledArrival> arrivals) {
+    if (lastGenerated_) throw std::logic_error("Cannot change arrivals after generation starts");
+    for (const auto& arrival : arrivals) {
+        if (arrival.lane.empty()) throw std::invalid_argument("Arrival requires an entry lane");
+        validateVehicle(arrival.vehicle);
+    }
+    std::stable_sort(arrivals.begin(), arrivals.end(), [](const auto& a, const auto& b) { return a.tick < b.tick; });
+    schedule_ = std::move(arrivals);
+    nextArrival_ = 0;
+}
+
+std::vector<GeneratedArrival> VehicleManager::generate(Tick now) {
+    if (lastGenerated_ && now == *lastGenerated_) return {};
+    if ((!lastGenerated_ && now != 0) ||
+        (lastGenerated_ && (*lastGenerated_ == std::numeric_limits<Tick>::max() || now != *lastGenerated_ + 1)))
+        throw std::invalid_argument("Generate requires consecutive ticks starting at zero");
+    std::vector<GeneratedArrival> result;
+    while (nextArrival_ < schedule_.size() && schedule_[nextArrival_].tick == now) {
+        const auto& arrival = schedule_[nextArrival_];
+        result.push_back({arrival.lane, addVehicle(arrival.vehicle)});
+        ++nextArrival_;
+    }
+    lastGenerated_ = now;
+    return result;
 }
 
 VehicleId VehicleManager::addVehicle(Vehicle vehicle) {
