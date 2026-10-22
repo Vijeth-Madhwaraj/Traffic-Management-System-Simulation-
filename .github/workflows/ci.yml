@@ -3,21 +3,27 @@ name: CI
 
 on:
   push:
-    branches: [master]
   pull_request:
-    branches: [master]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  checks:
-    name: Basic CI Check
-    runs-on: ubuntu-latest
+  signal-tests:
+    name: Vijeth signal tests (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify workflow
-        run: echo "GitHub Actions workflow is running successfully"
+      - name: Configure CMake and fetch GoogleTest
+        run: cmake -S . -B build -DBUILD_TESTING=ON
+
+      - name: Build application and signal tests
+        run: cmake --build build --config Debug --parallel
+
+      - name: Run signal tests with CTest
+        run: ctest --test-dir build -C Debug --output-on-failure
