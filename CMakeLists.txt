@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(traffic_core
+    src/input/scenario.cpp
     src/vehicle/vehicle_manager.cpp
     src/vehicle/lane_queue.cpp
     src/signals/signal_controller.cpp
@@ -48,6 +49,7 @@ if(BUILD_TESTING)
     add_executable(traffic_vehicle_tests
         tests/unit/vehicle/vehicle_manager_test.cpp
         tests/unit/vehicle/lane_queue_test.cpp
+        tests/unit/input/scenario_test.cpp
     )
     target_link_libraries(traffic_vehicle_tests PRIVATE traffic_core GTest::gtest_main)
 

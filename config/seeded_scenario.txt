@@ -1,0 +1,14 @@
+scenario 1
+seed 496
+duration 100
+intersection A
+intersection B
+intersection C
+intersection D
+road AB A B 10 1
+road BC B C 10 1
+road CD C D 10 1
+lane entry AB 5
+phase B 10 2 1 AB-to-BC
+phase C 10 2 1 BC-to-CD
+stream commuters entry D standard 0 100 0.5 AB BC CD
