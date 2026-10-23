@@ -50,10 +50,19 @@ if(BUILD_TESTING)
         tests/unit/vehicle/vehicle_manager_test.cpp
         tests/unit/vehicle/lane_queue_test.cpp
         tests/unit/input/scenario_test.cpp
+        tests/integration/scenario_input_test.cpp
     )
     target_link_libraries(traffic_vehicle_tests PRIVATE traffic_core GTest::gtest_main)
 
     include(GoogleTest)
     gtest_discover_tests(traffic_signal_tests DISCOVERY_MODE PRE_TEST)
     gtest_discover_tests(traffic_vehicle_tests DISCOVERY_MODE PRE_TEST)
+    add_test(NAME cli_help COMMAND traffic_sim --help)
+    add_test(NAME cli_scheduled_demo COMMAND traffic_sim --scenario ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt)
+    set_tests_properties(cli_scheduled_demo PROPERTIES PASS_REGULAR_EXPRESSION "Deferred: 2")
+    add_test(NAME cli_seeded_demo COMMAND traffic_sim --scenario ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt)
+    add_test(NAME cli_missing_file COMMAND traffic_sim --scenario ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt)
+    set_tests_properties(cli_missing_file PROPERTIES WILL_FAIL TRUE)
+    add_test(NAME cli_bad_arguments COMMAND traffic_sim --unknown)
+    set_tests_properties(cli_bad_arguments PROPERTIES WILL_FAIL TRUE)
 endif()
