@@ -11,7 +11,7 @@ namespace traffic {
 VehicleManager::VehicleManager(std::uint64_t seed) : rng_(seed), seed_(seed) {}
 
 void VehicleManager::configureTopology(std::vector<IntersectionId> intersections, std::vector<Road> roads) {
-    if (!vehicles_.empty()) throw std::logic_error("Cannot replace topology after vehicles are created");
+    if (!vehicles_.empty() || lastGenerated_ || !schedule_.empty() || !streams_.empty() || !lanes_.empty()) throw std::logic_error("Cannot replace topology after vehicles are created");
     std::unordered_set<IntersectionId> nodes;
     std::unordered_map<RoadId, Road> edges;
     for (const auto& id : intersections) {
@@ -45,11 +45,88 @@ void VehicleManager::validateVehicle(const Vehicle& vehicle) const {
         throw std::invalid_argument("Vehicle route does not reach destination");
 }
 
+void VehicleManager::configureLanes(std::vector<EntryLane> lanes) {
+    if (lastGenerated_ || !vehicles_.empty() || !schedule_.empty() || !streams_.empty())
+        throw std::logic_error("Configure lanes before arrivals");
+    std::map<std::string, LaneState> replacement;
+    for (const auto& spec : lanes) {
+        if (spec.id.empty() || !roads_.count(spec.road) || spec.capacity == 0 ||
+            spec.capacity > roads_.at(spec.road).capacity ||
+            !replacement.emplace(spec.id, LaneState{spec, LaneQueue(spec.capacity), {}}).second)
+            throw std::invalid_argument("Invalid or duplicate entry lane");
+    }
+    lanes_ = std::move(replacement);
+}
+
+void VehicleManager::validateEntry(const Vehicle& vehicle, const std::string& laneId) const {
+    const auto found = lanes_.find(laneId);
+    if (found == lanes_.end()) throw std::invalid_argument("Unknown entry lane: " + laneId);
+    const auto& road = roads_.at(found->second.spec.road);
+    if (vehicle.source != road.from || (!vehicle.route.empty() && vehicle.route.front() != road.id))
+        throw std::invalid_argument("Vehicle source or route does not match entry lane");
+}
+
+AdmissionBatch VehicleManager::advanceArrivals(Tick now, const RouteProvider& routes) {
+    if (lastAdmission_ && *lastAdmission_ == now) return {};
+    if (lastGenerated_ && (!lastAdmission_ || *lastGenerated_ != *lastAdmission_))
+        throw std::logic_error("Do not mix generate() and advanceArrivals() in one run");
+    for (const auto& arrival : schedule_) validateEntry(arrival.vehicle, arrival.lane);
+    for (const auto& stream : streams_) validateEntry(stream.vehicle, stream.lane);
+    // Resolve routes before consuming generation state: a failed provider can be retried.
+    auto replacement = *this;
+    AdmissionBatch batch;
+    for (const auto& event : replacement.generate(now)) {
+        auto& vehicle = *replacement.find(event.id);
+        batch.generated.push_back(event.id);
+        if (vehicle.route.empty() && routes) vehicle.route = routes(vehicle.source, vehicle.destination);
+        if (vehicle.route.empty()) {
+            vehicle.state = VehicleState::Unroutable;
+            batch.unroutable.push_back(event.id);
+        } else {
+            replacement.validateVehicle(vehicle);
+            replacement.validateEntry(vehicle, event.lane);
+            replacement.lanes_.at(event.lane).pending.push_back(event.id);
+        }
+    }
+    for (auto& entry : replacement.lanes_) {
+        auto& state = entry.second;
+        while (!state.pending.empty() && state.queue.hasSpace()) {
+            const auto id = state.pending.front();
+            state.queue.enqueue(id);
+            state.pending.pop_front();
+            batch.admitted.push_back(id);
+        }
+    }
+    replacement.lastAdmission_ = now;
+    *this = std::move(replacement);
+    return batch;
+}
+
+LaneQueue* VehicleManager::lane(const std::string& id) noexcept {
+    const auto found = lanes_.find(id);
+    return found == lanes_.end() ? nullptr : &found->second.queue;
+}
+const LaneQueue* VehicleManager::lane(const std::string& id) const noexcept {
+    const auto found = lanes_.find(id);
+    return found == lanes_.end() ? nullptr : &found->second.queue;
+}
+std::size_t VehicleManager::pendingCount() const noexcept {
+    std::size_t count = 0;
+    for (const auto& entry : lanes_) count += entry.second.pending.size();
+    return count;
+}
+std::size_t VehicleManager::queuedCount() const noexcept {
+    std::size_t count = 0;
+    for (const auto& entry : lanes_) count += entry.second.queue.size();
+    return count;
+}
+
 void VehicleManager::setSchedule(std::vector<ScheduledArrival> arrivals) {
     if (lastGenerated_) throw std::logic_error("Cannot change arrivals after generation starts");
     for (const auto& arrival : arrivals) {
         if (arrival.lane.empty()) throw std::invalid_argument("Arrival requires an entry lane");
         validateVehicle(arrival.vehicle);
+        if (!lanes_.empty()) validateEntry(arrival.vehicle, arrival.lane);
     }
     std::stable_sort(arrivals.begin(), arrivals.end(), [](const auto& a, const auto& b) { return a.tick < b.tick; });
     schedule_ = std::move(arrivals);
@@ -65,12 +142,18 @@ void VehicleManager::setStreams(std::vector<ArrivalStream> streams) {
             stream.probability < 0 || stream.probability > 1)
             throw std::invalid_argument("Invalid arrival stream");
         validateVehicle(stream.vehicle);
+        if (!lanes_.empty()) validateEntry(stream.vehicle, stream.lane);
     }
     std::sort(streams.begin(), streams.end(), [](const auto& a, const auto& b) { return a.id < b.id; });
     streams_ = std::move(streams);
 }
 
 void VehicleManager::reset() {
+    for (auto& entry : lanes_) {
+        entry.second.queue.clear();
+        entry.second.pending.clear();
+    }
+    lastAdmission_.reset();
     vehicles_.clear();
     nextId_ = 1;
     nextArrival_ = 0;

@@ -115,5 +115,56 @@ TEST_F(VehicleInputTest, StreamOrderIsStableRegardlessOfConfigurationOrder) {
     EXPECT_EQ(arrivals[0].lane, "a-lane");
     EXPECT_EQ(arrivals[1].lane, "z-lane");
 }
+TEST_F(VehicleInputTest, UT_A04_A05_A06_RetriesPendingBeforeNewArrivalsWithoutChangingIds) {
+    manager.configureLanes({{"entry", "AB", 1}});
+    manager.setSchedule({{0, "entry", vehicle()}, {0, "entry", vehicle()}, {1, "entry", vehicle()}});
+    auto batch = manager.advanceArrivals(0, {});
+    EXPECT_EQ(batch.generated, (std::vector<VehicleId>{1, 2}));
+    EXPECT_EQ(batch.admitted, (std::vector<VehicleId>{1}));
+    EXPECT_EQ(manager.pendingCount(), 1U);
+    EXPECT_EQ(manager.lane("entry")->pop(), 1U);
+    batch = manager.advanceArrivals(1, {});
+    EXPECT_EQ(batch.admitted, (std::vector<VehicleId>{2}));
+    EXPECT_EQ(manager.pendingCount(), 1U);
+    EXPECT_EQ(manager.lane("entry")->pop(), 2U);
+    batch = manager.advanceArrivals(2, {});
+    EXPECT_EQ(batch.admitted, (std::vector<VehicleId>{3}));
+    EXPECT_EQ(manager.pendingCount(), 0U);
+    EXPECT_TRUE(manager.advanceArrivals(2, {}).generated.empty());
+    manager.reset();
+    EXPECT_EQ(manager.queuedCount(), 0U);
+    EXPECT_EQ(manager.pendingCount(), 0U);
+    EXPECT_EQ(manager.advanceArrivals(0, {}).generated, (std::vector<VehicleId>{1, 2}));
+}
+TEST_F(VehicleInputTest, UT_A09_RequestsCorrectRouteAndHandlesUnavailableRoutes) {
+    manager.configureLanes({{"entry", "AB", 1}});
+    auto v = vehicle(); v.route.clear();
+    manager.setSchedule({{0, "entry", v}, {1, "entry", v}});
+    auto batch = manager.advanceArrivals(0, [](const auto& source, const auto& destination) {
+        EXPECT_EQ(source, "A"); EXPECT_EQ(destination, "C");
+        return std::vector<RoadId>{"AB", "BC"};
+    });
+    EXPECT_EQ(batch.admitted.size(), 1U);
+    batch = manager.advanceArrivals(1, [](const auto&, const auto&) { return std::vector<RoadId>{}; });
+    EXPECT_EQ(batch.unroutable, (std::vector<VehicleId>{2}));
+    EXPECT_EQ(manager.find(2)->state, VehicleState::Unroutable);
+}
+TEST_F(VehicleInputTest, FailedRouteProviderDoesNotConsumeArrivals) {
+    manager.configureLanes({{"entry", "AB", 1}});
+    auto v = vehicle(); v.route.clear();
+    manager.setSchedule({{0, "entry", v}});
+    EXPECT_THROW(manager.advanceArrivals(0, [](const auto&, const auto&) -> std::vector<RoadId> {
+        throw std::runtime_error("provider unavailable");
+    }), std::runtime_error);
+    EXPECT_EQ(manager.size(), 0U);
+    EXPECT_EQ(manager.advanceArrivals(0, {}).unroutable, (std::vector<VehicleId>{1}));
+}
+TEST_F(VehicleInputTest, RejectsLaneMismatchAndUnknownLanesBeforeGeneration) {
+    manager.configureLanes({{"entry", "AB", 1}});
+    EXPECT_THROW(manager.setSchedule({{0, "missing", vehicle()}}), std::invalid_argument);
+    auto v = vehicle(); v.source = "B"; v.route = {"BC"};
+    EXPECT_THROW(manager.setSchedule({{0, "entry", v}}), std::invalid_argument);
+    EXPECT_EQ(manager.size(), 0U);
+}
 } // namespace
 } // namespace traffic
