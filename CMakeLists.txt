@@ -24,6 +24,30 @@ target_compile_options(traffic_core PRIVATE
 add_executable(traffic_sim src/main.cpp)
 target_link_libraries(traffic_sim PRIVATE traffic_core)
 
+option(TRAFFIC_ENABLE_ANALYZER "Run Clang static analysis and treat project warnings as errors" OFF)
+if(TRAFFIC_ENABLE_ANALYZER)
+    find_program(TRAFFIC_CLANGXX NAMES clang++)
+    if(NOT TRAFFIC_CLANGXX)
+        message(FATAL_ERROR "TRAFFIC_ENABLE_ANALYZER requires clang++")
+    endif()
+    foreach(target traffic_core traffic_sim)
+        target_compile_options(${target} PRIVATE
+            $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Werror>)
+    endforeach()
+    add_custom_target(traffic_analyze ALL)
+    get_target_property(analysis_sources traffic_core SOURCES)
+    list(APPEND analysis_sources src/main.cpp)
+    foreach(source IN LISTS analysis_sources)
+        get_filename_component(source_name "${source}" NAME_WE)
+        add_custom_command(TARGET traffic_analyze POST_BUILD
+            COMMAND ${TRAFFIC_CLANGXX} --analyze -std=c++17
+                -I${CMAKE_CURRENT_SOURCE_DIR}/include -Wall -Wextra -Wpedantic -Werror
+                -Xanalyzer -analyzer-werror ${CMAKE_CURRENT_SOURCE_DIR}/${source}
+                -o ${CMAKE_CURRENT_BINARY_DIR}/analysis-${source_name}.plist
+            VERBATIM)
+    endforeach()
+endif()
+
 include(CTest)
 
 if(BUILD_TESTING)
