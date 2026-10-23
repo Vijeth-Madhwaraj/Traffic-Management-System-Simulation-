@@ -1,6 +1,6 @@
 # Scenario configuration, version 1
 
-Run a file with `traffic_sim --scenario config/demo_scenario.txt` once CLI integration lands.
+Run a file with `traffic_sim --scenario config/demo_scenario.txt`.
 Records are whitespace-separated; `#` begins a comment. IDs have no whitespace or `#`.
 The first non-comment record must be `scenario 1`; `seed` and `duration` are required once.
 Other records may reference definitions later in the file. Repeated `phase` records define
@@ -41,3 +41,7 @@ the run duration. Invalid files are rejected as a whole. Seed zero is valid.
 `demo_scenario.txt` demonstrates admission and deferral; `seeded_scenario.txt` demonstrates
 repeatable random arrivals. Neither proves movement or completed-trip performance: routing
 and movement remain teammate dependencies.
+
+`performance_scenario.txt` provides 4 intersections and 500 guaranteed arrivals for later
+NFR-03 validation. Its present run exercises only generation/admission, because movement
+and completed-trip reporting remain incomplete.

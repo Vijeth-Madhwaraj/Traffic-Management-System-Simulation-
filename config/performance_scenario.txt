@@ -1,0 +1,16 @@
+# Input workload for later full-system NFR-03 validation.
+# Current movement is a stub: this only exercises generation/admission of 500 vehicles.
+scenario 1
+seed 496
+duration 500
+intersection A
+intersection B
+intersection C
+intersection D
+road AB A B 500 1
+road BC B C 500 1
+road CD C D 500 1
+lane entry AB 500
+phase B 10 2 1 AB-to-BC
+phase C 10 2 1 BC-to-CD
+stream workload entry D standard 0 500 1 AB BC CD

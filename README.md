@@ -1,44 +1,52 @@
 # Traffic Management System (Simulation)
 
-A C++17 discrete-time simulation of traffic moving through a configurable road network. It is intended for academic demonstrations of modular design, routing, signal control, incident handling, and measurable traffic performance. It does not control real traffic infrastructure.
+A C++17 discrete-time traffic simulation for an academic software-engineering project.
+It does not control real traffic infrastructure.
 
 ## Current status
 
-This repository is a project skeleton. The modules and shared types are laid out; traffic generation, routing, signal policies, movement, incident response, metrics, and scenario loading still need implementation.
+Implemented: validated text scenarios, scheduled/seeded vehicle generation, unique IDs,
+vehicle/route validation, FIFO entry queues, capacity-limited admission and deferred retries,
+reset/reproducibility, and timed signal phases with safety checks.
 
-## Requirements
+Routing, vehicle movement, adaptive signals, emergency priority, congestion and incident
+response remain incomplete. Metrics have basic counters/CSV helpers, but full trip metrics
+are not integrated. The CLI reports **input/admission counts**, not completed journeys.
 
-- C++17 compiler (GCC or Clang recommended)
-- CMake 3.16 or newer
+## Build, test, and run
 
-## Build and run
+Requires CMake 3.16+, a C++17 compiler, and network access for the first GoogleTest download.
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel
-./build/traffic_sim --help
+ctest --test-dir build --output-on-failure
+./build/traffic_sim --scenario config/demo_scenario.txt
+./build/traffic_sim --scenario config/seeded_scenario.txt
 ```
 
-The first working milestone is a deterministic path from vehicle generation through a lane queue and green signal to a destination, with throughput recorded. See [docs/architecture.md](docs/architecture.md) for module boundaries and [docs/traceability.md](docs/traceability.md) for the starter requirement mapping.
+The scheduled demo generates 3 vehicles, admits 1, and defers 2. The seeded demo prints its
+seed and generates a repeatable sequence. Explicit routes permit these input demonstrations
+while automatic routing is still a stub. See [scenario format](config/README.md).
 
-## Repository structure
+To build without downloading test dependencies, configure with `-DBUILD_TESTING=OFF`.
+For static analysis, install Clang and configure a separate build:
 
-```text
-include/traffic/   Shared types and module interfaces
-src/               Module implementations and CLI entry point
-config/            Example scenario placeholder
-docs/              Architecture and requirement traceability
-tests/             Starter area for unit, integration, and system tests
+```sh
+cmake -S . -B build-analysis -DBUILD_TESTING=OFF -DTRAFFIC_ENABLE_ANALYZER=ON
+cmake --build build-analysis --parallel 2
 ```
 
-## Team ownership
+## Ownership and evidence
 
-The project plan assigns vehicle/input management, signal control, road network/movement, and congestion/incidents/metrics to four members. Confirm names and ownership with the team before implementation; see `docs/architecture.md` for the proposed module split.
+- **Aarya:** scenario/vehicle input and lane queues, FR-01–FR-04; shared FR-18 reproducibility.
+- **Vijeth:** signal control, FR-05–FR-08.
+- **Vaibhav:** road network, routing, and movement, FR-09–FR-12.
+- **Vainik:** congestion, incidents, metrics, and reporting, FR-13–FR-17.
 
-## Contribution workflow
+See [architecture](docs/architecture.md), [requirement traceability](docs/traceability.md),
+and [Aarya's test evidence and remaining work](docs/aarya-test-matrix.md).
+The first complete vehicle-to-destination milestone remains blocked on routing/movement.
 
-Use short feature branches, focused pull requests, and teammate review. Agree shared IDs, tick ordering, capacity semantics, and signal safety rules before implementing module internals. Update traceability and test IDs as requirements are completed.
-
-## Planned capabilities
-
-Scenario configuration, seeded vehicle arrivals, capacity-limited lane queues, safe timed/adaptive signals, emergency priority, graph routing, movement, congestion/incident response, metrics, and text/CSV reporting are planned. None should be considered implemented until its behavior and evidence are added.
+Use focused feature branches, meaningful commits, and teammate review before merge.
+Local tests, CI configuration, and successful remote CI runs are separate evidence.
