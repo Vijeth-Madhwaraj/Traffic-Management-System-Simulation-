@@ -51,3 +51,21 @@ jobs:
         run: cmake -S . -B build-analysis -DBUILD_TESTING=OFF -DTRAFFIC_ENABLE_ANALYZER=ON -DCMAKE_CXX_COMPILER=g++
       - name: Analyze project sources and fail on warnings
         run: cmake --build build-analysis --parallel 2
+
+  checks:
+    # Preserve the status name required by the repository's branch protection.
+    name: Basic CI Check
+    needs: [signal-tests, linux-tests, static-analysis]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every CI job to succeed
+        env:
+          WINDOWS_RESULT: ${{ needs.signal-tests.result }}
+          LINUX_RESULT: ${{ needs.linux-tests.result }}
+          ANALYSIS_RESULT: ${{ needs.static-analysis.result }}
+        run: |
+          test "$WINDOWS_RESULT" = success
+          test "$LINUX_RESULT" = success
+          test "$ANALYSIS_RESULT" = success
