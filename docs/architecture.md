@@ -11,14 +11,42 @@
 - `MetricsCollector` records counters and exports a summary.
 - `main` is the console entry point; parsing and user interaction should stay outside domain modules.
 
-## Shared decisions to settle before feature work
+## Vehicle/input contract (FR-01–FR-04)
 
-1. Whether a road is a directed edge and how multiple lanes are represented.
-2. What occupancy/capacity means and whether vehicles consume capacity during travel.
-3. Tick order and when arrivals, signal transitions, movement, and metrics are recorded.
-4. Movement identifiers and the conflict-free phase table per intersection.
-5. Whether yellow/all-red clearance is modeled and how emergency priority is requested safely.
-6. Scenario file format and the minimum standard demo network.
+- Roads are directed edges. Entry lanes are FIFO waiting queues keyed by lane ID;
+  their capacity is separate from occupancy while traveling. Scenario lanes reference
+  their entry road and have capacity no greater than that road's capacity.
+- `ScenarioLoader` returns a validated `Scenario` value. `Simulation::configureScenario`
+  constructs replacement state before applying it, so invalid setup preserves the old run.
+- `VehicleManager` owns IDs, vehicle templates, seeded RNG, entry queues and pending arrivals.
+  Configure topology, then lanes, then schedules/streams. IDs start at 1 after reset.
+- `generate(tick)` is an isolated generation API. Integrated callers use
+  `advanceArrivals(tick, routes)` instead; mixing the two APIs in a run is rejected.
+  Ticks start at zero and are consecutive; duplicate calls for the latest tick are no-ops.
+- Scheduled arrivals run in stable tick/file order, followed by streams in sorted ID order.
+  Each active stream consumes one RNG draw per tick, including probability 0 or 1.
+  Compare the upper 32 bits of `mt19937_64` against `floor(probability * 2^32)`.
+- Admission uses supplied validated routes or invokes `RouteProvider(source, destination)`.
+  Providers must return an enabled connected route beginning on the configured entry road.
+  An empty route marks the vehicle `Unroutable`; invalid nonempty routes reject the tick.
+  Provider failure does not consume the arrival or advance RNG state.
+- Full queues retain pending IDs in FIFO order. Each tick admits old pending vehicles
+  before newer vehicles; emergency class uses the same FIFO policy.
+- `lane(id)` exposes front/pop for movement integration. Reacquire lane/vehicle pointers
+  after `advanceArrivals`, reset, or reconfiguration; those operations may replace storage.
+  After removing an ID, the movement owner updates its registry state and road occupancy.
+- `Simulation::step()` applies incidents, generates/admit arrivals, advances signals, calls
+  movement, observes queues, then increments the tick. Congestion measurement belongs before
+  signals; waiting/travel/complete-trip metrics remain integration work after movement.
+- `run()` continues from the current tick; repeated calls at completion do nothing. `reset()`
+  reloads the original scenario and restores seeded input state while retaining an injected
+  route provider. Loading another scenario clears an injected provider.
+- The CLI reports cumulative admission and current queue/pending/unroutable counts. Admission
+  is not completion. A run ends at its configured duration even with pending vehicles.
+
+Scenario grammar, bounds, and examples are in [`../config/README.md`](../config/README.md).
+Signal movement IDs and complete conflict tables remain the intersection owner's contract;
+adaptive timing and safe emergency-priority behavior remain separate features.
 
 ## Signal module integration contract (FR-05 / FR-06)
 

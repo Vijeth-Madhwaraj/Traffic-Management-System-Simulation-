@@ -1,0 +1,17 @@
+# Aarya's entry-queue demo: explicit routes allow admission while routing is pending.
+scenario 1
+seed 42
+duration 6
+intersection A
+intersection B
+intersection C
+intersection D
+road AB A B 2 1
+road BC B C 2 1
+road CD C D 2 1
+lane entry AB 1
+phase B 3 1 1 AB-to-BC
+phase C 3 1 1 BC-to-CD
+arrival 0 entry D standard AB BC CD
+arrival 0 entry D emergency AB BC CD
+arrival 1 entry D standard AB BC CD

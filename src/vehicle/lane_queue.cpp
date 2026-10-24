@@ -1,14 +1,29 @@
 #include "traffic/vehicle/lane_queue.hpp"
 
+#include <stdexcept>
+
 namespace traffic {
 
-LaneQueue::LaneQueue(std::size_t capacity) : capacity_(capacity) {}
+LaneQueue::LaneQueue(std::size_t capacity) : capacity_(capacity) {
+    if (capacity == 0) throw std::invalid_argument("Lane capacity must be positive");
+}
 
 bool LaneQueue::enqueue(VehicleId vehicleId) {
     if (!hasSpace()) return false;
     vehicles_.push_back(vehicleId);
     return true;
 }
+
+std::optional<VehicleId> LaneQueue::front() const noexcept {
+    if (vehicles_.empty()) return std::nullopt;
+    return vehicles_.front();
+}
+std::optional<VehicleId> LaneQueue::pop() noexcept {
+    const auto id = front();
+    if (id) vehicles_.pop_front();
+    return id;
+}
+void LaneQueue::clear() noexcept { vehicles_.clear(); }
 
 bool LaneQueue::empty() const noexcept { return vehicles_.empty(); }
 bool LaneQueue::hasSpace() const noexcept { return vehicles_.size() < capacity_; }

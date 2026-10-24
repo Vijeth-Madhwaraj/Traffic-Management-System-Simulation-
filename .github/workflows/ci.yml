@@ -22,8 +22,50 @@ jobs:
       - name: Configure CMake and fetch GoogleTest
         run: cmake -S . -B build -DBUILD_TESTING=ON
 
-      - name: Build application and signal tests
+      - name: Build application and tests
         run: cmake --build build --config Debug --parallel
 
-      - name: Run signal tests with CTest
+      - name: Run all tests with CTest
         run: ctest --test-dir build -C Debug --output-on-failure
+
+  linux-tests:
+    name: Vehicle input and signal tests (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure C++17 Debug build
+        run: cmake -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cmake --build build --parallel 2
+      - name: Run unit, integration, and CLI tests
+        run: ctest --test-dir build --output-on-failure
+
+  static-analysis:
+    name: Clang static analysis (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang analyzer
+        run: cmake -S . -B build-analysis -DBUILD_TESTING=OFF -DTRAFFIC_ENABLE_ANALYZER=ON -DCMAKE_CXX_COMPILER=g++
+      - name: Analyze project sources and fail on warnings
+        run: cmake --build build-analysis --parallel 2
+
+  checks:
+    # Preserve the status name required by the repository's branch protection.
+    name: Basic CI Check
+    needs: [signal-tests, linux-tests, static-analysis]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every CI job to succeed
+        env:
+          WINDOWS_RESULT: ${{ needs.signal-tests.result }}
+          LINUX_RESULT: ${{ needs.linux-tests.result }}
+          ANALYSIS_RESULT: ${{ needs.static-analysis.result }}
+        run: |
+          test "$WINDOWS_RESULT" = success
+          test "$LINUX_RESULT" = success
+          test "$ANALYSIS_RESULT" = success
