@@ -12,13 +12,16 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 | FR-05 | `SignalController::configure`, `SignalController::status` | TC-05 (planned), UT-VI01, UT-VI04 |
 | FR-06 | `SignalController::advance`, `SignalController::permits` | TC-06 (planned), UT-VI02, UT-VI03, UT-VI04, UT-VI08 |
 | FR-07, FR-08 | `SignalController` (planned) | UT-VI05 to UT-VI07, UT-VI10 |
-| FR-09, FR-12 | `RoadNetwork` | UT-VA01 to UT-VA04 |
+| FR-09 | `RoadNetwork` | UT-VA01, UT-VA11; `vaibhav-fr09-test-cases.md` (passed in Windows/Linux CI) |
+| FR-12 | `RoadNetwork` | UT-VA02 to UT-VA04 (planned) |
 | FR-10, FR-11 | `MovementEngine` | UT-VA05 to UT-VA10 |
 | FR-13 to FR-15 | `IncidentManager` and congestion policy | UT-VN01 to UT-VN06 |
 | FR-16, FR-17 | `MetricsCollector` and report output | UT-VN07 to UT-VN10 |
 
 The FR-05/06 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; their automated tests are in `tests/unit/signals/signal_controller_test.cpp`. The signal matrix records a prior eight-test MinGW GCC Windows pass; the current Linux run also passed those eight tests. FR-07/08 tests remain blocked pending implementation. Remote CI for this feature branch has not run. Add integration/system results as work lands; keep NFR coverage visible in the validation plans.
 
+
+FR-09–FR-12 planned case details are in [Vaibhav's test matrix](vaibhav-test-matrix.md). They remain blocked: `RoadNetwork::shortestRoute` and `MovementEngine::advance` are currently stubs, and automated test sources for these modules have not yet been added.
 
 ## Aarya implementation evidence
 

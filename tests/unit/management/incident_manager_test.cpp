@@ -9,6 +9,8 @@ using namespace traffic;
 
 TEST(IncidentManagerTest, BlocksAndRestoresRoadAtHalfOpenInterval) {
     RoadNetwork network;
+    ASSERT_TRUE(network.addIntersection("A"));
+    ASSERT_TRUE(network.addIntersection("B"));
     ASSERT_TRUE(network.addRoad({"r1", "A", "B", 10, 1, 0, true}));
 
     IncidentManager manager;
@@ -26,6 +28,8 @@ TEST(IncidentManagerTest, BlocksAndRestoresRoadAtHalfOpenInterval) {
 
 TEST(IncidentManagerTest, PreservesInitiallyDisabledRoad) {
     RoadNetwork network;
+    ASSERT_TRUE(network.addIntersection("A"));
+    ASSERT_TRUE(network.addIntersection("B"));
     ASSERT_TRUE(network.addRoad({"r1", "A", "B", 10, 1, 0, false}));
 
     IncidentManager manager;

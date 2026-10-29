@@ -118,6 +118,16 @@ if(BUILD_TESTING)
         PRIVATE traffic_core GTest::gtest_main
     )
 
+    # Road network unit tests
+    add_executable(traffic_network_tests
+        tests/unit/network/road_network_test.cpp
+    )
+
+    target_link_libraries(
+        traffic_network_tests
+        PRIVATE traffic_core GTest::gtest_main
+    )
+
     include(GoogleTest)
 
     gtest_discover_tests(
@@ -132,6 +142,11 @@ if(BUILD_TESTING)
 
     gtest_discover_tests(
         traffic_management_tests
+        DISCOVERY_MODE PRE_TEST
+    )
+
+    gtest_discover_tests(
+        traffic_network_tests
         DISCOVERY_MODE PRE_TEST
     )
 
