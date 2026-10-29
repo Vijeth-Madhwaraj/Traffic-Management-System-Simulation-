@@ -2,8 +2,17 @@
 
 namespace traffic {
 
+bool RoadNetwork::addIntersection(const IntersectionId& id) {
+    return !id.empty() && intersections_.insert(id).second;
+}
+
+bool RoadNetwork::hasIntersection(const IntersectionId& id) const noexcept {
+    return intersections_.count(id) != 0;
+}
+
 bool RoadNetwork::addRoad(Road road) {
-    if (road.id.empty() || road.from.empty() || road.to.empty() || road.capacity == 0 || road.travelTime == 0) return false;
+    if (road.id.empty() || !hasIntersection(road.from) || !hasIntersection(road.to) ||
+        road.capacity == 0 || road.travelTime == 0 || road.occupancy > road.capacity) return false;
     return roads_.emplace(road.id, std::move(road)).second;
 }
 
