@@ -12,8 +12,10 @@ add_library(traffic_core
     src/signals/signal_controller.cpp
     src/network/road_network.cpp
     src/network/movement_engine.cpp
+    src/management/congestion_detector.cpp
     src/management/incident_manager.cpp
     src/management/metrics_collector.cpp
+    src/management/report_writer.cpp
     src/simulation/simulation.cpp
 )
 target_include_directories(traffic_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -78,12 +80,30 @@ if(BUILD_TESTING)
     )
     target_link_libraries(traffic_vehicle_tests PRIVATE traffic_core GTest::gtest_main)
 
+    add_executable(traffic_management_tests
+        tests/unit/management/congestion_detector_test.cpp
+        tests/unit/management/incident_manager_test.cpp
+        tests/unit/management/metrics_collector_test.cpp
+        tests/unit/management/report_writer_test.cpp
+        tests/unit/network/routing_test.cpp
+        tests/unit/network/movement_engine_test.cpp
+    )
+    target_link_libraries(traffic_management_tests PRIVATE traffic_core GTest::gtest_main)
+
+    add_executable(traffic_incident_metrics_integration_tests
+        tests/integration/incident_metrics_integration_test.cpp
+    )
+    target_link_libraries(traffic_incident_metrics_integration_tests PRIVATE traffic_core GTest::gtest_main)
+    target_compile_definitions(traffic_incident_metrics_integration_tests PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
     include(GoogleTest)
     gtest_discover_tests(traffic_signal_tests DISCOVERY_MODE PRE_TEST)
     gtest_discover_tests(traffic_vehicle_tests DISCOVERY_MODE PRE_TEST)
+    gtest_discover_tests(traffic_management_tests DISCOVERY_MODE PRE_TEST)
+    gtest_discover_tests(traffic_incident_metrics_integration_tests DISCOVERY_MODE PRE_TEST)
     add_test(NAME cli_help COMMAND traffic_sim --help)
     add_test(NAME cli_scheduled_demo COMMAND traffic_sim --scenario ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt)
-    set_tests_properties(cli_scheduled_demo PROPERTIES PASS_REGULAR_EXPRESSION "Deferred: 2")
+set_tests_properties(cli_scheduled_demo PROPERTIES PASS_REGULAR_EXPRESSION "Vehicles Completed")
     add_test(NAME cli_seeded_demo COMMAND traffic_sim --scenario ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt)
     add_test(NAME cli_missing_file COMMAND traffic_sim --scenario ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt)
     set_tests_properties(cli_missing_file PROPERTIES WILL_FAIL TRUE)

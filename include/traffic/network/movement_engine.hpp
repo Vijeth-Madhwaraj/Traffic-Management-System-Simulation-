@@ -4,6 +4,8 @@
 #include "traffic/signals/signal_controller.hpp"
 #include "traffic/vehicle/vehicle_manager.hpp"
 
+#include <unordered_map>
+
 namespace traffic {
 
 class MovementEngine {
@@ -12,6 +14,9 @@ public:
     // each intersection's SignalPhase plan. Check permits() immediately before
     // crossing; it denies unknown movements and all Yellow/Red states.
     void advance(Tick now, RoadNetwork& network, SignalController& signals, VehicleManager& vehicles);
+
+private:
+    std::unordered_map<VehicleId, Tick> enteredRoadAt_;
 };
 
 }  // namespace traffic

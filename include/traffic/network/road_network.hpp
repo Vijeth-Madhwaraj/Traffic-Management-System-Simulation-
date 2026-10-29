@@ -15,6 +15,9 @@ public:
     Road* findRoad(const RoadId& id) noexcept;
     std::vector<RoadId> shortestRoute(const IntersectionId& from, const IntersectionId& to) const;
 
+    const std::unordered_map<RoadId, Road>& roads() const noexcept { return roads_; }
+    std::vector<RoadId> allRoadIds() const;
+
 private:
     std::unordered_map<RoadId, Road> roads_;
 };

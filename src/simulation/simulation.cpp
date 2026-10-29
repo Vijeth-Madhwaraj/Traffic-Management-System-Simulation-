@@ -23,6 +23,11 @@ void Simulation::configureScenario(const Scenario& scenario) {
     *this = std::move(replacement);
 }
 
+void Simulation::scheduleIncident(Incident incident) {
+    if (currentTick_ != 0) throw std::logic_error("Schedule incidents before starting simulation");
+    incidents_.schedule(std::move(incident));
+}
+
 void Simulation::setRouteProvider(RouteProvider provider) {
     if (currentTick_ != 0) throw std::logic_error("Set route provider before starting simulation");
     routeProvider_ = std::move(provider);
@@ -38,7 +43,7 @@ void Simulation::configureSignals(const IntersectionId& intersection,
 AdmissionBatch Simulation::step() {
     if (!scenario_) throw std::logic_error("Load a scenario before running simulation");
     if (currentTick_ >= config_.duration) return {};
-    incidents_.advance(currentTick_, network_);
+    incidents_.advance(currentTick_, network_, vehicles_);
     const RouteProvider routes = routeProvider_ ? routeProvider_ : RouteProvider{
         [this](const IntersectionId& source, const IntersectionId& destination) {
             return network_.shortestRoute(source, destination);
@@ -47,10 +52,23 @@ AdmissionBatch Simulation::step() {
     admitted_ += arrivals.admitted.size();
     unroutable_ += arrivals.unroutable.size();
     for (std::size_t index = 0; index < arrivals.generated.size(); ++index) metrics_.recordGenerated();
-    // Congestion measurement belongs here when that module is implemented.
+    // FR-13: measure congestion before signal advancement, as specified by the tick design.
+    lastCongestionReport_ = congestionDetector_.evaluate(network_, vehicles_, scenario_->lanes);
+    if (lastCongestionReport_.hasCongestion() && !wasCongested_) metrics_.recordCongestionEvent();
+    wasCongested_ = lastCongestionReport_.hasCongestion();
     signals_.advance(currentTick_);
     movement_.advance(currentTick_, network_, signals_, vehicles_);
-    for (const auto& lane : scenario_->lanes) metrics_.observeQueue(vehicles_.lane(lane.id)->size());
+    // Record a completed trip once, when the movement subsystem marks it complete.
+    for (VehicleId id = 1; id <= vehicles_.size(); ++id) {
+        const auto* vehicle = vehicles_.find(id);
+        if (vehicle && vehicle->state == VehicleState::Completed) {
+            metrics_.recordCompletedVehicle(id, vehicle->waitingTicks);
+        }
+    }
+    for (const auto& lane : scenario_->lanes) {
+        const auto* queue = vehicles_.lane(lane.id);
+        if (queue) metrics_.observeQueue(queue->size());
+    }
     ++currentTick_;
     return arrivals;
 }
@@ -63,15 +81,19 @@ void Simulation::run() {
 void Simulation::reset() {
     if (!scenario_) throw std::logic_error("Load a scenario before resetting simulation");
     const auto scenario = *scenario_;
+    const auto scheduledIncidents = incidents_.incidents();
     auto provider = routeProvider_;
     configureScenario(scenario);
     routeProvider_ = std::move(provider);
+    for (const auto& incident : scheduledIncidents) incidents_.schedule(incident);
 }
 
 InputSummary Simulation::inputSummary() const noexcept {
     return {vehicles_.size(), admitted_, vehicles_.queuedCount(), vehicles_.pendingCount(), unroutable_};
 }
 const VehicleManager& Simulation::vehicles() const noexcept { return vehicles_; }
+MetricsSnapshot Simulation::metricsSnapshot() const noexcept { return metrics_.snapshot(); }
+CongestionReport Simulation::congestionReport() const { return lastCongestionReport_; }
 Tick Simulation::currentTick() const noexcept { return currentTick_; }
 
 }  // namespace traffic

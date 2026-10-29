@@ -55,6 +55,8 @@ public:
     AdmissionBatch advanceArrivals(Tick now, const RouteProvider& routes);
     LaneQueue* lane(const std::string& id) noexcept;
     const LaneQueue* lane(const std::string& id) const noexcept;
+    std::vector<std::string> laneIds() const;
+    std::optional<RoadId> entryRoad(const std::string& laneId) const noexcept;
     std::size_t pendingCount() const noexcept;
     std::size_t queuedCount() const noexcept;
     void setSchedule(std::vector<ScheduledArrival> arrivals);

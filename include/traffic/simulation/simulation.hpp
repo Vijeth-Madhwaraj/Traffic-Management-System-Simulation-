@@ -1,6 +1,7 @@
 #pragma once
 
 #include "traffic/input/scenario.hpp"
+#include "traffic/management/congestion_detector.hpp"
 #include "traffic/management/incident_manager.hpp"
 #include "traffic/management/metrics_collector.hpp"
 #include "traffic/network/movement_engine.hpp"
@@ -22,10 +23,13 @@ public:
     explicit Simulation(SimulationConfig config);
     void configureScenario(const Scenario& scenario);
     void setRouteProvider(RouteProvider provider);
+    void scheduleIncident(Incident incident);
     AdmissionBatch step();
     void reset();
     InputSummary inputSummary() const noexcept;
     const VehicleManager& vehicles() const noexcept;
+    MetricsSnapshot metricsSnapshot() const noexcept;
+    CongestionReport congestionReport() const;
     // Scenario/configuration owner uses this before run() to install the
     // intersection's validated phases and conflict table.
     void configureSignals(const IntersectionId& intersection,
@@ -49,6 +53,9 @@ private:
     MovementEngine movement_;
     IncidentManager incidents_;
     MetricsCollector metrics_;
+    CongestionDetector congestionDetector_;
+    CongestionReport lastCongestionReport_;
+    bool wasCongested_{};
 };
 
 }  // namespace traffic
