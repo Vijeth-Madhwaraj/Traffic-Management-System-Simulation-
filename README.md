@@ -41,7 +41,7 @@ cmake --build build-analysis --parallel 2
 
 - **Aarya:** scenario/vehicle input and lane queues, FR-01–FR-04; shared FR-18 reproducibility.
 - **Vijeth:** signal control, FR-05–FR-08.
-- **Vaibhav:** road network, routing, and movement, FR-09–FR-12.
+- **Vaibhav:** road network representation, FR-09 (implemented; [test evidence](docs/vaibhav-fr09-test-cases.md)); routing and movement, FR-10–FR-12.
 - **Vainik:** congestion, incidents, metrics, and reporting, FR-13–FR-17.
 
 See [architecture](docs/architecture.md), [requirement traceability](docs/traceability.md),
