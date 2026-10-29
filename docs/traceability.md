@@ -21,6 +21,8 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 The FR-05/06 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; their automated tests are in `tests/unit/signals/signal_controller_test.cpp`. The signal matrix records a prior eight-test MinGW GCC Windows pass; the current Linux run also passed those eight tests. FR-07/08 tests remain blocked pending implementation. Remote CI for this feature branch has not run. Add integration/system results as work lands; keep NFR coverage visible in the validation plans.
 
 
+FR-09–FR-12 planned case details are in [Vaibhav's test matrix](vaibhav-test-matrix.md). They remain blocked: `RoadNetwork::shortestRoute` and `MovementEngine::advance` are currently stubs, and automated test sources for these modules have not yet been added.
+
 ## Aarya implementation evidence
 
 See [Aarya's matrix](aarya-test-matrix.md) for source/test mapping, execution environment,
