@@ -14,6 +14,10 @@ void Simulation::configureScenario(const Scenario& scenario) {
     replacement.vehicles_.configureLanes(scenario.lanes);
     replacement.vehicles_.setSchedule(scenario.arrivals);
     replacement.vehicles_.setStreams(scenario.streams);
+    for (const auto& intersection : scenario.intersections) {
+        if (!replacement.network_.addIntersection(intersection))
+            throw std::invalid_argument("Invalid scenario intersection");
+    }
     for (const auto& road : scenario.roads) {
         if (!replacement.network_.addRoad(road)) throw std::invalid_argument("Invalid scenario road");
     }
