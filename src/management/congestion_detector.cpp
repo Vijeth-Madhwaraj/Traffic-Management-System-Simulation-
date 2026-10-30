@@ -8,19 +8,9 @@
 namespace traffic {
 
 CongestionDetector::CongestionDetector(
-    CongestionThresholds thresholds) noexcept
+    CongestionThresholds thresholds)
     : thresholds_(thresholds) {
-    if (!std::isfinite(thresholds_.roadOccupancyRatio) ||
-        thresholds_.roadOccupancyRatio < 0.0 ||
-        thresholds_.roadOccupancyRatio > 1.0) {
-        thresholds_.roadOccupancyRatio = 0.8;
-    }
-
-    if (!std::isfinite(thresholds_.queueOccupancyRatio) ||
-        thresholds_.queueOccupancyRatio < 0.0 ||
-        thresholds_.queueOccupancyRatio > 1.0) {
-        thresholds_.queueOccupancyRatio = 0.8;
-    }
+    setThresholds(thresholds);
 }
 
 void CongestionDetector::setThresholds(

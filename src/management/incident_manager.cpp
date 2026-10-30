@@ -29,6 +29,14 @@ void IncidentManager::advance(Tick now, RoadNetwork& network) {
         }
     }
 
+    // Validate every active reference before changing any road or manager state.
+    for (const auto& roadId : desiredBlocked) {
+        if (network.findRoad(roadId) == nullptr) {
+            throw std::invalid_argument(
+                "Active incident references unknown road: " + roadId);
+        }
+    }
+
     // Restore roads whose incidents have expired.
     for (const auto& roadId : currentlyBlockedRoads_) {
         if (desiredBlocked.find(roadId) == desiredBlocked.end()) {
@@ -44,12 +52,11 @@ void IncidentManager::advance(Tick now, RoadNetwork& network) {
 
     // Block roads for newly active incidents.
     for (const auto& roadId : desiredBlocked) {
-        if (auto* road = network.findRoad(roadId)) {
-            if (currentlyBlockedRoads_.find(roadId) ==
-                currentlyBlockedRoads_.end()) {
-                originalRoadState_.emplace(roadId, road->enabled);
-                road->enabled = false;
-            }
+        auto* road = network.findRoad(roadId);
+        if (currentlyBlockedRoads_.find(roadId) ==
+            currentlyBlockedRoads_.end()) {
+            originalRoadState_.emplace(roadId, road->enabled);
+            road->enabled = false;
         }
     }
 
@@ -79,7 +86,12 @@ std::size_t IncidentManager::activeIncidentCount(Tick now) const noexcept {
     return count;
 }
 
-void IncidentManager::clear() noexcept {
+void IncidentManager::clear(RoadNetwork& network) {
+    for (const auto& [roadId, wasEnabled] : originalRoadState_) {
+        if (auto* road = network.findRoad(roadId)) {
+            road->enabled = wasEnabled;
+        }
+    }
     incidents_.clear();
     originalRoadState_.clear();
     currentlyBlockedRoads_.clear();
