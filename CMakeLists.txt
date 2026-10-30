@@ -80,6 +80,7 @@ if(BUILD_TESTING)
 
     add_executable(traffic_network_tests
         tests/unit/network/road_network_test.cpp
+        tests/unit/network/movement_engine_test.cpp
     )
     target_link_libraries(traffic_network_tests PRIVATE traffic_core GTest::gtest_main)
 

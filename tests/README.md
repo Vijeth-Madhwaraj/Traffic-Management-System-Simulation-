@@ -1,7 +1,8 @@
 # Automated tests
 
-The suite includes Vijeth's signal tests and Aarya's vehicle, lane, scenario, integration,
-and CLI tests. GoogleTest v1.15.2 is fetched on first configure and registered with CTest.
+The suite includes Vijeth's signal tests, Aarya's vehicle, lane, scenario, integration and CLI
+tests, and Vaibhav's road-network and movement tests. GoogleTest v1.15.2 is fetched on first
+configure and registered with CTest.
 
 ## Linux
 
@@ -23,8 +24,9 @@ For offline testing with a previously downloaded GoogleTest source tree, configu
 `-DFETCHCONTENT_SOURCE_DIR_GOOGLETEST=/path/to/googletest`. Disabling `BUILD_TESTING` builds
 only the application and does not establish test results.
 
-See [Aarya's matrix](../docs/aarya-test-matrix.md) for the 38-case Linux run and remaining
-integration/NFR work. Full movement, incident and metric acceptance remains blocked.
+See [Aarya's matrix](../docs/aarya-test-matrix.md) for the recorded input-module run and
+remaining integration/NFR work. Explicit-route movement has unit coverage; automatic routing,
+full lane-capacity, incident and trip-metric acceptance remain in progress.
 
 ## Windows PowerShell (local MinGW toolchain)
 

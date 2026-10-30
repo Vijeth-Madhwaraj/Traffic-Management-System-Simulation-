@@ -53,6 +53,7 @@ public:
     void validateVehicle(const Vehicle& vehicle) const;
     void configureLanes(std::vector<EntryLane> lanes);
     AdmissionBatch advanceArrivals(Tick now, const RouteProvider& routes);
+    std::vector<EntryLane> entryLanes() const;
     LaneQueue* lane(const std::string& id) noexcept;
     const LaneQueue* lane(const std::string& id) const noexcept;
     std::size_t pendingCount() const noexcept;

@@ -106,6 +106,12 @@ LaneQueue* VehicleManager::lane(const std::string& id) noexcept {
     const auto found = lanes_.find(id);
     return found == lanes_.end() ? nullptr : &found->second.queue;
 }
+std::vector<EntryLane> VehicleManager::entryLanes() const {
+    std::vector<EntryLane> result;
+    result.reserve(lanes_.size());
+    for (const auto& entry : lanes_) result.push_back(entry.second.spec);
+    return result;
+}
 const LaneQueue* VehicleManager::lane(const std::string& id) const noexcept {
     const auto found = lanes_.find(id);
     return found == lanes_.end() ? nullptr : &found->second.queue;

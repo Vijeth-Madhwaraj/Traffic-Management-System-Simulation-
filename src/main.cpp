@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Generated: " << summary.generated << "\nAdmitted to entry queues: " << summary.admitted
                   << "\nQueued: " << summary.queued << "\nDeferred: " << summary.pending
                   << "\nUnroutable: " << summary.unroutable << '\n'
-                  << "Movement and automatic routing are pending implementation; trip completion is not verified.\n";
+                  << "Explicit-route movement is enabled; automatic routing and completed-trip reporting remain pending.\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "[ERROR][Scenario] " << error.what() << '\n';
