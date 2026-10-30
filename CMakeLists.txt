@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.16)
 project(TrafficManagementSimulation VERSION 0.1.0 LANGUAGES CXX)
 
@@ -13,10 +14,15 @@ add_library(traffic_core
     src/network/road_network.cpp
     src/network/movement_engine.cpp
     src/management/incident_manager.cpp
+    src/management/congestion_detector.cpp
     src/management/metrics_collector.cpp
     src/simulation/simulation.cpp
 )
-target_include_directories(traffic_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_include_directories(traffic_core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 target_compile_options(traffic_core PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
 )
@@ -24,27 +30,41 @@ target_compile_options(traffic_core PRIVATE
 add_executable(traffic_sim src/main.cpp)
 target_link_libraries(traffic_sim PRIVATE traffic_core)
 
-option(TRAFFIC_ENABLE_ANALYZER "Run Clang static analysis and treat project warnings as errors" OFF)
+option(
+    TRAFFIC_ENABLE_ANALYZER
+    "Run Clang static analysis and treat project warnings as errors"
+    OFF
+)
+
 if(TRAFFIC_ENABLE_ANALYZER)
     find_program(TRAFFIC_CLANGXX NAMES clang++)
+
     if(NOT TRAFFIC_CLANGXX)
         message(FATAL_ERROR "TRAFFIC_ENABLE_ANALYZER requires clang++")
     endif()
+
     foreach(target traffic_core traffic_sim)
         target_compile_options(${target} PRIVATE
-            $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Werror>)
+            $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Werror>
+        )
     endforeach()
+
     add_custom_target(traffic_analyze ALL)
     get_target_property(analysis_sources traffic_core SOURCES)
     list(APPEND analysis_sources src/main.cpp)
+
     foreach(source IN LISTS analysis_sources)
         get_filename_component(source_name "${source}" NAME_WE)
+
         add_custom_command(TARGET traffic_analyze POST_BUILD
             COMMAND ${TRAFFIC_CLANGXX} --analyze -std=c++17
-                -I${CMAKE_CURRENT_SOURCE_DIR}/include -Wall -Wextra -Wpedantic -Werror
-                -Xanalyzer -analyzer-werror ${CMAKE_CURRENT_SOURCE_DIR}/${source}
+                -I${CMAKE_CURRENT_SOURCE_DIR}/include
+                -Wall -Wextra -Wpedantic -Werror
+                -Xanalyzer -analyzer-werror
+                ${CMAKE_CURRENT_SOURCE_DIR}/${source}
                 -o ${CMAKE_CURRENT_BINARY_DIR}/analysis-${source_name}.plist
-            VERBATIM)
+            VERBATIM
+        )
     endforeach()
 endif()
 
@@ -57,18 +77,24 @@ if(BUILD_TESTING)
     # Pin a release tag so local and CI builds use the same test framework.
     set(gtest_force_shared_crt ON CACHE BOOL "Use the shared MSVC runtime" FORCE)
     set(BUILD_GMOCK OFF CACHE BOOL "Do not build Google Mock for these unit tests" FORCE)
+
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
         GIT_TAG v1.15.2
         GIT_SHALLOW TRUE
     )
+
     FetchContent_MakeAvailable(googletest)
 
     add_executable(traffic_signal_tests
         tests/unit/signals/signal_controller_test.cpp
     )
-    target_link_libraries(traffic_signal_tests PRIVATE traffic_core GTest::gtest_main)
+
+    target_link_libraries(
+        traffic_signal_tests
+        PRIVATE traffic_core GTest::gtest_main
+    )
 
     add_executable(traffic_vehicle_tests
         tests/unit/vehicle/vehicle_manager_test.cpp
@@ -76,23 +102,94 @@ if(BUILD_TESTING)
         tests/unit/input/scenario_test.cpp
         tests/integration/scenario_input_test.cpp
     )
-    target_link_libraries(traffic_vehicle_tests PRIVATE traffic_core GTest::gtest_main)
 
+    target_link_libraries(
+        traffic_vehicle_tests
+        PRIVATE traffic_core GTest::gtest_main
+    )
+
+    add_executable(traffic_management_tests
+        tests/unit/management/congestion_detector_test.cpp
+        tests/unit/management/incident_manager_test.cpp
+    )
+
+    target_link_libraries(
+        traffic_management_tests
+        PRIVATE traffic_core GTest::gtest_main
+    )
+
+    # Road network unit tests
     add_executable(traffic_network_tests
         tests/unit/network/road_network_test.cpp
     )
-    target_link_libraries(traffic_network_tests PRIVATE traffic_core GTest::gtest_main)
+
+    target_link_libraries(
+        traffic_network_tests
+        PRIVATE traffic_core GTest::gtest_main
+    )
 
     include(GoogleTest)
-    gtest_discover_tests(traffic_signal_tests DISCOVERY_MODE PRE_TEST)
-    gtest_discover_tests(traffic_vehicle_tests DISCOVERY_MODE PRE_TEST)
-    gtest_discover_tests(traffic_network_tests DISCOVERY_MODE PRE_TEST)
-    add_test(NAME cli_help COMMAND traffic_sim --help)
-    add_test(NAME cli_scheduled_demo COMMAND traffic_sim --scenario ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt)
-    set_tests_properties(cli_scheduled_demo PROPERTIES PASS_REGULAR_EXPRESSION "Deferred: 2")
-    add_test(NAME cli_seeded_demo COMMAND traffic_sim --scenario ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt)
-    add_test(NAME cli_missing_file COMMAND traffic_sim --scenario ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt)
-    set_tests_properties(cli_missing_file PROPERTIES WILL_FAIL TRUE)
-    add_test(NAME cli_bad_arguments COMMAND traffic_sim --unknown)
-    set_tests_properties(cli_bad_arguments PROPERTIES WILL_FAIL TRUE)
+
+    gtest_discover_tests(
+        traffic_signal_tests
+        DISCOVERY_MODE PRE_TEST
+    )
+
+    gtest_discover_tests(
+        traffic_vehicle_tests
+        DISCOVERY_MODE PRE_TEST
+    )
+
+    gtest_discover_tests(
+        traffic_management_tests
+        DISCOVERY_MODE PRE_TEST
+    )
+
+    gtest_discover_tests(
+        traffic_network_tests
+        DISCOVERY_MODE PRE_TEST
+    )
+
+    add_test(
+        NAME cli_help
+        COMMAND traffic_sim --help
+    )
+
+    add_test(
+        NAME cli_scheduled_demo
+        COMMAND traffic_sim --scenario
+            ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+    )
+
+    set_tests_properties(
+        cli_scheduled_demo
+        PROPERTIES PASS_REGULAR_EXPRESSION "Deferred: 2"
+    )
+
+    add_test(
+        NAME cli_seeded_demo
+        COMMAND traffic_sim --scenario
+            ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt
+    )
+
+    add_test(
+        NAME cli_missing_file
+        COMMAND traffic_sim --scenario
+            ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt
+    )
+
+    set_tests_properties(
+        cli_missing_file
+        PROPERTIES WILL_FAIL TRUE
+    )
+
+    add_test(
+        NAME cli_bad_arguments
+        COMMAND traffic_sim --unknown
+    )
+
+    set_tests_properties(
+        cli_bad_arguments
+        PROPERTIES WILL_FAIL TRUE
+    )
 endif()
