@@ -37,8 +37,8 @@ public:
         return incidents_;
     }
 
-    // Clear incident state.
-    void clear() noexcept;
+    // Restore affected roads and clear all scheduled and active incidents.
+    void clear(RoadNetwork& network);
 
 private:
     std::vector<Incident> incidents_;

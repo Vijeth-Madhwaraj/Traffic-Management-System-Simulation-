@@ -33,7 +33,7 @@ struct CongestionReport {
 
 class CongestionDetector {
 public:
-    explicit CongestionDetector(CongestionThresholds thresholds = {}) noexcept;
+    explicit CongestionDetector(CongestionThresholds thresholds = {});
 
     void setThresholds(CongestionThresholds thresholds);
     const CongestionThresholds& thresholds() const noexcept;
