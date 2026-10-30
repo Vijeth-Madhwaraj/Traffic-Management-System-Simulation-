@@ -112,3 +112,28 @@ output, and rejection of mixed command modes. `cli_validate_invalid` and
 `cli_validate_missing` verify nonzero results for invalid data and unreadable files.
 Linux GCC 15.2 Debug build: **43/43 CTest cases passed**, including the existing signal
 and road-network tests. This extends FR-01; it does not add routing or movement functionality.
+
+
+## 30 October 2026: FR-04 queue safety and per-lane inspection
+
+Queue insertion now rejects ID zero and duplicate IDs already in the same queue without
+consuming capacity. IDs can re-enter after removal. `LaneQueue::snapshot()` and
+`VehicleManager::laneSnapshots()` expose independent FIFO snapshots, including deferred IDs
+and lane capacities; lanes are sorted by ID. `--scenario <file> --lane-status` displays this
+information on request. These snapshots do not establish global vehicle membership across
+lanes; placement remains owned by `VehicleManager`.
+
+Added tests:
+
+- `LaneQueueTest.FR04_RejectsZeroAndDuplicateIdsWithoutUsingCapacity`
+- `LaneQueueTest.FR04_SnapshotPreservesOrderWithoutExposingMutableStorage`
+- `VehicleInputTest.FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset`
+- `cli_lane_status` (also checks concise default output and rejection with validation mode)
+
+Linux GCC 15.2 C++17 Debug: **47/47 CTest cases passed**, including all current signal
+and road-network tests. The new work extends FR-01 and FR-04 already implemented in the
+previous PR; it does not claim two previously unimplemented requirements as newly complete.
+
+The 30 October warning-as-error build and Clang static analysis also passed: all 10
+project translation units produced zero findings. Remote CI for today's new branch has
+not run because these commits have not been pushed.

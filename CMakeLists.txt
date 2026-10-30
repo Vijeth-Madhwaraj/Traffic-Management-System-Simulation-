@@ -97,6 +97,10 @@ if(BUILD_TESTING)
     add_test(NAME cli_validate_missing COMMAND traffic_sim --validate
         ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt)
     set_tests_properties(cli_validate_missing PROPERTIES WILL_FAIL TRUE)
+    add_test(NAME cli_lane_status COMMAND ${CMAKE_COMMAND}
+        -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+        -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/lane_status_test.cmake)
     add_test(NAME cli_help COMMAND traffic_sim --help)
     add_test(NAME cli_scheduled_demo COMMAND traffic_sim --scenario ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt)
     set_tests_properties(cli_scheduled_demo PROPERTIES PASS_REGULAR_EXPRESSION "Deferred: 2")

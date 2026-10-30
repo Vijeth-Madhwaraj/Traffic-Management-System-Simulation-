@@ -8,7 +8,7 @@
 namespace {
 void help() {
     std::cout << "Traffic Management System (Simulation)\n"
-                 "Usage: traffic_sim --scenario <file>\n"
+                 "Usage: traffic_sim --scenario <file> [--lane-status]\n"
                  "       traffic_sim --validate <file>\n"
                  "       traffic_sim --help\n"
                  "Loads validated text scenarios and reports generated/queued/deferred arrivals.\n";
@@ -21,7 +21,10 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     const bool validateOnly = argc == 3 && std::string(argv[1]) == "--validate";
-    if (argc != 3 || (!validateOnly && std::string(argv[1]) != "--scenario")) {
+    const bool laneStatus = argc == 4 && std::string(argv[3]) == "--lane-status";
+    const bool runScenario = argc >= 2 && std::string(argv[1]) == "--scenario" &&
+                             (argc == 3 || laneStatus);
+    if (!validateOnly && !runScenario) {
         help();
         std::cerr << "[ERROR][Console] Supply --scenario <file>, --validate <file>, or --help.\n";
         return 2;
@@ -47,6 +50,17 @@ int main(int argc, char* argv[]) {
                   << "\nQueued: " << summary.queued << "\nDeferred: " << summary.pending
                   << "\nUnroutable: " << summary.unroutable << '\n'
                   << "Movement and automatic routing are pending implementation; trip completion is not verified.\n";
+        if (laneStatus) {
+            for (const auto& lane : simulation.vehicles().laneSnapshots()) {
+                std::cout << "Lane " << lane.id << " (road " << lane.road << "): queued="
+                          << lane.queued.size() << '/' << lane.capacity
+                          << ", deferred=" << lane.pending.size() << "\n  Queued IDs:";
+                for (const auto id : lane.queued) std::cout << ' ' << id;
+                std::cout << "\n  Deferred IDs:";
+                for (const auto id : lane.pending) std::cout << ' ' << id;
+                std::cout << '\n';
+            }
+        }
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "[ERROR][Scenario] " << error.what() << '\n';

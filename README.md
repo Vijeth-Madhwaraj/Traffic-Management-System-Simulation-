@@ -22,14 +22,16 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ./build/traffic_sim --validate config/demo_scenario.txt
-./build/traffic_sim --scenario config/demo_scenario.txt
+./build/traffic_sim --scenario config/demo_scenario.txt --lane-status
 ./build/traffic_sim --scenario config/seeded_scenario.txt
 ```
 
 `--validate <file>` checks the complete scenario and prints its configuration counts without
 generating vehicles or advancing the simulation. Invalid input returns a nonzero exit code.
 
-The scheduled demo generates 3 vehicles, admits 1, and defers 2. The seeded demo prints its
+The scheduled demo generates 3 vehicles, admits 1, and defers 2. Add `--lane-status` to
+show each lane's capacity, queued IDs, and deferred IDs in FIFO order. Without this flag,
+output remains a concise aggregate summary. The seeded demo prints its
 seed and generates a repeatable sequence. Explicit routes permit these input demonstrations
 while automatic routing is still a stub. See [scenario format](config/README.md).
 
