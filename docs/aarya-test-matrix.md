@@ -102,3 +102,13 @@ has not been performed locally.
 
 No full-trip, adaptive-signal, incident-response, completed-report, coverage percentage,
 or final acceptance claim is made by this branch.
+
+
+## 30 October 2026: FR-01 scenario preview
+
+`traffic_sim --validate <file>` validates and previews scenario configuration without
+starting the simulation. `cli_validate_only` checks the preview counts, absence of run
+output, and rejection of mixed command modes. `cli_validate_invalid` and
+`cli_validate_missing` verify nonzero results for invalid data and unreadable files.
+Linux GCC 15.2 Debug build: **43/43 CTest cases passed**, including the existing signal
+and road-network tests. This extends FR-01; it does not add routing or movement functionality.

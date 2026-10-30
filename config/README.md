@@ -1,6 +1,10 @@
 # Scenario configuration, version 1
 
 Run a file with `traffic_sim --scenario config/demo_scenario.txt`.
+Preview a scenario before running it with `traffic_sim --validate <file>`. This validates
+the same format and references, prints configuration counts, and exits without generating
+vehicles or consuming seeded arrivals. Invalid files return a nonzero exit code.
+
 Records are whitespace-separated; `#` begins a comment. IDs have no whitespace or `#`.
 The first non-comment record must be `scenario 1`; `seed` and `duration` are required once.
 Other records may reference definitions later in the file. Repeated `phase` records define

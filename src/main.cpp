@@ -9,6 +9,7 @@ namespace {
 void help() {
     std::cout << "Traffic Management System (Simulation)\n"
                  "Usage: traffic_sim --scenario <file>\n"
+                 "       traffic_sim --validate <file>\n"
                  "       traffic_sim --help\n"
                  "Loads validated text scenarios and reports generated/queued/deferred arrivals.\n";
 }
@@ -19,13 +20,24 @@ int main(int argc, char* argv[]) {
         help();
         return 0;
     }
-    if (argc != 3 || std::string(argv[1]) != "--scenario") {
+    const bool validateOnly = argc == 3 && std::string(argv[1]) == "--validate";
+    if (argc != 3 || (!validateOnly && std::string(argv[1]) != "--scenario")) {
         help();
-        std::cerr << "[ERROR][Console] Supply --scenario <file> or --help.\n";
+        std::cerr << "[ERROR][Console] Supply --scenario <file>, --validate <file>, or --help.\n";
         return 2;
     }
     try {
         const auto scenario = traffic::ScenarioLoader::loadFile(argv[2]);
+        if (validateOnly) {
+            std::cout << "Scenario valid\nSeed: " << scenario.config.seed
+                      << "\nDuration (ticks): " << scenario.config.duration
+                      << "\nIntersections: " << scenario.intersections.size()
+                      << "\nRoads: " << scenario.roads.size()
+                      << "\nEntry lanes: " << scenario.lanes.size()
+                      << "\nScheduled arrivals: " << scenario.arrivals.size()
+                      << "\nArrival streams: " << scenario.streams.size() << '\n';
+            return 0;
+        }
         traffic::Simulation simulation(scenario.config);
         simulation.configureScenario(scenario);
         std::cout << "Seed: " << scenario.config.seed << "\nDuration (ticks): " << scenario.config.duration << '\n';
