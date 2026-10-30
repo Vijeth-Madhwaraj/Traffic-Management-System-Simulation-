@@ -9,25 +9,30 @@ namespace traffic {
 namespace {
 Scenario fixture() {
     std::istringstream file(
-        "scenario 1\nseed 42\nduration 4\nintersection A\nintersection B\n"
-        "road AB A B 2 1\nlane entry AB 1\nphase A 2 1 1 AB\n"
-        "arrival 0 entry B standard AB\narrival 0 entry B emergency AB\n"
-        "arrival 1 entry B standard AB\n");
+        "scenario 1\nseed 42\nduration 6\nintersection A\nintersection B\nintersection C\n"
+        "road AB A B 2 1\nroad BC B C 2 1\nlane entry AB 1\n"
+        "phase B 2 1 1 AB-to-BC\n"
+        "arrival 0 entry C standard AB BC\narrival 0 entry C emergency AB BC\n"
+        "arrival 1 entry C standard AB BC\n");
     return ScenarioLoader::load(file);
 }
 
-TEST(ScenarioInputIntegrationTest, TC_01_TC_04_LoadsGeneratesAndDefersWithoutClaimingMovement) {
+TEST(ScenarioInputIntegrationTest, TC_01_TC_04_LoadsGeneratesAndMovesExplicitRoutes) {
     Simulation simulation({});
     simulation.configureScenario(fixture());
     EXPECT_EQ(simulation.step().generated, (std::vector<VehicleId>{1, 2}));
     simulation.run();
     const auto summary = simulation.inputSummary();
     EXPECT_EQ(summary.generated, 3U);
-    EXPECT_EQ(summary.admitted, 1U);
-    EXPECT_EQ(summary.queued, 1U);
-    EXPECT_EQ(summary.pending, 2U);
+    EXPECT_EQ(summary.admitted, 3U);
+    EXPECT_EQ(summary.queued, 0U);
+    EXPECT_EQ(summary.pending, 0U);
     EXPECT_EQ(summary.unroutable, 0U);
-    EXPECT_EQ(simulation.currentTick(), 4U);
+    EXPECT_EQ(simulation.currentTick(), 6U);
+    for (VehicleId id = 1; id <= 3; ++id) {
+        ASSERT_NE(simulation.vehicles().find(id), nullptr);
+        EXPECT_EQ(simulation.vehicles().find(id)->state, VehicleState::Completed);
+    }
     simulation.run();
     EXPECT_EQ(simulation.inputSummary().generated, 3U);
 }
@@ -83,8 +88,8 @@ TEST(ScenarioInputIntegrationTest, UsesInjectedRoutesAndReportsProductionRouting
     EXPECT_EQ(simulation.inputSummary().admitted, 0U);
     simulation.reset();
     simulation.setRouteProvider([](const auto& source, const auto& destination) {
-        EXPECT_EQ(source, "A"); EXPECT_EQ(destination, "B");
-        return std::vector<RoadId>{"AB"};
+        EXPECT_EQ(source, "A"); EXPECT_EQ(destination, "C");
+        return std::vector<RoadId>{"AB", "BC"};
     });
     simulation.run();
     EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
