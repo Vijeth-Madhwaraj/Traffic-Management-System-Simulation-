@@ -92,7 +92,8 @@ AdmissionBatch VehicleManager::advanceArrivals(Tick now, const RouteProvider& ro
         auto& state = entry.second;
         while (!state.pending.empty() && state.queue.hasSpace()) {
             const auto id = state.pending.front();
-            state.queue.enqueue(id);
+            if (!state.queue.enqueue(id))
+                throw std::logic_error("Pending vehicle is invalid or already queued");
             state.pending.pop_front();
             batch.admitted.push_back(id);
         }
@@ -110,6 +111,17 @@ const LaneQueue* VehicleManager::lane(const std::string& id) const noexcept {
     const auto found = lanes_.find(id);
     return found == lanes_.end() ? nullptr : &found->second.queue;
 }
+std::vector<EntryLaneSnapshot> VehicleManager::laneSnapshots() const {
+    std::vector<EntryLaneSnapshot> snapshots;
+    snapshots.reserve(lanes_.size());
+    for (const auto& entry : lanes_) {
+        const auto& state = entry.second;
+        snapshots.push_back({entry.first, state.spec.road, state.queue.capacity(),
+            state.queue.snapshot(), {state.pending.begin(), state.pending.end()}});
+    }
+    return snapshots;
+}
+
 std::size_t VehicleManager::pendingCount() const noexcept {
     std::size_t count = 0;
     for (const auto& entry : lanes_) count += entry.second.pending.size();

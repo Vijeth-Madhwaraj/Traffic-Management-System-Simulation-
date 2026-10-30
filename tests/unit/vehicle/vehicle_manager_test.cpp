@@ -166,5 +166,39 @@ TEST_F(VehicleInputTest, RejectsLaneMismatchAndUnknownLanesBeforeGeneration) {
     EXPECT_THROW(manager.setSchedule({{0, "entry", v}}), std::invalid_argument);
     EXPECT_EQ(manager.size(), 0U);
 }
+TEST_F(VehicleInputTest, FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset) {
+    manager.configureLanes({{"z-entry", "AB", 1}, {"a-entry", "AB", 1}});
+    manager.setSchedule({{0, "z-entry", vehicle()}, {0, "z-entry", vehicle()},
+                         {0, "a-entry", vehicle()}, {0, "a-entry", vehicle()}});
+    auto snapshots = manager.laneSnapshots();
+    ASSERT_EQ(snapshots.size(), 2U);
+    EXPECT_TRUE(snapshots[0].queued.empty());
+    EXPECT_TRUE(snapshots[0].pending.empty());
+    manager.advanceArrivals(0, {});
+    snapshots = manager.laneSnapshots();
+    EXPECT_EQ(snapshots[0].id, "a-entry");
+    EXPECT_EQ(snapshots[0].road, "AB");
+    EXPECT_EQ(snapshots[0].capacity, 1U);
+    EXPECT_EQ(snapshots[0].queued, (std::vector<VehicleId>{3}));
+    EXPECT_EQ(snapshots[0].pending, (std::vector<VehicleId>{4}));
+    EXPECT_EQ(snapshots[1].id, "z-entry");
+    EXPECT_EQ(snapshots[1].queued, (std::vector<VehicleId>{1}));
+    EXPECT_EQ(snapshots[1].pending, (std::vector<VehicleId>{2}));
+    snapshots[0].queued.clear();
+    snapshots[0].pending.clear();
+    EXPECT_EQ(manager.queuedCount(), 2U);
+    EXPECT_EQ(manager.pendingCount(), 2U);
+    EXPECT_EQ(manager.lane("a-entry")->pop(), 3U);
+    manager.advanceArrivals(1, {});
+    snapshots = manager.laneSnapshots();
+    EXPECT_EQ(snapshots[0].queued, (std::vector<VehicleId>{4}));
+    EXPECT_TRUE(snapshots[0].pending.empty());
+    EXPECT_EQ(snapshots[1].pending, (std::vector<VehicleId>{2}));
+    manager.reset();
+    for (const auto& lane : manager.laneSnapshots()) {
+        EXPECT_TRUE(lane.queued.empty());
+        EXPECT_TRUE(lane.pending.empty());
+    }
+}
 } // namespace
 } // namespace traffic

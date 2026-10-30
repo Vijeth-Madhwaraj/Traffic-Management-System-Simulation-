@@ -1,6 +1,10 @@
 # Scenario configuration, version 1
 
 Run a file with `traffic_sim --scenario config/demo_scenario.txt`.
+Preview a scenario before running it with `traffic_sim --validate <file>`. This validates
+the same format and references, prints configuration counts, and exits without generating
+vehicles or consuming seeded arrivals. Invalid files return a nonzero exit code.
+
 Records are whitespace-separated; `#` begins a comment. IDs have no whitespace or `#`.
 The first non-comment record must be `scenario 1`; `seed` and `duration` are required once.
 Other records may reference definitions later in the file. Repeated `phase` records define
@@ -29,7 +33,10 @@ does not change FIFO order or bypass signal safety.
 
 Lane capacity limits waiting vehicles, separately from road occupancy in transit. Each lane
 capacity must not exceed its entry road's capacity. Full queues defer arrivals with their
-original IDs; pending vehicles enter before new arrivals. No route is a controlled
+original IDs; pending vehicles enter before new arrivals. `--scenario <file> --lane-status`
+shows per-lane queue capacity, queued IDs, and deferred IDs without changing queue order.
+Queue insertion rejects ID zero and an ID already present in that same queue; rejected
+insertions do not consume capacity. No route is a controlled
 `Unroutable` result, not a full-lane condition.
 
 Limits: 1 MiB per file, 4096 bytes per line, 2–1024 intersections, 1–4096 roads and lanes,

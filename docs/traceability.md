@@ -33,3 +33,14 @@ cases, including the existing eight signal tests. FR-01–FR-04 input behavior i
 production automatic routing and full vehicle journeys remain blocked on FR-09–FR-12.
 Neither IT-01 nor IT-04 is claimed as passed. Module paths in the starter rows for other
 owners remain plans unless their specific evidence establishes otherwise.
+
+
+## 30 October 2026 input refinements
+
+- FR-01: `src/main.cpp` adds validation-only preview; `cli_validate_only`,
+  `cli_validate_invalid` and `cli_validate_missing` verify the new mode.
+- FR-04: `src/vehicle/lane_queue.cpp` rejects invalid/duplicate queued IDs and exposes
+  snapshots; `src/vehicle/vehicle_manager.cpp` exposes per-lane FIFO/pending state.
+  The `FR04_*` unit tests and `cli_lane_status` verify these behaviors.
+- All 47 current CTest cases passed on Linux. Existing 23 October results above are
+  historical execution evidence; see `aarya-test-matrix.md` for today's additions.

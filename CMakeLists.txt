@@ -127,69 +127,45 @@ if(BUILD_TESTING)
         traffic_network_tests
         PRIVATE traffic_core GTest::gtest_main
     )
-
     include(GoogleTest)
 
-    gtest_discover_tests(
-        traffic_signal_tests
-        DISCOVERY_MODE PRE_TEST
-    )
+    gtest_discover_tests(traffic_signal_tests DISCOVERY_MODE PRE_TEST)
+    gtest_discover_tests(traffic_vehicle_tests DISCOVERY_MODE PRE_TEST)
+    gtest_discover_tests(traffic_management_tests DISCOVERY_MODE PRE_TEST)
+    gtest_discover_tests(traffic_network_tests DISCOVERY_MODE PRE_TEST)
 
-    gtest_discover_tests(
-        traffic_vehicle_tests
-        DISCOVERY_MODE PRE_TEST
-    )
+    add_test(NAME cli_validate_only COMMAND ${CMAKE_COMMAND}
+        -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+        -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/validate_scenario_test.cmake)
 
-    gtest_discover_tests(
-        traffic_management_tests
-        DISCOVERY_MODE PRE_TEST
-    )
+    add_test(NAME cli_validate_invalid COMMAND traffic_sim --validate
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/invalid_capacity.txt)
+    set_tests_properties(cli_validate_invalid PROPERTIES WILL_FAIL TRUE)
 
-    gtest_discover_tests(
-        traffic_network_tests
-        DISCOVERY_MODE PRE_TEST
-    )
+    add_test(NAME cli_validate_missing COMMAND traffic_sim --validate
+        ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt)
+    set_tests_properties(cli_validate_missing PROPERTIES WILL_FAIL TRUE)
 
-    add_test(
-        NAME cli_help
-        COMMAND traffic_sim --help
-    )
+    add_test(NAME cli_lane_status COMMAND ${CMAKE_COMMAND}
+        -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+        -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/lane_status_test.cmake)
 
-    add_test(
-        NAME cli_scheduled_demo
-        COMMAND traffic_sim --scenario
-            ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
-    )
+    add_test(NAME cli_help COMMAND traffic_sim --help)
 
-    set_tests_properties(
-        cli_scheduled_demo
-        PROPERTIES PASS_REGULAR_EXPRESSION "Deferred: 2"
-    )
+    add_test(NAME cli_scheduled_demo COMMAND traffic_sim --scenario
+        ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt)
+    set_tests_properties(cli_scheduled_demo PROPERTIES
+        PASS_REGULAR_EXPRESSION "Deferred: 2")
 
-    add_test(
-        NAME cli_seeded_demo
-        COMMAND traffic_sim --scenario
-            ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt
-    )
+    add_test(NAME cli_seeded_demo COMMAND traffic_sim --scenario
+        ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt)
 
-    add_test(
-        NAME cli_missing_file
-        COMMAND traffic_sim --scenario
-            ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt
-    )
+    add_test(NAME cli_missing_file COMMAND traffic_sim --scenario
+        ${CMAKE_CURRENT_BINARY_DIR}/missing-scenario.txt)
+    set_tests_properties(cli_missing_file PROPERTIES WILL_FAIL TRUE)
 
-    set_tests_properties(
-        cli_missing_file
-        PROPERTIES WILL_FAIL TRUE
-    )
-
-    add_test(
-        NAME cli_bad_arguments
-        COMMAND traffic_sim --unknown
-    )
-
-    set_tests_properties(
-        cli_bad_arguments
-        PROPERTIES WILL_FAIL TRUE
-    )
+    add_test(NAME cli_bad_arguments COMMAND traffic_sim --unknown)
+    set_tests_properties(cli_bad_arguments PROPERTIES WILL_FAIL TRUE)
 endif()
