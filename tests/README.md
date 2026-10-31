@@ -1,7 +1,8 @@
 # Automated tests
 
-The suite includes Vijeth's signal tests and Aarya's vehicle, lane, scenario, integration,
-and CLI tests. GoogleTest v1.15.2 is fetched on first configure and registered with CTest.
+The suite includes Vijeth's signal tests, Aarya's vehicle, lane, scenario, integration and CLI
+tests, and Vaibhav's road-network and movement tests. GoogleTest v1.15.2 is fetched on first
+configure and registered with CTest.
 
 ## Linux
 
@@ -23,8 +24,9 @@ For offline testing with a previously downloaded GoogleTest source tree, configu
 `-DFETCHCONTENT_SOURCE_DIR_GOOGLETEST=/path/to/googletest`. Disabling `BUILD_TESTING` builds
 only the application and does not establish test results.
 
-See [Aarya's matrix](../docs/aarya-test-matrix.md) for the 38-case Linux run and remaining
-integration/NFR work. Full movement, incident and metric acceptance remains blocked.
+See [Aarya's matrix](../docs/aarya-test-matrix.md) for the recorded input-module run and
+remaining integration/NFR work. Explicit-route movement has unit coverage; automatic routing,
+full lane-capacity, incident and trip-metric acceptance remain in progress.
 
 ## Windows PowerShell (local MinGW toolchain)
 
@@ -73,8 +75,8 @@ if (Test-Path -LiteralPath .\build) {
 
 The `windows-latest` GitHub Actions job runs configure, build, and all CTest cases for
 pushes, pull requests, and manual dispatches. View results in the repository's
-Actions tab; a branch protection rule can require the `Vijeth signal tests
-(Windows)` check before merging.
+Actions tab. The required `Basic CI Check` aggregate passes only when Windows tests,
+Linux tests, and static analysis all succeed; each job has a unique display name.
 
 ## Vijeth ownership status
 
@@ -87,3 +89,9 @@ blocked on implementation/API work; they are not represented as passing tests.
 Linux unit/integration/CLI and Clang static-analysis jobs are configured alongside Windows.
 Remote CI results are pending until the branch is pushed; local Linux success is recorded
 separately. The existing signal matrix describes signal-specific evidence only.
+
+
+PR #69 integration (31 October 2026): 63/63 CTest cases passed locally on Linux,
+including management and explicit-route movement tests. `cli_lane_status` verifies
+both a draining demo and the slow-road fixture in `tests/fixtures/blocked_entry_scenario.txt`.
+Remote workflow results are recorded separately after pushing the integration commit.

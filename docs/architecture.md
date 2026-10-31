@@ -60,6 +60,14 @@ adaptive timing and safe emergency-priority behavior remain separate features.
 - A phase cannot contain both sides of any declared conflict pair. The controller validates the supplied table; the intersection owner is responsible for making that table complete and correct.
 - Emergency priority is separate work (FR-08). Its owner must request safe priority through the signal module and must not bypass phase or conflict checks.
 
+## Movement contract (FR-10 / NFR-02)
+
+- `MovementEngine::advance` is called once per non-decreasing simulation tick. Repeating the same tick is a no-op; moving backwards is rejected.
+- Entry-lane vehicles begin on the first road in their validated route. Their initial entry does not cross an intersection signal.
+- At a downstream intersection, the movement ID is `<incoming-road-id>-to-<outgoing-road-id>`. A vehicle changes roads only after the current road's travel time has elapsed, the next road is enabled and connected, the matching signal is Green, and the next road has capacity.
+- A blocked vehicle remains on its current road, retains its route position, and accrues waiting ticks. Reaching the destination releases the occupied road and marks the vehicle `Completed`.
+- Unit tests call `MovementEngine` directly with road, signal, and vehicle modules; they do not need to construct `Simulation`.
+
 ## First integration milestone
 
 Use a fixed seed and schedule: create one vehicle, enqueue it, permit its movement under a green phase, traverse a connected route, mark it complete, and increment throughput. Keep each step callable without running the full simulation so module behavior remains testable.

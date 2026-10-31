@@ -137,3 +137,21 @@ previous PR; it does not claim two previously unimplemented requirements as newl
 The 30 October warning-as-error build and Clang static analysis also passed: all 10
 project translation units produced zero findings. Remote CI for today's new branch has
 not run because these commits have not been pushed.
+
+
+## 31 October 2026: PR #69 integration
+
+Merged current master into the movement branch while preserving scenario preview, FIFO
+safeguards, per-lane snapshots, congestion detection and incident tests. Queue/deferral
+counts from the 23/30 October runs above describe the earlier movement stub. With FR-10
+explicit-route movement, the standard demo now generates and admits 3 vehicles and ends with
+zero queued/deferred vehicles.
+
+`cli_lane_status` checks that drained result and a separate slow-road fixture that ends
+with vehicle 2 queued and vehicle 3 deferred. Linux GCC 15.2 C++17 Debug execution passed
+**63/63 CTest cases**, including signal, vehicle, scenario, management, network, movement
+and CLI coverage. The required `Basic CI Check` remains a unique aggregate job that
+requires Windows tests, Linux tests and static analysis to succeed.
+
+Clang static analysis passed for all 11 project translation units with zero findings;
+the application also built with compiler warnings treated as errors.

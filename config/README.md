@@ -45,10 +45,13 @@ Limits: 1 MiB per file, 4096 bytes per line, 2–1024 intersections, 1–4096 ro
 100000 potential vehicles (even when probability is below 1). All arrivals must be inside
 the run duration. Invalid files are rejected as a whole. Seed zero is valid.
 
-`demo_scenario.txt` demonstrates admission and deferral; `seeded_scenario.txt` demonstrates
-repeatable random arrivals. Neither proves movement or completed-trip performance: routing
-and movement remain teammate dependencies.
+`demo_scenario.txt` demonstrates admission and movement over explicit routes; its entry
+queue drains by the end of the run. `seeded_scenario.txt` demonstrates repeatable random
+arrivals. The CLI lane-status test also uses `tests/fixtures/blocked_entry_scenario.txt`,
+whose slow entry road leaves vehicle 2 queued and vehicle 3 deferred. Automatic routing
+and completed-trip performance/reporting remain incomplete.
 
 `performance_scenario.txt` provides 4 intersections and 500 guaranteed arrivals for later
-NFR-03 validation. Its present run exercises only generation/admission, because movement
-and completed-trip reporting remain incomplete.
+NFR-03 validation. Explicit-route movement is now enabled, but completed-trip performance
+and reporting still need separate validation; earlier input-only timings do not establish
+full-system NFR-03 compliance.

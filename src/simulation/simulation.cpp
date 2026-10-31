@@ -51,8 +51,8 @@ AdmissionBatch Simulation::step() {
     admitted_ += arrivals.admitted.size();
     unroutable_ += arrivals.unroutable.size();
     for (std::size_t index = 0; index < arrivals.generated.size(); ++index) metrics_.recordGenerated();
-   lastCongestionReport_ =
-    congestionDetector_.evaluate(network_, vehicles_, scenario_->lanes);
+    lastCongestionReport_ =
+        congestionDetector_.evaluate(network_, vehicles_, scenario_->lanes);
     signals_.advance(currentTick_);
     movement_.advance(currentTick_, network_, signals_, vehicles_);
     for (const auto& lane : scenario_->lanes) metrics_.observeQueue(vehicles_.lane(lane.id)->size());

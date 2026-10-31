@@ -1,29 +1,27 @@
 # Vaibhav routing and movement test cases
 
-These cases use the `UT-VA01` to `UT-VA10` identifiers already reserved in
-[`traceability.md`](traceability.md). They are planned cases, not evidence that
-routing or movement is implemented. Status stays `Blocked` until the behavior
-and assertions exist and have actually run.
+These cases use the project test IDs and distinguish implemented behavior from
+planned work. Status is recorded only after the corresponding assertions run.
 
 ## Road network and routing
 
 | Requirement | Test ID | Preconditions and action | Expected result | Test source | Status |
 |---|---|---|---|---|---|
-| FR-09 | UT-VA01 | Add a road with non-empty ID/endpoints and positive capacity/travel time; look it up by ID. | Addition succeeds and lookup returns the configured road and attributes. | `tests/unit/network/road_network_test.cpp` (planned) | Blocked: tests not added |
-| FR-09 | UT-VA02 | Try roads with an empty ID/endpoint, zero capacity/time, and a duplicate ID. | Invalid and duplicate roads are rejected; the existing road remains unchanged. | `tests/unit/network/road_network_test.cpp` (planned) | Blocked: tests not added |
-| FR-12 | UT-VA03 | Configure two directed paths between the same endpoints with different total travel times; request a route. | The connected route with the lowest total travel time is returned in traversal order. | `tests/unit/network/road_network_test.cpp` (planned) | Blocked: `shortestRoute` is a stub |
-| FR-12 | UT-VA04 | Request a route to an unreachable destination; repeat with the only connecting road disabled. | An empty route is returned in both cases; disabled roads are not used. | `tests/unit/network/road_network_test.cpp` (planned) | Blocked: `shortestRoute` is a stub |
+| FR-09 | UT-VA01 | Register intersections, add connected roads, retrieve their properties, and query outgoing roads. | Road and neighbor data are available through `RoadNetwork`. | `tests/unit/network/road_network_test.cpp` | Pass (1 test) |
+| FR-09 | UT-VA11 | Reject empty/duplicate intersections, unknown endpoints, empty/duplicate road IDs, zero capacity/travel time, and occupancy above capacity. | Invalid roads are rejected without changing stored roads or adjacency. | `tests/unit/network/road_network_test.cpp` | Pass (1 test) |
+| FR-12 | UT-VA02 | Configure two connected paths with different travel costs and request a route. | The lowest-cost route is returned in traversal order. | `tests/unit/network/road_network_test.cpp` (planned) | Blocked: `shortestRoute` is a stub |
+| FR-12 | UT-VA03, UT-VA04 | Request routes to unreachable destinations and verify disabled roads are not selected. | No route is returned when no enabled path exists. | `tests/unit/network/road_network_test.cpp` (planned) | Blocked: `shortestRoute` is a stub |
 
 ## Vehicle movement
 
 | Requirement | Test ID | Preconditions and action | Expected result | Test source | Status |
 |---|---|---|---|---|---|
-| FR-10 | UT-VA05 | Put a vehicle at the front of an entry lane with a connected route, configure its movement as Green, and advance movement. | The vehicle leaves the entry queue and begins the first road only when its movement is permitted. | `tests/unit/network/movement_engine_test.cpp` (planned) | Blocked: movement is a stub |
-| FR-10, FR-11 | UT-VA06 | Repeat the eligible vehicle setup while its movement is Yellow, Red, or absent from the signal plan. | It does not cross; queue position and road occupancy remain unchanged. | `tests/unit/network/movement_engine_test.cpp` (planned) | Blocked: movement is a stub |
-| FR-10, FR-12 | UT-VA07 | Put a vehicle on a road with travel time greater than one tick; advance before and at the travel-time boundary. | It remains in transit before the boundary and reaches the next intersection only after the configured travel time. | `tests/unit/network/movement_engine_test.cpp` (planned) | Blocked: movement is a stub |
-| FR-11 | UT-VA08 | Fill a downstream road to capacity and attempt a signal-permitted crossing into it. | The crossing is deferred; occupancy never exceeds capacity and the vehicle remains available for a later retry. | `tests/unit/network/movement_engine_test.cpp` (planned) | Blocked: movement is a stub |
-| FR-10, FR-12 | UT-VA09 | Move a vehicle through a multi-road route with every crossing permitted and downstream capacity available. | Route position advances in order, road occupancy is updated, and the vehicle becomes `Completed` at its destination. | `tests/unit/network/movement_engine_test.cpp` (planned) | Blocked: movement is a stub |
-| FR-10, FR-11 | UT-VA10 | Run the same fixed scenario tick-by-tick twice from reset with identical phases and capacities. | Both runs produce identical per-tick vehicle states, route positions, and occupancies; no vehicle moves twice in one tick. | `tests/integration/network_movement_test.cpp` (planned) | Blocked: integration is not implemented |
+| FR-10 | UT-VA05 | Admit a vehicle onto its entry road, then present its connected next road under a matching Green movement. | It leaves the lane, follows its route, and crosses only while the matching movement is Green. | `tests/unit/network/movement_engine_test.cpp` | Pass (1 test) |
+| FR-10 | UT-VA06 | Present the vehicle next movement during Yellow/Red or when it is absent from the active Green phase. | The vehicle remains on its current road and does not advance its route index. | `tests/unit/network/movement_engine_test.cpp` | Pass (1 test) |
+| FR-10 | UT-VA07 | Set the current road travel time above one tick and advance before and at the travel-time boundary. | The vehicle stays in transit before the boundary and becomes eligible at the boundary. | `tests/unit/network/movement_engine_test.cpp` | Pass (1 test) |
+| FR-11 | UT-VA08 | Fill a downstream road and attempt a signal-permitted crossing into it. | The vehicle waits; downstream occupancy never exceeds capacity. | `tests/unit/network/movement_engine_test.cpp` | Pass (1 test) |
+| FR-10 | UT-VA09 | Move a vehicle over a multi-road route with each movement permitted. | Road occupancy transfers correctly and the vehicle becomes `Completed` at its destination. | `tests/unit/network/movement_engine_test.cpp` | Pass (1 test) |
+| FR-10, NFR-02 | UT-VA10 | Invoke `MovementEngine` directly, including a duplicate call at the same tick, twice with identical inputs. | Both runs yield identical state and occupancy snapshots; one tick cannot move a vehicle twice. | `tests/unit/network/movement_engine_test.cpp` | Pass (1 test) |
 
 ## Execution notes
 
@@ -31,5 +29,8 @@ and assertions exist and have actually run.
   FR-09/FR-12 map to `RoadNetwork`; FR-10/FR-11 map to `MovementEngine`.
 - Movement tests should use IDs matching the configured signal phase exactly
   and advance signals before movement for each tick.
-- Do not mark a case `Pass` until its assertions run successfully. The current
-  `shortestRoute` and `MovementEngine::advance` implementations are TODO stubs.
+- FR-10 uses caller-provided or explicit planned routes; automatic route selection
+  remains separate FR-12 work. NFR-02 is covered with direct, deterministic
+  `MovementEngine` unit tests without constructing `Simulation`.
+- Windows and Linux build/test jobs and Clang static analysis passed on PR #68.
+- `shortestRoute` remains a TODO until FR-12 is implemented.

@@ -121,6 +121,7 @@ if(BUILD_TESTING)
     # Road network unit tests
     add_executable(traffic_network_tests
         tests/unit/network/road_network_test.cpp
+        tests/unit/network/movement_engine_test.cpp
     )
 
     target_link_libraries(
@@ -150,6 +151,7 @@ if(BUILD_TESTING)
     add_test(NAME cli_lane_status COMMAND ${CMAKE_COMMAND}
         -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
         -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+        -DBLOCKED_SCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/blocked_entry_scenario.txt
         -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/lane_status_test.cmake)
 
     add_test(NAME cli_help COMMAND traffic_sim --help)
@@ -157,7 +159,7 @@ if(BUILD_TESTING)
     add_test(NAME cli_scheduled_demo COMMAND traffic_sim --scenario
         ${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt)
     set_tests_properties(cli_scheduled_demo PROPERTIES
-        PASS_REGULAR_EXPRESSION "Deferred: 2")
+        PASS_REGULAR_EXPRESSION "Deferred: 0")
 
     add_test(NAME cli_seeded_demo COMMAND traffic_sim --scenario
         ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt)

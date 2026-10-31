@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Generated: " << summary.generated << "\nAdmitted to entry queues: " << summary.admitted
                   << "\nQueued: " << summary.queued << "\nDeferred: " << summary.pending
                   << "\nUnroutable: " << summary.unroutable << '\n'
-                  << "Movement and automatic routing are pending implementation; trip completion is not verified.\n";
+                  << "Explicit-route movement is enabled; automatic routing and completed-trip reporting remain pending.\n";
         if (laneStatus) {
             for (const auto& lane : simulation.vehicles().laneSnapshots()) {
                 std::cout << "Lane " << lane.id << " (road " << lane.road << "): queued="

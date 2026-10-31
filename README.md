@@ -7,11 +7,13 @@ It does not control real traffic infrastructure.
 
 Implemented: validated text scenarios, scheduled/seeded vehicle generation, unique IDs,
 vehicle/route validation, FIFO entry queues, capacity-limited admission and deferred retries,
-reset/reproducibility, and timed signal phases with safety checks.
+reset/reproducibility, timed signal phases with safety checks, validated road-network edges,
+and movement over explicit routes through permitted green phases.
 
-Routing, vehicle movement, adaptive signals, emergency priority, congestion and incident
-response remain incomplete. Metrics have basic counters/CSV helpers, but full trip metrics
-are not integrated. The CLI reports **input/admission counts**, not completed journeys.
+Automatic route selection, full downstream lane-capacity handling, adaptive signals, emergency
+priority, and incident-driven rerouting remain incomplete. Congestion detection and
+scheduled road blocking are implemented. Metrics have basic counters/CSV
+helpers, but completed-trip reporting is not integrated. The CLI reports **input/admission counts**.
 
 ## Build, test, and run
 
@@ -29,7 +31,8 @@ ctest --test-dir build --output-on-failure
 `--validate <file>` checks the complete scenario and prints its configuration counts without
 generating vehicles or advancing the simulation. Invalid input returns a nonzero exit code.
 
-The scheduled demo generates 3 vehicles, admits 1, and defers 2. Add `--lane-status` to
+The scheduled demo generates and admits 3 vehicles; its entry queue and deferred backlog
+are empty at the end of the run. Add `--lane-status` to
 show each lane's capacity, queued IDs, and deferred IDs in FIFO order. Without this flag,
 output remains a concise aggregate summary. The seeded demo prints its
 seed and generates a repeatable sequence. Explicit routes permit these input demonstrations
@@ -47,12 +50,13 @@ cmake --build build-analysis --parallel 2
 
 - **Aarya:** scenario/vehicle input and lane queues, FR-01–FR-04; shared FR-18 reproducibility.
 - **Vijeth:** signal control, FR-05–FR-08.
-- **Vaibhav:** road network representation, FR-09 (implemented; [test evidence](docs/vaibhav-fr09-test-cases.md)); routing and movement, FR-10–FR-12.
+- **Vaibhav:** road network representation and vehicle movement, FR-09–FR-10 (implemented; [coverage matrix](docs/vaibhav-test-matrix.md)); additional lane-capacity enforcement and routing, FR-11–FR-12.
 - **Vainik:** congestion, incidents, metrics, and reporting, FR-13–FR-17.
 
 See [architecture](docs/architecture.md), [requirement traceability](docs/traceability.md),
 and [Aarya's test evidence and remaining work](docs/aarya-test-matrix.md).
-The first complete vehicle-to-destination milestone remains blocked on routing/movement.
+Explicitly routed vehicles can now move through green intersections. Automatic route
+selection, downstream lane-capacity handling, and completed-trip metrics remain in progress.
 
 Use focused feature branches, meaningful commits, and teammate review before merge.
 Local tests, CI configuration, and successful remote CI runs are separate evidence.
