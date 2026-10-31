@@ -14,10 +14,12 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 | FR-07, FR-08 | `SignalController` (planned) | UT-VI05 to UT-VI07, UT-VI10 |
 | FR-09 | `RoadNetwork` | UT-VA01, UT-VA11; `vaibhav-fr09-test-cases.md` (passed in Windows/Linux CI) |
 | FR-12 | `RoadNetwork` | UT-VA02 to UT-VA04 (planned) |
-| FR-10 | `MovementEngine` | UT-VA05 to UT-VA07, UT-VA09 to UT-VA10 (passed in Windows/Linux CI) |
+| FR-10 | `MovementEngine` | UT-VA05 to UT-VA07, UT-VA09 to UT-VA10 (passed in Windows/Linux CI for PR #68) |
 | FR-11 | `MovementEngine` | UT-VA08 road-capacity behavior (passed; lane coverage remains) |
-| NFR-02 | `MovementEngine::advance` | UT-VA10 (passed in Windows/Linux CI) |
-| FR-13 to FR-15 | `IncidentManager` and congestion policy | UT-VN01 to UT-VN06 |
+| NFR-02 | `MovementEngine::advance` | UT-VA10 (passed in Windows/Linux CI for PR #68) |
+| FR-13 | Congestion policy | UT-VN01 to UT-VN03, UT-VN11 (`tests/unit/management/congestion_detector_test.cpp`) |
+| FR-14 | `IncidentManager` | UT-VN04 to UT-VN06, UT-VN12 to UT-VN14 (`tests/unit/management/incident_manager_test.cpp`) |
+| FR-15 | Rerouting after incidents | Pending; not implemented by this change |
 | FR-16, FR-17 | `MetricsCollector` and report output | UT-VN07 to UT-VN10 |
 
 The FR-05/06 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; their automated tests are in `tests/unit/signals/signal_controller_test.cpp`. The signal matrix records an eight-test MinGW GCC Windows pass; the Linux CI job also passed those signal tests. FR-07/08 tests remain blocked pending implementation. Windows and Linux CI for PR #68 passed; continue adding integration/system results as features land.
@@ -34,3 +36,22 @@ automatic routing, complete downstream lane-capacity handling, and completed-tri
 remain in progress.
 Neither IT-01 nor IT-04 is claimed as passed. Module paths in the starter rows for other
 owners remain plans unless their specific evidence establishes otherwise.
+
+
+## 30 October 2026 input refinements
+
+- FR-01: `src/main.cpp` adds validation-only preview; `cli_validate_only`,
+  `cli_validate_invalid` and `cli_validate_missing` verify the new mode.
+- FR-04: `src/vehicle/lane_queue.cpp` rejects invalid/duplicate queued IDs and exposes
+  snapshots; `src/vehicle/vehicle_manager.cpp` exposes per-lane FIFO/pending state.
+  The `FR04_*` unit tests and `cli_lane_status` verify these behaviors.
+- All 47 current CTest cases passed on Linux. Existing 23 October results above are
+  historical execution evidence; see `aarya-test-matrix.md` for today's additions.
+
+
+## 31 October 2026 movement integration
+
+PR #69 reconciles FR-10 movement with the latest input and management modules. All 63
+CTest cases passed locally on Linux. `cli_lane_status` now tests both draining traffic
+and a congested entry-road fixture; the earlier input-only queue counts above are
+historical. Road-availability access, management tests and input CLI modes are preserved.

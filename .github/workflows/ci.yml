@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   signal-tests:
-    name: Basic CI Check
+    name: Vijeth signal tests (Windows)
     runs-on: windows-latest
     timeout-minutes: 20
 

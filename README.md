@@ -11,7 +11,8 @@ reset/reproducibility, timed signal phases with safety checks, validated road-ne
 and movement over explicit routes through permitted green phases.
 
 Automatic route selection, full downstream lane-capacity handling, adaptive signals, emergency
-priority, congestion, and incident response remain incomplete. Metrics have basic counters/CSV
+priority, and incident-driven rerouting remain incomplete. Congestion detection and
+scheduled road blocking are implemented. Metrics have basic counters/CSV
 helpers, but completed-trip reporting is not integrated. The CLI reports **input/admission counts**.
 
 ## Build, test, and run
@@ -22,11 +23,18 @@ Requires CMake 3.16+, a C++17 compiler, and network access for the first GoogleT
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
-./build/traffic_sim --scenario config/demo_scenario.txt
+./build/traffic_sim --validate config/demo_scenario.txt
+./build/traffic_sim --scenario config/demo_scenario.txt --lane-status
 ./build/traffic_sim --scenario config/seeded_scenario.txt
 ```
 
-The scheduled demo generates 3 vehicles, admits 1, and defers 2. The seeded demo prints its
+`--validate <file>` checks the complete scenario and prints its configuration counts without
+generating vehicles or advancing the simulation. Invalid input returns a nonzero exit code.
+
+The scheduled demo generates and admits 3 vehicles; its entry queue and deferred backlog
+are empty at the end of the run. Add `--lane-status` to
+show each lane's capacity, queued IDs, and deferred IDs in FIFO order. Without this flag,
+output remains a concise aggregate summary. The seeded demo prints its
 seed and generates a repeatable sequence. Explicit routes permit these input demonstrations
 while automatic routing is still a stub. See [scenario format](config/README.md).
 

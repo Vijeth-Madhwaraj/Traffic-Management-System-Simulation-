@@ -38,6 +38,14 @@ struct EntryLane {
     std::size_t capacity{};
 };
 
+struct EntryLaneSnapshot {
+    std::string id;
+    RoadId road;
+    std::size_t capacity{};
+    std::vector<VehicleId> queued;
+    std::vector<VehicleId> pending;
+};
+
 using RouteProvider = std::function<std::vector<RoadId>(const IntersectionId&, const IntersectionId&)>;
 
 struct AdmissionBatch {
@@ -56,6 +64,8 @@ public:
     std::vector<EntryLane> entryLanes() const;
     LaneQueue* lane(const std::string& id) noexcept;
     const LaneQueue* lane(const std::string& id) const noexcept;
+    // Independent value snapshots, sorted by lane ID; reading does not advance traffic.
+    std::vector<EntryLaneSnapshot> laneSnapshots() const;
     std::size_t pendingCount() const noexcept;
     std::size_t queuedCount() const noexcept;
     void setSchedule(std::vector<ScheduledArrival> arrivals);

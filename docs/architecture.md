@@ -32,6 +32,9 @@
   Provider failure does not consume the arrival or advance RNG state.
 - Full queues retain pending IDs in FIFO order. Each tick admits old pending vehicles
   before newer vehicles; emergency class uses the same FIFO policy.
+- `laneSnapshots()` returns independent value snapshots sorted by lane ID, including capacity,
+  queued IDs and pending IDs in FIFO order. Consumers can inspect them without mutating
+  queues or advancing arrivals. `LaneQueue::enqueue` rejects zero and duplicate queued IDs.
 - `lane(id)` exposes front/pop for movement integration. Reacquire lane/vehicle pointers
   after `advanceArrivals`, reset, or reconfiguration; those operations may replace storage.
   After removing an ID, the movement owner updates its registry state and road occupancy.

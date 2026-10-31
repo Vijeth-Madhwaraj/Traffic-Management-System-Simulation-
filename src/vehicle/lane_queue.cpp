@@ -1,5 +1,6 @@
 #include "traffic/vehicle/lane_queue.hpp"
 
+#include <algorithm>
 #include <stdexcept>
 
 namespace traffic {
@@ -9,9 +10,14 @@ LaneQueue::LaneQueue(std::size_t capacity) : capacity_(capacity) {
 }
 
 bool LaneQueue::enqueue(VehicleId vehicleId) {
-    if (!hasSpace()) return false;
+    if (vehicleId == 0 || !hasSpace() ||
+        std::find(vehicles_.begin(), vehicles_.end(), vehicleId) != vehicles_.end()) return false;
     vehicles_.push_back(vehicleId);
     return true;
+}
+
+std::vector<VehicleId> LaneQueue::snapshot() const {
+    return {vehicles_.begin(), vehicles_.end()};
 }
 
 std::optional<VehicleId> LaneQueue::front() const noexcept {

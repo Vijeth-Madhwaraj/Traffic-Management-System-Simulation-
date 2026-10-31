@@ -75,8 +75,8 @@ if (Test-Path -LiteralPath .\build) {
 
 The `windows-latest` GitHub Actions job runs configure, build, and all CTest cases for
 pushes, pull requests, and manual dispatches. View results in the repository's
-Actions tab; a branch protection rule can require the `Vijeth signal tests
-(Windows)` check before merging.
+Actions tab. The required `Basic CI Check` aggregate passes only when Windows tests,
+Linux tests, and static analysis all succeed; each job has a unique display name.
 
 ## Vijeth ownership status
 
@@ -89,3 +89,9 @@ blocked on implementation/API work; they are not represented as passing tests.
 Linux unit/integration/CLI and Clang static-analysis jobs are configured alongside Windows.
 Remote CI results are pending until the branch is pushed; local Linux success is recorded
 separately. The existing signal matrix describes signal-specific evidence only.
+
+
+PR #69 integration (31 October 2026): 63/63 CTest cases passed locally on Linux,
+including management and explicit-route movement tests. `cli_lane_status` verifies
+both a draining demo and the slow-road fixture in `tests/fixtures/blocked_entry_scenario.txt`.
+Remote workflow results are recorded separately after pushing the integration commit.
