@@ -157,7 +157,8 @@ void VehicleManager::setStreams(std::vector<ArrivalStream> streams) {
     for (const auto& stream : streams) {
         if (stream.id.empty() || !ids.insert(stream.id).second || stream.lane.empty() ||
             stream.firstTick >= stream.endTick || !std::isfinite(stream.probability) ||
-            stream.probability < 0 || stream.probability > 1)
+            stream.probability < 0 || stream.probability > 1 ||
+            stream.vehiclesPerArrival == 0 || stream.vehiclesPerArrival > ArrivalStream::maxVehiclesPerArrival)
             throw std::invalid_argument("Invalid arrival stream");
         validateVehicle(stream.vehicle);
         if (!lanes_.empty()) validateEntry(stream.vehicle, stream.lane);
@@ -196,8 +197,10 @@ std::vector<GeneratedArrival> VehicleManager::generate(Tick now) {
         if (now < stream.firstTick || now >= stream.endTick) continue;
         // Use explicit integer thresholds rather than library-specific distributions.
         const auto threshold = static_cast<std::uint64_t>(stream.probability * 4294967296.0);
-        if ((rng_() >> 32U) < threshold)
-            result.push_back({stream.lane, addVehicle(stream.vehicle)});
+        if ((rng_() >> 32U) < threshold) {
+            for (std::size_t index = 0; index < stream.vehiclesPerArrival; ++index)
+                result.push_back({stream.lane, addVehicle(stream.vehicle)});
+        }
     }
     lastGenerated_ = now;
     return result;
