@@ -154,6 +154,11 @@ if(BUILD_TESTING)
         -DBLOCKED_SCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/blocked_entry_scenario.txt
         -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/lane_status_test.cmake)
 
+    add_test(NAME cli_batch_arrivals COMMAND ${CMAKE_COMMAND}
+        -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+        -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/batch_scenario.txt
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/batch_arrivals_test.cmake)
+
     add_test(NAME cli_help COMMAND traffic_sim --help)
 
     add_test(NAME cli_scheduled_demo COMMAND traffic_sim --scenario

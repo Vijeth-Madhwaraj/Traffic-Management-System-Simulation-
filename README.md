@@ -5,7 +5,8 @@ It does not control real traffic infrastructure.
 
 ## Current status
 
-Implemented: validated text scenarios, scheduled/seeded vehicle generation, unique IDs,
+Implemented: validated text scenarios, scheduled/seeded vehicle generation with optional
+batch arrivals, unique IDs,
 vehicle/route validation, FIFO entry queues, capacity-limited admission and deferred retries,
 reset/reproducibility, timed signal phases with safety checks, validated road-network edges,
 and movement over explicit routes through permitted green phases.
@@ -26,6 +27,7 @@ ctest --test-dir build --output-on-failure
 ./build/traffic_sim --validate config/demo_scenario.txt
 ./build/traffic_sim --scenario config/demo_scenario.txt --lane-status
 ./build/traffic_sim --scenario config/seeded_scenario.txt
+./build/traffic_sim --scenario config/batch_scenario.txt --lane-status
 ```
 
 `--validate <file>` checks the complete scenario and prints its configuration counts without

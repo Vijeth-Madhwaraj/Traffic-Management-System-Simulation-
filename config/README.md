@@ -22,13 +22,20 @@ phase <intersection> <green-ticks> <yellow-ticks> <all-red-ticks> <movement>...
 conflict <intersection> <movement> <conflicting-movement>
 arrival <tick> <lane> <destination> <standard|emergency> <route-road>...
 stream <id> <lane> <destination> <standard|emergency> <first-tick> <end-tick> <probability> <route-road>...
+batch <stream-id> <vehicles-per-successful-arrival>
 ```
 
 Use a single `-` instead of route roads to ask the route provider. Source is derived from
 the lane's entry road. An explicit route must start on that road, follow connected enabled
 roads, and end at the destination. Stream intervals are `[first-tick, end-tick)`, with at
-most one arrival per stream per tick. Probability is in `[0,1]`. Scheduled arrivals at the
-same tick preserve file order; streams run afterwards in stream-ID order. Emergency class
+most one probability decision per stream per tick. Probability is in `[0,1]`.
+An optional `batch <stream-id> <count>` record creates `count` vehicles when that decision
+succeeds; the default is 1, preserving existing scenarios. Batch size is 1–1000, and a
+stream may have only one batch setting. It may appear before or after the stream record;
+unknown stream IDs are rejected. All vehicles in a batch have the stream's configured
+attributes and separate unique IDs. One RNG draw per active stream is preserved regardless
+of batch size. Scheduled arrivals at the same tick preserve file order; streams run
+afterwards in stream-ID order, with each batch emitted in ID order. Emergency class
 does not change FIFO order or bypass signal safety.
 
 Lane capacity limits waiting vehicles, separately from road occupancy in transit. Each lane
@@ -41,8 +48,8 @@ insertions do not consume capacity. No route is a controlled
 
 Limits: 1 MiB per file, 4096 bytes per line, 2–1024 intersections, 1–4096 roads and lanes,
 1–100000 ticks, positive capacities/travel times/phase durations up to 1000000, and at most
-128 streams. Scheduled arrivals plus the sum of stream interval lengths must not exceed
-100000 potential vehicles (even when probability is below 1). All arrivals must be inside
+128 streams. Scheduled arrivals plus the sum of `(stream interval length * batch size)`
+must not exceed 100000 potential vehicles (even when probability is below 1). All arrivals must be inside
 the run duration. Invalid files are rejected as a whole. Seed zero is valid.
 
 `demo_scenario.txt` demonstrates admission and movement over explicit routes; its entry
@@ -55,3 +62,11 @@ and completed-trip performance/reporting remain incomplete.
 NFR-03 validation. Explicit-route movement is now enabled, but completed-trip performance
 and reporting still need separate validation; earlier input-only timings do not establish
 full-system NFR-03 compliance.
+
+`batch_scenario.txt` demonstrates FR-02 batch arrivals: 3 vehicles per tick for 4 ticks
+(12 generated). Only 4 have entered the narrow entry queue by the end of this short run;
+IDs 5–12 remain deferred in FIFO order. Run it with:
+
+```sh
+./build/traffic_sim --scenario config/batch_scenario.txt --lane-status
+```
