@@ -9,6 +9,26 @@
 
 namespace traffic {
 
+MovementQueueCounts MovementEngine::readyMovementQueues(
+    Tick now, const RoadNetwork& network, const VehicleManager& vehicles) const {
+    MovementQueueCounts queues;
+    for (const auto& entry : inTransit_) {
+        const auto* vehicle = vehicles.find(entry.first);
+        const auto* road = network.findRoad(entry.second.road);
+        if (!vehicle || vehicle->state != VehicleState::InTransit || !road ||
+            vehicle->routeIndex >= vehicle->route.size() ||
+            vehicle->route.size() - vehicle->routeIndex < 2 || now < entry.second.enteredAt ||
+            now - entry.second.enteredAt < road->travelTime) {
+            continue;
+        }
+        const auto* nextRoad = network.findRoad(vehicle->route[vehicle->routeIndex + 1]);
+        if (!nextRoad || !nextRoad->enabled || nextRoad->from != road->to) continue;
+        const MovementId movement = road->id + "-to-" + nextRoad->id;
+        ++queues[road->to][movement];
+    }
+    return queues;
+}
+
 void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& signals,
                              VehicleManager& vehicles) {
     if (lastAdvanced_ && now < *lastAdvanced_) {

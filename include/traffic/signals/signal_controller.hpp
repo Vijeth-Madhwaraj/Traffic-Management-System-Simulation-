@@ -3,6 +3,7 @@
 #include "traffic/types.hpp"
 
 #include <optional>
+#include <cstddef>
 #include <string>
 #include <utility>
 #include <unordered_map>
@@ -18,6 +19,18 @@ struct SignalPhase {
     Tick allRedDuration{1};
 };
 
+struct AdaptiveSignalPolicy {
+    // A phase extends when its permitted ready-to-cross queue reaches the
+    // threshold, shortens when that queue is empty, and otherwise holds.
+    Tick minimumGreenDuration{1};
+    Tick maximumGreenDuration{1000000};
+    std::size_t extendQueueThreshold{2};
+    Tick adjustment{1};
+};
+
+using MovementQueueCounts =
+    std::unordered_map<IntersectionId, std::unordered_map<MovementId, std::size_t>>;
+
 using MovementConflict = std::pair<MovementId, MovementId>;
 
 struct SignalStatus {
@@ -25,6 +38,7 @@ struct SignalStatus {
     SignalColor color{SignalColor::Red};
     Tick colorElapsed{};
     std::vector<MovementId> permittedMovements;
+    Tick greenDuration{};
 };
 
 class SignalController {
@@ -35,11 +49,13 @@ public:
     // not replace a previously configured plan.
     void configure(const IntersectionId& intersection,
                    std::vector<SignalPhase> phases,
-                   const std::vector<MovementConflict>& conflicts);
+                   const std::vector<MovementConflict>& conflicts,
+                   std::optional<AdaptiveSignalPolicy> adaptivePolicy = std::nullopt);
 
-    // Call with non-decreasing simulation ticks. Large time jumps are handled
-    // by applying each elapsed Green -> Yellow -> Red -> next Green transition.
+    // Call with non-decreasing simulation ticks. The no-queue overload treats
+    // adaptive phase queues as empty. Large time jumps apply each elapsed transition.
     void advance(Tick now);
+    void advance(Tick now, const MovementQueueCounts& queues);
 
     // MovementEngine must check this immediately before moving a vehicle. It
     // returns true only during Green; Yellow and Red always deny movement.
@@ -53,6 +69,9 @@ private:
         SignalColor color{SignalColor::Red};
         Tick colorStarted{};
         Tick lastAdvanced{};
+        std::optional<AdaptiveSignalPolicy> adaptivePolicy;
+        std::vector<Tick> greenDurations;
+        bool adaptOnGreenStart{true};
     };
     std::unordered_map<IntersectionId, State> states_;
 };

@@ -13,6 +13,7 @@ struct ScenarioSignals {
     IntersectionId intersection;
     std::vector<SignalPhase> phases;
     std::vector<MovementConflict> conflicts;
+    std::optional<AdaptiveSignalPolicy> adaptivePolicy;
 };
 
 struct Scenario {

@@ -166,6 +166,11 @@ if(BUILD_TESTING)
     set_tests_properties(cli_scheduled_demo PROPERTIES
         PASS_REGULAR_EXPRESSION "Deferred: 0")
 
+    add_test(NAME cli_adaptive_signal_demo COMMAND traffic_sim --scenario
+        ${CMAKE_CURRENT_SOURCE_DIR}/config/traffic_demo_scenario.txt --trace)
+    set_tests_properties(cli_adaptive_signal_demo PROPERTIES
+        PASS_REGULAR_EXPRESSION "green duration 2 tick")
+
     add_test(NAME cli_seeded_demo COMMAND traffic_sim --scenario
         ${CMAKE_CURRENT_SOURCE_DIR}/config/seeded_scenario.txt)
 

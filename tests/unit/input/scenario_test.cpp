@@ -118,5 +118,27 @@ TEST(ScenarioTest, FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying
     scenario.streams[0].vehiclesPerArrival = 0;
     EXPECT_THROW(ScenarioLoader::validate(scenario), std::invalid_argument);
 }
+
+TEST(ScenarioTest, TC_07_LoadsAdaptiveSignalPolicy) {
+    const auto scenario = parse(base + "adaptive B 2 5 3 1\n"
+        "phase B 3 1 1 AB-to-BC\n");
+    ASSERT_EQ(scenario.signals.size(), 1U);
+    ASSERT_TRUE(scenario.signals[0].adaptivePolicy.has_value());
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->minimumGreenDuration, 2U);
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->maximumGreenDuration, 5U);
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->extendQueueThreshold, 3U);
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->adjustment, 1U);
+}
+
+TEST(ScenarioTest, TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies) {
+    const std::string phase = "phase B 2 1 1 AB-to-BC\n";
+    for (const auto& policy : {"adaptive B 0 4 2 1\n", "adaptive B 1 4 0 1\n",
+                               "adaptive B 1 4 2 0\n", "adaptive B 3 2 2 1\n",
+                               "adaptive B 3 4 2 1\n", "adaptive B 1 1 2 1\n"}) {
+        EXPECT_THROW(parse(base + phase + policy), std::invalid_argument) << policy;
+    }
+    EXPECT_THROW(parse(base + phase + "adaptive B 1 4 2 1\nadaptive B 1 5 2 1\n"),
+                 std::invalid_argument);
+}
 }  // namespace
 }  // namespace traffic

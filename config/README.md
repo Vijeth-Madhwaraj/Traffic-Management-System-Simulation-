@@ -20,6 +20,7 @@ road <id> <from> <to> <capacity> <travel-ticks>
 lane <id> <entry-road-id> <capacity>
 phase <intersection> <green-ticks> <yellow-ticks> <all-red-ticks> <movement>...
 conflict <intersection> <movement> <conflicting-movement>
+adaptive <intersection> <minimum-green> <maximum-green> <queue-threshold> <adjustment>
 arrival <tick> <lane> <destination> <standard|emergency> <route-road>...
 stream <id> <lane> <destination> <standard|emergency> <first-tick> <end-tick> <probability> <route-road>...
 batch <stream-id> <vehicles-per-successful-arrival>
@@ -37,6 +38,15 @@ attributes and separate unique IDs. One RNG draw per active stream is preserved 
 of batch size. Scheduled arrivals at the same tick preserve file order; streams run
 afterwards in stream-ID order, with each batch emitted in ID order. Emergency class
 does not change FIFO order or bypass signal safety.
+
+An optional `adaptive` record configures FR-07 for one controlled intersection. At the start
+of each Green phase, the controller sums ready-to-cross vehicle queues for movements permitted
+by that phase. If the sum is at least `queue-threshold`, that phase's green duration increases
+by `adjustment`, up to `maximum-green`. If the sum is zero, the duration decreases by the same
+step, down to `minimum-green`. Other queue sizes leave the duration unchanged. Every base phase
+green duration must be within the configured bounds. Yellow and all-red clearance durations,
+phase order, and permitted movements are unchanged. Without an `adaptive` record, timing stays
+fixed as before.
 
 Lane capacity limits waiting vehicles, separately from road occupancy in transit. Each lane
 capacity must not exceed its entry road's capacity. Full queues defer arrivals with their
