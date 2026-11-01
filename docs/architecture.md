@@ -25,6 +25,9 @@
   Ticks start at zero and are consecutive; duplicate calls for the latest tick are no-ops.
 - Scheduled arrivals run in stable tick/file order, followed by streams in sorted ID order.
   Each active stream consumes one RNG draw per tick, including probability 0 or 1.
+  A successful decision creates `vehiclesPerArrival` vehicles (default 1, maximum 1000)
+  with separate IDs. Batch size does not consume additional random draws. Scenario limits
+  count interval length times batch size before accepting the configuration.
   Compare the upper 32 bits of `mt19937_64` against `floor(probability * 2^32)`.
 - Admission uses supplied validated routes or invokes `RouteProvider(source, destination)`.
   Providers must return an enabled connected route beginning on the configured entry road.

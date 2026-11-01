@@ -19,12 +19,14 @@ struct ScheduledArrival {
 };
 
 struct ArrivalStream {
+    static constexpr std::size_t maxVehiclesPerArrival = 1000;
     std::string id;
     std::string lane;
     Tick firstTick{};
     Tick endTick{}; // exclusive
-    double probability{}; // at most one arrival per tick
+    double probability{}; // one probability decision per active tick
     Vehicle vehicle;
+    std::size_t vehiclesPerArrival{1}; // vehicles created when that decision succeeds
 };
 
 struct GeneratedArrival {

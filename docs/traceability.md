@@ -55,3 +55,12 @@ PR #69 reconciles FR-10 movement with the latest input and management modules. A
 CTest cases passed locally on Linux. `cli_lane_status` now tests both draining traffic
 and a congested entry-road fixture; the earlier input-only queue counts above are
 historical. Road-availability access, management tests and input CLI modes are preserved.
+
+
+## 31 October 2026 FR-02 batch generation
+
+`ArrivalStream::vehiclesPerArrival` and `VehicleManager::generate` support configurable
+batch sizes. `ScenarioLoader` accepts optional `batch` records and validates their stream
+references, bounds and total vehicle budget. Evidence: `FR02_*` tests in
+`tests/unit/vehicle/vehicle_manager_test.cpp` and `tests/unit/input/scenario_test.cpp`,
+plus `cli_batch_arrivals`. All 72 current CTest cases passed locally on Linux.

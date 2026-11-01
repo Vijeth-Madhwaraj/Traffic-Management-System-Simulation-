@@ -155,3 +155,33 @@ requires Windows tests, Linux tests and static analysis to succeed.
 
 Clang static analysis passed for all 11 project translation units with zero findings;
 the application also built with compiler warnings treated as errors.
+
+
+## 31 October 2026: FR-02 configurable batch arrivals
+
+One functional improvement for FR-02 on `feature/aarya-vehicle-generation`: an optional
+`batch <stream-id> <count>` setting allows 1–1000 vehicles per successful probability
+decision, instead of requiring repeated streams to model higher traffic volumes. Existing
+scenarios default to one vehicle. Batches preserve deterministic RNG draws, unique IDs,
+stream ordering, capacity enforcement and FIFO deferral. The scenario's 100000-vehicle
+budget includes batch sizes and is checked before multiplication to avoid overflow.
+
+New tests:
+
+- `VehicleInputTest.FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering`
+- `VehicleInputTest.FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules`
+- `VehicleInputTest.FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams`
+- `VehicleInputTest.FR02_IndependentSeededBatchRunsAreReproducible`
+- `VehicleInputTest.FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions`
+- `ScenarioTest.FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility`
+- `ScenarioTest.FR02_RejectsInvalidDuplicateAndUnknownBatchSettings`
+- `ScenarioTest.FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying`
+- `cli_batch_arrivals`
+
+Linux GCC 15.2 C++17 Debug: **72/72 CTest cases passed** (63 existing and 9 new). The batch
+CLI fixture generates 12 vehicles, admits 4, and retains deferred IDs 5–12 in order. This
+is an FR-02 capability extension; FR-03 work is left for a later change.
+
+For this FR-02 change, the warning-as-error build and Clang static analysis passed for
+all 11 project translation units with zero findings. Remote CI remains unverified until
+the new feature branch is pushed.

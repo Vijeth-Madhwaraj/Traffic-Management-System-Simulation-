@@ -10,6 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
+#include <utility>
 
 namespace traffic {
 namespace {
@@ -67,6 +68,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
     std::size_t bytes = 0;
     std::size_t lineNumber = 0;
     std::vector<Record> arrivals;
+    std::map<std::string, std::pair<std::size_t, std::size_t>> batches;
     std::map<IntersectionId, ScenarioSignals> signals;
     // Read with explicit bounds instead of letting getline allocate an unbounded line.
     std::string line;
@@ -128,6 +130,12 @@ Scenario ScenarioLoader::load(std::istream& input) {
                 auto& plan = signals[words[1]];
                 plan.intersection = words[1];
                 plan.conflicts.emplace_back(words[2], words[3]);
+            } else if (kind == "batch") {
+                fields(words, 3);
+                const auto count = static_cast<std::size_t>(
+                    number(words[2], ArrivalStream::maxVehiclesPerArrival, true));
+                if (!batches.emplace(words[1], std::make_pair(count, lineNumber)).second)
+                    throw std::invalid_argument("Duplicate batch setting for stream: " + words[1]);
             } else if (kind == "arrival" || kind == "stream") {
                 fields(words, kind == "arrival" ? 6 : 9, true);
                 arrivals.push_back({std::move(words), lineNumber});
@@ -171,6 +179,13 @@ Scenario ScenarioLoader::load(std::istream& input) {
             throw lineError(record.line, error.what());
         }
     }
+    for (const auto& batch : batches) {
+        const auto stream = std::find_if(scenario.streams.begin(), scenario.streams.end(),
+            [&](const auto& value) { return value.id == batch.first; });
+        if (stream == scenario.streams.end())
+            throw lineError(batch.second.second, "Batch references unknown stream: " + batch.first);
+        stream->vehiclesPerArrival = batch.second.first;
+    }
     validate(scenario);
     return scenario;
 }
@@ -202,9 +217,13 @@ void ScenarioLoader::validate(const Scenario& scenario) {
     for (const auto& stream : scenario.streams) {
         if (stream.endTick > scenario.config.duration || stream.firstTick >= stream.endTick)
             throw std::invalid_argument("Stream interval is outside run duration");
-        const auto potential = stream.endTick - stream.firstTick;
-        if (potential > maxVehicles - potentialVehicles) throw std::invalid_argument("Scenario could exceed 100000 vehicles");
-        potentialVehicles += static_cast<std::size_t>(potential);
+        if (stream.vehiclesPerArrival == 0 || stream.vehiclesPerArrival > ArrivalStream::maxVehiclesPerArrival)
+            throw std::invalid_argument("Stream batch size must be between 1 and 1000");
+        const auto ticks = stream.endTick - stream.firstTick;
+        // Divide the remaining budget before multiplying, so extreme values cannot overflow.
+        if (ticks > (maxVehicles - potentialVehicles) / stream.vehiclesPerArrival)
+            throw std::invalid_argument("Scenario could exceed 100000 vehicles");
+        potentialVehicles += static_cast<std::size_t>(ticks) * stream.vehiclesPerArrival;
     }
     VehicleManager validator(scenario.config.seed);
     validator.configureTopology(scenario.intersections, scenario.roads);
