@@ -32,7 +32,8 @@ void VehicleManager::validateVehicle(const Vehicle& vehicle) const {
         vehicle.source == vehicle.destination) throw std::invalid_argument("Vehicle requires distinct known endpoints");
     if (vehicle.vehicleClass != VehicleClass::Standard && vehicle.vehicleClass != VehicleClass::Emergency)
         throw std::invalid_argument("Unknown vehicle class");
-    if (vehicle.state != VehicleState::Waiting || vehicle.routeIndex != 0 || vehicle.waitingTicks != 0)
+    if (vehicle.state != VehicleState::Waiting || vehicle.routeIndex != 0 || vehicle.waitingTicks != 0 ||
+        vehicle.routeFailure != RouteFailure::None)
         throw std::invalid_argument("New vehicle must have initial state");
     auto node = vehicle.source;
     for (const auto& id : vehicle.route) {
@@ -78,13 +79,26 @@ AdmissionBatch VehicleManager::advanceArrivals(Tick now, const RouteProvider& ro
     for (const auto& event : replacement.generate(now)) {
         auto& vehicle = *replacement.find(event.id);
         batch.generated.push_back(event.id);
-        if (vehicle.route.empty() && routes) vehicle.route = routes(vehicle.source, vehicle.destination);
+        const bool requestedRoute = vehicle.route.empty();
+        // Provider exceptions stay outside the validation catch: operational failures
+        // must preserve the tick for retry, not be mistaken for an invalid route.
+        if (requestedRoute && routes) vehicle.route = routes(vehicle.source, vehicle.destination);
         if (vehicle.route.empty()) {
+            vehicle.routeFailure = RouteFailure::NoRoute;
+        } else {
+            try {
+                replacement.validateVehicle(vehicle);
+                replacement.validateEntry(vehicle, event.lane);
+            } catch (const std::invalid_argument&) {
+                if (!requestedRoute) throw;
+                vehicle.routeFailure = RouteFailure::InvalidRoute;
+            }
+        }
+        if (vehicle.routeFailure != RouteFailure::None) {
+            vehicle.route.clear(); // Invalid provider data must not reach movement.
             vehicle.state = VehicleState::Unroutable;
             batch.unroutable.push_back(event.id);
         } else {
-            replacement.validateVehicle(vehicle);
-            replacement.validateEntry(vehicle, event.lane);
             replacement.lanes_.at(event.lane).pending.push_back(event.id);
         }
     }

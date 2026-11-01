@@ -103,5 +103,20 @@ TEST(ScenarioInputIntegrationTest, RequiresValidatedScenarioBeforeRunning) {
     EXPECT_THROW(simulation.run(), std::logic_error);
     EXPECT_THROW(simulation.reset(), std::logic_error);
 }
+TEST(ScenarioInputIntegrationTest, FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles) {
+    auto scenario = fixture();
+    scenario.arrivals[0].vehicle.route.clear();
+    Simulation simulation({});
+    simulation.configureScenario(scenario);
+    simulation.setRouteProvider([](const auto&, const auto&) { return std::vector<RoadId>{"unknown"}; });
+    EXPECT_NO_THROW(simulation.run());
+    EXPECT_EQ(simulation.inputSummary().generated, 3U);
+    EXPECT_EQ(simulation.inputSummary().unroutable, 1U);
+    EXPECT_EQ(simulation.inputSummary().admitted, 2U);
+    EXPECT_EQ(simulation.vehicles().find(1)->routeFailure, RouteFailure::InvalidRoute);
+    EXPECT_EQ(simulation.vehicles().find(2)->state, VehicleState::Completed);
+    EXPECT_EQ(simulation.vehicles().find(3)->state, VehicleState::Completed);
+    EXPECT_EQ(simulation.currentTick(), scenario.config.duration);
+}
 }  // namespace
 }  // namespace traffic
