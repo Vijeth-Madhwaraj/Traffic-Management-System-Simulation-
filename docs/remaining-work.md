@@ -1,0 +1,72 @@
+# Remaining Work and Current Limitations
+
+This note summarizes gaps visible in the current implementation and project requirements. It separates missing simulation behavior from usability features that can currently be worked around with configuration files or terminal commands.
+
+## User-facing and scenario-building gaps
+
+### Graphical front end
+
+- The application is a command-line program. It has no graphical map, animated vehicles, clickable controls, or live dashboard.
+- `--show-scenario` prints the network and configuration as text; `--trace` prints text updates for each tick.
+- A front end could show intersections and directed roads, animate vehicles, color signal states, and display queues and destination counts.
+
+### Interactive custom-scenario builder
+
+- Scenarios can already be customized by editing text files using the format in [`../config/README.md`](../config/README.md).
+- There is no form-based editor, visual road-network designer, or save/load workflow for people who do not want to edit the scenario text manually.
+- The CLI can validate a scenario and preview its configuration, but it does not guide a user through creating one.
+
+### Two-way road convenience
+
+- Roads are represented as directed edges, such as `AB: A -> B`.
+- A two-way connection can currently be approximated by defining two directed roads, one in each direction, with separate IDs and capacities (for example, `AB` and `BA`). Routes and signal movements must refer to the correct direction-specific roads.
+- There is no first-class two-way-road record or interface that creates and manages both directions together. Shared physical-lane capacity between directions is also not modeled.
+
+## Simulation behavior still missing or incomplete
+
+### Automatic route selection — incomplete
+
+- Vehicles in current demos use explicit routes from the scenario file.
+- `RoadNetwork::shortestRoute` is still a stub, so the simulator does not automatically select a route based on connectivity, travel time, or current conditions.
+
+### Downstream lane-capacity handling — incomplete
+
+- Road occupancy has a capacity check during movement.
+- Full downstream lane-capacity behavior is not integrated end to end; the current movement model does not provide complete per-lane storage, selection, and spillback handling at every intersection.
+
+### Adaptive signals and emergency priority — not implemented
+
+- Configured fixed signal phases, green/yellow/all-red timing, and conflict safety checks are implemented.
+- Signals do not adjust their timing in response to traffic or queue lengths.
+- Emergency vehicles are accepted as a vehicle class, but do not receive signal priority and use the same FIFO admission policy as standard vehicles.
+
+### Incident response and rerouting — incomplete
+
+- Congestion can be detected, and scheduled incidents can temporarily block roads.
+- The simulation does not automatically choose alternate routes or adapt signal timing in response to congestion or a road blockage.
+
+### Detailed trip metrics and reports — incomplete
+
+- The CLI reports generated, admitted, queued, deferred, unroutable, reached-destination, and in-transit counts.
+- Basic metrics counters and CSV helpers exist, but detailed trip and system reporting is not fully connected to the simulation. Examples include completed-trip travel times, integrated waiting-time summaries, throughput over time, and complete performance reports.
+
+### Whole-system performance evidence — incomplete
+
+- A performance workload scenario exists, but it does not by itself establish full-system performance compliance.
+- Performance should be measured with movement, queues, signals, incidents, and reporting active, using documented machine and workload details.
+
+## Implemented foundation
+
+- Validated text scenarios, scheduled and seeded streams, batch arrivals, and unique vehicle IDs.
+- FIFO entry queues with capacity limits and deferred retries.
+- Fixed-time signal plans with safety checks.
+- Directed road networks and explicit-route vehicle movement through permitted green phases, subject to road capacity.
+- Congestion detection, scheduled road blocking, scenario preview, tick trace, and basic destination counts.
+
+## Possible implementation order
+
+1. Add a visual scenario editor and map preview so users can create and inspect networks without hand-editing configuration files.
+2. Add first-class two-way-road support with clearly defined capacity semantics for each direction.
+3. Complete automatic routing and downstream lane-capacity handling.
+4. Add adaptive signal policies, safe emergency priority, and incident-driven rerouting.
+5. Integrate complete trip metrics and run documented end-to-end performance evaluations.

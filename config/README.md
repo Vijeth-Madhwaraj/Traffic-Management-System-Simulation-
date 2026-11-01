@@ -56,7 +56,9 @@ the run duration. Invalid files are rejected as a whole. Seed zero is valid.
 queue drains by the end of the run. `seeded_scenario.txt` demonstrates repeatable random
 arrivals. The CLI lane-status test also uses `tests/fixtures/blocked_entry_scenario.txt`,
 whose slow entry road leaves vehicle 2 queued and vehicle 3 deferred. Automatic routing
-and completed-trip performance/reporting remain incomplete.
+and detailed completed-trip performance/reporting remain incomplete. The CLI summary includes
+counts of vehicles that reached their destination and vehicles still in transit; `--trace`
+shows the reached-destination count after each tick.
 
 `performance_scenario.txt` provides 4 intersections and 500 guaranteed arrivals for later
 NFR-03 validation. Explicit-route movement is now enabled, but completed-trip performance

@@ -1,0 +1,19 @@
+# Compact showcase: two explicit routes share a downstream road and receive light batch traffic.
+scenario 1
+seed 2026
+duration 14
+intersection A
+intersection B
+intersection C
+intersection D
+road AB A B 2 1
+road AC A C 2 1
+road BC B C 2 1
+road CD C D 2 1
+lane local AB 1
+lane bypass AC 1
+phase B 1 1 1 AB-to-BC
+phase C 1 1 1 BC-to-CD
+phase C 1 1 1 AC-to-CD
+stream local local D standard 0 3 1 AB BC CD
+stream bypass bypass D standard 0 3 1 AC CD

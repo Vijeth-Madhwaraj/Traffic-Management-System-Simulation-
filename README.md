@@ -13,8 +13,9 @@ and movement over explicit routes through permitted green phases.
 
 Automatic route selection, full downstream lane-capacity handling, adaptive signals, emergency
 priority, and incident-driven rerouting remain incomplete. Congestion detection and
-scheduled road blocking are implemented. Metrics have basic counters/CSV
-helpers, but completed-trip reporting is not integrated. The CLI reports **input/admission counts**.
+scheduled road blocking are implemented. Metrics have basic counters/CSV helpers. The CLI
+reports reached-destination and in-transit counts, while detailed completed-trip metrics
+remain incomplete.
 
 ## Build, test, and run
 
@@ -26,6 +27,9 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ./build/traffic_sim --validate config/demo_scenario.txt
 ./build/traffic_sim --scenario config/demo_scenario.txt --lane-status
+./build/traffic_sim --scenario config/traffic_demo_scenario.txt --show-scenario
+./build/traffic_sim --scenario config/demo_scenario.txt --trace
+./build/traffic_sim --scenario config/traffic_demo_scenario.txt --lane-status
 ./build/traffic_sim --scenario config/seeded_scenario.txt
 ./build/traffic_sim --scenario config/batch_scenario.txt --lane-status
 ```
@@ -39,6 +43,22 @@ show each lane's capacity, queued IDs, and deferred IDs in FIFO order. Without t
 output remains a concise aggregate summary. The seeded demo prints its
 seed and generates a repeatable sequence. Explicit routes permit these input demonstrations
 while automatic routing is still a stub. See [scenario format](config/README.md).
+
+`--show-scenario` prints the configured roads, capacities, entry lanes, arrival patterns,
+routes, and signal phases without running the simulation. `--trace` prints that overview
+first, then each tick's signal phase, generated and admitted IDs, vehicle road/state changes,
+accumulated waiting time, and deferred IDs. This is a terminal view, not a graphical map.
+The CLI shows a cumulative reached-destination count during the trace and final
+reached-destination and in-transit totals; detailed trip metrics remain incomplete.
+
+For a compact traffic showcase, `traffic_demo_scenario.txt` uses 4 intersections, 4 roads,
+two explicit routes, and two arrival streams. It generates 6 vehicles over 3 ticks. Run it
+with `--show-scenario` to review the setup or add `--trace` to see each tick.
+
+For a negative demo, run `traffic_sim --validate tests/fixtures/invalid_capacity.txt`.
+The scenario deliberately gives a road a negative capacity; validation should reject it with
+a line-numbered error and exit code 1. An unsupported CLI option is also rejected with exit
+code 2, for example `traffic_sim --scenario config/demo_scenario.txt --bad-option`.
 
 To build without downloading test dependencies, configure with `-DBUILD_TESTING=OFF`.
 For static analysis, install Clang and configure a separate build:
@@ -56,7 +76,8 @@ cmake --build build-analysis --parallel 2
 - **Vainik:** congestion, incidents, metrics, and reporting, FR-13–FR-17.
 
 See [architecture](docs/architecture.md), [requirement traceability](docs/traceability.md),
-and [Aarya's test evidence and remaining work](docs/aarya-test-matrix.md).
+and [Aarya's test evidence](docs/aarya-test-matrix.md). See [remaining work and current limitations](docs/remaining-work.md)
+for known missing features and usability gaps.
 Explicitly routed vehicles can now move through green intersections. Automatic route
 selection, downstream lane-capacity handling, and completed-trip metrics remain in progress.
 

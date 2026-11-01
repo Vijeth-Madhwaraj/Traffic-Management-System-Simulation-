@@ -227,4 +227,14 @@ Vehicle* VehicleManager::find(VehicleId id) noexcept {
 
 std::size_t VehicleManager::size() const noexcept { return vehicles_.size(); }
 
+std::vector<Vehicle> VehicleManager::vehicleSnapshots() const {
+    std::vector<Vehicle> result;
+    result.reserve(vehicles_.size());
+    for (const auto& entry : vehicles_) result.push_back(entry.second);
+    std::sort(result.begin(), result.end(), [](const Vehicle& left, const Vehicle& right) {
+        return left.id < right.id;
+    });
+    return result;
+}
+
 }  // namespace traffic

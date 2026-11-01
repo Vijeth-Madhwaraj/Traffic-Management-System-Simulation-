@@ -78,6 +78,7 @@ public:
     VehicleId addVehicle(Vehicle vehicle);
     const Vehicle* find(VehicleId id) const noexcept;
     Vehicle* find(VehicleId id) noexcept;
+    std::vector<Vehicle> vehicleSnapshots() const;
     std::size_t size() const noexcept;
 
 private:
