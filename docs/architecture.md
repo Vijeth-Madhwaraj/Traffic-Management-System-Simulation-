@@ -47,8 +47,9 @@
 - `run()` continues from the current tick; repeated calls at completion do nothing. `reset()`
   reloads the original scenario and restores seeded input state while retaining an injected
   route provider. Loading another scenario clears an injected provider.
-- The CLI reports cumulative admission and current queue/pending/unroutable counts. Admission
-  is not completion. A run ends at its configured duration even with pending vehicles.
+- The CLI reports cumulative admission, vehicles that reached their destination, in-transit
+  vehicles, and current queue/pending/unroutable counts. Admission is not completion. A run
+  ends at its configured duration even with pending or in-transit vehicles.
 
 Scenario grammar, bounds, and examples are in [`../config/README.md`](../config/README.md).
 Signal movement IDs and complete conflict tables remain the intersection owner's contract;

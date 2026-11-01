@@ -79,4 +79,15 @@ InputSummary Simulation::inputSummary() const noexcept {
 const VehicleManager& Simulation::vehicles() const noexcept { return vehicles_; }
 Tick Simulation::currentTick() const noexcept { return currentTick_; }
 
+std::vector<std::pair<IntersectionId, SignalStatus>> Simulation::signalSnapshots(Tick tick) const {
+    std::vector<std::pair<IntersectionId, SignalStatus>> result;
+    if (!scenario_) return result;
+    result.reserve(scenario_->signals.size());
+    for (const auto& plan : scenario_->signals) {
+        const auto status = signals_.status(plan.intersection, tick);
+        if (status) result.emplace_back(plan.intersection, *status);
+    }
+    return result;
+}
+
 }  // namespace traffic

@@ -9,6 +9,9 @@
 #include "traffic/signals/signal_controller.hpp"
 #include "traffic/types.hpp"
 
+#include <utility>
+#include <vector>
+
 namespace traffic {
 
 struct InputSummary {
@@ -28,6 +31,7 @@ public:
     void reset();
     InputSummary inputSummary() const noexcept;
     const VehicleManager& vehicles() const noexcept;
+    std::vector<std::pair<IntersectionId, SignalStatus>> signalSnapshots(Tick tick) const;
 
     // Configure the intersection's validated phases and conflict table.
     void configureSignals(
