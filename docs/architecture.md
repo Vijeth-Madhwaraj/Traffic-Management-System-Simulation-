@@ -66,7 +66,7 @@ adaptive timing and safe emergency-priority behavior remain separate features.
 - A blocked vehicle remains on its current road, retains its route position, and accrues waiting ticks. Reaching the destination releases the occupied road and marks the vehicle `Completed`.
 - Unit tests call `MovementEngine` directly with road, signal, and vehicle modules; they do not need to construct `Simulation`.
 
-FR-11 lane occupancy is tracked by `MovementEngine` separately from the entry queue's waiting capacity. A lane's configured capacity bounds the number of in-transit vehicles assigned to that lane; road capacity remains an aggregate limit across the road.
+FR-11 downstream lane occupancy is tracked by `MovementEngine` separately from an entry queue's waiting capacity. A vehicle's initial entry from its source queue does not consume downstream-lane occupancy; crossing into an outgoing road does. Each configured downstream lane bounds its in-transit vehicles, while road capacity remains an aggregate limit across the road.
 
 ## First integration milestone
 

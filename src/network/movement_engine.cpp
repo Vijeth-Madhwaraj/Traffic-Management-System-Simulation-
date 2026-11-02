@@ -115,12 +115,14 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
             auto* vehicle = vehicles.find(*front);
             if (!vehicle || vehicle->state != VehicleState::Waiting || vehicle->route.empty() ||
                 vehicle->route.front() != road->id || vehicle->source != road->from || !road->enabled ||
-                road->occupancy >= road->capacity || laneOccupancy_[entryLane.id] >= entryLane.capacity) {
+                road->occupancy >= road->capacity) {
                 recordWait(vehicle);
                 break;
             }
 
-            auto inserted = inTransit_.emplace(*front, TransitState{road->id, entryLane.id, now});
+            // Entry queues are FR-04 waiting lanes. FR-11 downstream lane
+            // occupancy starts only when a vehicle crosses into an outgoing lane.
+            auto inserted = inTransit_.emplace(*front, TransitState{road->id, {}, now});
             if (!inserted.second) break;
             const auto popped = queue->pop();
             if (!popped || *popped != *front) {
@@ -128,7 +130,6 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
                 break;
             }
             ++road->occupancy;
-            ++laneOccupancy_[entryLane.id];
             vehicle->state = VehicleState::InTransit;
         }
     }

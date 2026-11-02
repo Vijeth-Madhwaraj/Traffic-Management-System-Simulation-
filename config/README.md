@@ -27,8 +27,9 @@ most one arrival per stream per tick. Probability is in `[0,1]`. Scheduled arriv
 same tick preserve file order; streams run afterwards in stream-ID order. Emergency class
 does not change FIFO order or bypass signal safety.
 
-Lane capacity limits waiting vehicles; for movement, the same configured lane capacity also
-limits the number of vehicles in transit on that lane. Road capacity remains a separate
+Lane capacity limits waiting vehicles. When a vehicle crosses into a downstream road that has
+configured lanes, each lane's capacity also limits in-transit occupancy; initial entry from a
+source queue does not consume downstream-lane occupancy. Road capacity remains a separate
 aggregate limit. Each lane capacity must not exceed its road's capacity. Full queues defer
 arrivals with their original IDs; pending vehicles enter before new arrivals. No route is a controlled
 `Unroutable` result, not a full-lane condition.
