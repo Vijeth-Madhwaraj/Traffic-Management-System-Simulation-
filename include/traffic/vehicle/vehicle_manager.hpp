@@ -62,6 +62,7 @@ public:
     void configureTopology(std::vector<IntersectionId> intersections, std::vector<Road> roads);
     void validateVehicle(const Vehicle& vehicle) const;
     void configureLanes(std::vector<EntryLane> lanes);
+    // Invalid provider routes reject only that vehicle; thrown provider errors roll back the tick.
     AdmissionBatch advanceArrivals(Tick now, const RouteProvider& routes);
     std::vector<EntryLane> entryLanes() const;
     LaneQueue* lane(const std::string& id) noexcept;

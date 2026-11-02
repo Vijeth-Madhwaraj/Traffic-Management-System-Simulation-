@@ -54,7 +54,11 @@ original IDs; pending vehicles enter before new arrivals. `--scenario <file> --l
 shows per-lane queue capacity, queued IDs, and deferred IDs without changing queue order.
 Queue insertion rejects ID zero and an ID already present in that same queue; rejected
 insertions do not consume capacity. No route is a controlled
-`Unroutable` result, not a full-lane condition.
+`Unroutable` result, not a full-lane condition. Missing provider routes are recorded as
+`RouteFailure::NoRoute`; invalid provider results are recorded as
+`RouteFailure::InvalidRoute` and never enter a lane. Other valid arrivals continue.
+Exceptions thrown by a provider preserve the admission tick for retry. Invalid explicit
+routes in the scenario file remain setup errors and reject the scenario.
 
 Limits: 1 MiB per file, 4096 bytes per line, 2–1024 intersections, 1–4096 roads and lanes,
 1–100000 ticks, positive capacities/travel times/phase durations up to 1000000, and at most

@@ -65,3 +65,14 @@ batch sizes. `ScenarioLoader` accepts optional `batch` records and validates the
 references, bounds and total vehicle budget. Evidence: `FR02_*` tests in
 `tests/unit/vehicle/vehicle_manager_test.cpp` and `tests/unit/input/scenario_test.cpp`,
 plus `cli_batch_arrivals`. All 72 current CTest cases passed locally on Linux.
+
+
+## 1 November 2026 FR-03 route-result validation
+
+`Vehicle::routeFailure` in `include/traffic/types.hpp` and
+`VehicleManager::advanceArrivals` in `src/vehicle/vehicle_manager.cpp` provide per-vehicle
+route-failure outcomes while preserving validation and rollback rules. Evidence is in
+`VehicleInputTest.FR03_*` and
+`ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles`.
+All 78 current CTest cases passed locally on Linux. Invalid explicit scenario input
+remains rejected; automatic route selection is not implemented by this change.

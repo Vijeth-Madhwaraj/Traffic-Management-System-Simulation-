@@ -185,3 +185,30 @@ is an FR-02 capability extension; FR-03 work is left for a later change.
 For this FR-02 change, the warning-as-error build and Clang static analysis passed for
 all 11 project translation units with zero findings. Remote CI remains unverified until
 the new feature branch is pushed.
+
+
+## 1 November 2026: FR-03 isolate invalid route-provider results
+
+One functional improvement on `feature/aarya-vehicle-validation`: a malformed nonempty
+route returned by the route provider no longer aborts all arrivals at the tick. Only that
+vehicle becomes `Unroutable`; its invalid route is cleared and valid vehicles proceed.
+`Vehicle::routeFailure` distinguishes `None`, `NoRoute` and `InvalidRoute` so callers can
+identify the reason. Invalid explicit scenario routes still fail setup, and exceptions
+thrown by a provider still roll back the tick rather than being swallowed. Reset removes
+previous failures along with the vehicle registry.
+
+New tests cover:
+
+- Mixed invalid-provider, valid-provider and explicit routes at the same tick.
+- Unknown/disabled/disconnected roads, incomplete routes and the wrong entry road.
+- Missing routes versus invalid routes, followed by a successful reset/retry.
+- A thrown provider exception after an earlier rejection, preserving IDs and queues.
+- Rejection of new vehicle templates carrying an old routing failure.
+- A full simulation continuing and completing valid vehicles after one bad provider route.
+
+Linux GCC 15.2 C++17 Debug: **78/78 CTest cases passed** (72 existing and 6 new). This is
+an FR-03 validation improvement; automatic route calculation remains the FR-12 owner's work.
+
+For this FR-03 change, Clang static analysis passed for all 11 project translation units
+with zero findings, and the application built with warnings treated as errors. These are
+local results; remote CI remains pending until the new branch is pushed.

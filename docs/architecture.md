@@ -31,8 +31,12 @@
   Compare the upper 32 bits of `mt19937_64` against `floor(probability * 2^32)`.
 - Admission uses supplied validated routes or invokes `RouteProvider(source, destination)`.
   Providers must return an enabled connected route beginning on the configured entry road.
-  An empty route marks the vehicle `Unroutable`; invalid nonempty routes reject the tick.
-  Provider failure does not consume the arrival or advance RNG state.
+  An empty result marks that vehicle `Unroutable` with `RouteFailure::NoRoute`.
+  Invalid provider results (unknown/disabled/disconnected roads, wrong destination or entry
+  road) mark only that vehicle `Unroutable` with `RouteFailure::InvalidRoute`; the bad route
+  is cleared and valid arrivals continue. Explicit scenario routes are still validated
+  before the run. Exceptions thrown by the provider roll back the whole admission tick,
+  preserving IDs, queues and RNG state for retry.
 - Full queues retain pending IDs in FIFO order. Each tick admits old pending vehicles
   before newer vehicles; emergency class uses the same FIFO policy.
 - `laneSnapshots()` returns independent value snapshots sorted by lane ID, including capacity,
