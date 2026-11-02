@@ -11,7 +11,8 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 | FR-18 | `src/vehicle/vehicle_manager.cpp`, `src/simulation/simulation.cpp`, `src/main.cpp` | UT-A02; TC-18 input event reproducibility (passed); full-trip comparison blocked |
 | FR-05 | `SignalController::configure`, `SignalController::status` | TC-05 (planned), UT-VI01, UT-VI04 |
 | FR-06 | `SignalController::advance`, `SignalController::permits` | TC-06 (planned), UT-VI02, UT-VI03, UT-VI04, UT-VI08 |
-| FR-07, FR-08 | `SignalController` (planned) | UT-VI05 to UT-VI07, UT-VI10 |
+| FR-07 | `SignalController`, `MovementEngine::readyMovementQueues`, scenario `adaptive` record | TC-07 policy, queue integration, bounds, and safety tests (passed) |
+| FR-08 | `SignalController` (planned) | UT-VI07 (blocked; emergency-priority API not implemented) |
 | FR-09 | `RoadNetwork` | UT-VA01, UT-VA11; `vaibhav-fr09-test-cases.md` (passed in Windows/Linux CI) |
 | FR-12 | `RoadNetwork` | UT-VA02 to UT-VA04 (planned) |
 | FR-10 | `MovementEngine` | UT-VA05 to UT-VA07, UT-VA09 to UT-VA10 (passed in Windows/Linux CI for PR #68) |
@@ -22,7 +23,7 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 | FR-15 | Rerouting after incidents | Pending; not implemented by this change |
 | FR-16, FR-17 | `MetricsCollector` and report output | UT-VN07 to UT-VN10 |
 
-The FR-05/06 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; their automated tests are in `tests/unit/signals/signal_controller_test.cpp`. The signal matrix records an eight-test MinGW GCC Windows pass; the Linux CI job also passed those signal tests. FR-07/08 tests remain blocked pending implementation. Windows and Linux CI for PR #68 passed; continue adding integration/system results as features land.
+The FR-05/06/07 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; automated tests are in `tests/unit/signals/signal_controller_test.cpp`. FR-07 uses ready-to-cross movement queues and bounded per-phase green adjustments. FR-08 emergency priority remains unimplemented. Existing remote CI evidence applies to earlier commits; run CI for this branch before merge.
 
 
 FR-09–FR-12 evidence is in [Vaibhav's test matrix](vaibhav-test-matrix.md). FR-09 road data and FR-10 explicit-route movement passed Windows/Linux CI. FR-11 road-capacity checks are covered; downstream-lane coverage and FR-12 automatic route selection remain incomplete. `RoadNetwork::shortestRoute` is still a stub.

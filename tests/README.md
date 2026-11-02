@@ -81,9 +81,9 @@ Linux tests, and static analysis all succeed; each job has a unique display name
 ## Vijeth ownership status
 
 See [`../docs/vijeth-test-matrix.md`](../docs/vijeth-test-matrix.md) for the
-UT-VI01 to UT-VI10 status. Tests are added only where the current interface
-supports real assertions. FR-07 adaptation and FR-08 emergency priority remain
-blocked on implementation/API work; they are not represented as passing tests.
+UT-VI01 to UT-VI10 status. FR-07 queue-adaptive green timing now has controller,
+movement-queue, scenario-policy, bound, and safety coverage. FR-08 emergency
+priority remains blocked on implementation/API work and is not represented as passing.
 
 
 Linux unit/integration/CLI and Clang static-analysis jobs are configured alongside Windows.

@@ -130,6 +130,16 @@ Scenario ScenarioLoader::load(std::istream& input) {
                 auto& plan = signals[words[1]];
                 plan.intersection = words[1];
                 plan.conflicts.emplace_back(words[2], words[3]);
+            } else if (kind == "adaptive") {
+                fields(words, 6);
+                auto& plan = signals[words[1]];
+                plan.intersection = words[1];
+                if (plan.adaptivePolicy) throw std::invalid_argument("Duplicate adaptive signal policy");
+                plan.adaptivePolicy = AdaptiveSignalPolicy{
+                    number(words[2], maxValue, true),
+                    number(words[3], maxValue, true),
+                    static_cast<std::size_t>(number(words[4], maxValue, true)),
+                    number(words[5], maxValue, true)};
             } else if (kind == "batch") {
                 fields(words, 3);
                 const auto count = static_cast<std::size_t>(
@@ -240,7 +250,7 @@ void ScenarioLoader::validate(const Scenario& scenario) {
             if (phase.greenDuration > maxValue || phase.yellowDuration > maxValue || phase.allRedDuration > maxValue)
                 throw std::invalid_argument("Signal timing exceeds supported bound");
         }
-        signals.configure(plan.intersection, plan.phases, plan.conflicts);
+        signals.configure(plan.intersection, plan.phases, plan.conflicts, plan.adaptivePolicy);
     }
 }
 

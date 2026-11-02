@@ -108,6 +108,12 @@ void printScenario(const traffic::Scenario& scenario, const std::string& path) {
             }
             std::cout << '\n';
         }
+        if (plan.adaptivePolicy) {
+            std::cout << "      adaptive green: min " << plan.adaptivePolicy->minimumGreenDuration
+                      << ", max " << plan.adaptivePolicy->maximumGreenDuration
+                      << ", extend when queue >= " << plan.adaptivePolicy->extendQueueThreshold
+                      << ", adjustment " << plan.adaptivePolicy->adjustment << " tick(s); shorten by the same step when empty\n";
+        }
     }
 }
 
@@ -131,13 +137,12 @@ void printTraceTick(traffic::Simulation& simulation,
     for (const auto& entry : signalStatuses) {
         const auto& status = entry.second;
         std::cout << "  Signal " << entry.first << ": phase " << status.phaseIndex + 1
-                  << ' ' << colorName(status.color);
+                  << ' ' << colorName(status.color) << " (green duration " << status.greenDuration << " tick(s)";
         if (!status.permittedMovements.empty()) {
-            std::cout << " (permits";
+            std::cout << "; permits";
             for (const auto& movement : status.permittedMovements) std::cout << ' ' << movement;
-            std::cout << ')';
         }
-        std::cout << '\n';
+        std::cout << ")\n";
     }
 
     const auto vehicles = simulation.vehicles().vehicleSnapshots();

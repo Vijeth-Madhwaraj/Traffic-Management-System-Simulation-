@@ -11,6 +11,11 @@ namespace traffic {
 
 class MovementEngine {
 public:
+    // Count vehicles that have completed road travel and are ready to cross,
+    // grouped by the signal movement they are waiting to make.
+    MovementQueueCounts readyMovementQueues(
+        Tick now, const RoadNetwork& network, const VehicleManager& vehicles) const;
+
     // Entry-lane vehicles start on their first route road. At an intersection,
     // a crossing requires the matching `<incoming-road>-to-<outgoing-road>`
     // movement to be Green and the outgoing road to have capacity.

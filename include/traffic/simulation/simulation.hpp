@@ -37,7 +37,8 @@ public:
     void configureSignals(
         const IntersectionId& intersection,
         std::vector<SignalPhase> phases,
-        const std::vector<MovementConflict>& conflicts);
+        const std::vector<MovementConflict>& conflicts,
+        std::optional<AdaptiveSignalPolicy> adaptivePolicy = std::nullopt);
 
     // Advance signals before movement.
     void run();

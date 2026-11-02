@@ -11,8 +11,9 @@ vehicle/route validation, FIFO entry queues, capacity-limited admission and defe
 reset/reproducibility, timed signal phases with safety checks, validated road-network edges,
 and movement over explicit routes through permitted green phases.
 
-Automatic route selection, full downstream lane-capacity handling, adaptive signals, emergency
-priority, and incident-driven rerouting remain incomplete. Congestion detection and
+Automatic route selection, full downstream lane-capacity handling, emergency priority, and
+incident-driven rerouting remain incomplete. Queue-responsive green timing is implemented
+within configured limits. Congestion detection and
 scheduled road blocking are implemented. Metrics have basic counters/CSV helpers. The CLI
 reports reached-destination and in-transit counts, while detailed completed-trip metrics
 remain incomplete.
@@ -28,6 +29,7 @@ ctest --test-dir build --output-on-failure
 ./build/traffic_sim --validate config/demo_scenario.txt
 ./build/traffic_sim --scenario config/demo_scenario.txt --lane-status
 ./build/traffic_sim --scenario config/traffic_demo_scenario.txt --show-scenario
+./build/traffic_sim --scenario config/traffic_demo_scenario.txt --trace
 ./build/traffic_sim --scenario config/demo_scenario.txt --trace
 ./build/traffic_sim --scenario config/traffic_demo_scenario.txt --lane-status
 ./build/traffic_sim --scenario config/seeded_scenario.txt

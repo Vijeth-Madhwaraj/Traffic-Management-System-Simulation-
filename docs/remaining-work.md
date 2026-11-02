@@ -34,10 +34,12 @@ This note summarizes gaps visible in the current implementation and project requ
 - Road occupancy has a capacity check during movement.
 - Full downstream lane-capacity behavior is not integrated end to end; the current movement model does not provide complete per-lane storage, selection, and spillback handling at every intersection.
 
-### Adaptive signals and emergency priority — not implemented
+### Adaptive signals and emergency priority — partial
 
 - Configured fixed signal phases, green/yellow/all-red timing, and conflict safety checks are implemented.
-- Signals do not adjust their timing in response to traffic or queue lengths.
+- FR-07 queue-responsive green timing is implemented. Each phase's green duration can be
+  extended for a ready queue or shortened when empty, within configured minimum and maximum
+  limits. Phase order, permitted movements, yellow, and all-red clearance stay intact.
 - Emergency vehicles are accepted as a vehicle class, but do not receive signal priority and use the same FIFO admission policy as standard vehicles.
 
 ### Incident response and rerouting — incomplete
@@ -59,7 +61,7 @@ This note summarizes gaps visible in the current implementation and project requ
 
 - Validated text scenarios, scheduled and seeded streams, batch arrivals, and unique vehicle IDs.
 - FIFO entry queues with capacity limits and deferred retries.
-- Fixed-time signal plans with safety checks.
+- Fixed signal phase plans with safety checks and queue-responsive green durations bounded by configured limits.
 - Directed road networks and explicit-route vehicle movement through permitted green phases, subject to road capacity.
 - Congestion detection, scheduled road blocking, scenario preview, tick trace, and basic destination counts.
 
@@ -68,5 +70,6 @@ This note summarizes gaps visible in the current implementation and project requ
 1. Add a visual scenario editor and map preview so users can create and inspect networks without hand-editing configuration files.
 2. Add first-class two-way-road support with clearly defined capacity semantics for each direction.
 3. Complete automatic routing and downstream lane-capacity handling.
-4. Add adaptive signal policies, safe emergency priority, and incident-driven rerouting.
+4. Add safe emergency priority and incident-driven rerouting; consider further adaptive-signal
+   refinements after FR-07 use and review.
 5. Integrate complete trip metrics and run documented end-to-end performance evaluations.

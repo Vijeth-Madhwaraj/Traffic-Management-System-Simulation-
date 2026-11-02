@@ -22,7 +22,7 @@ void Simulation::configureScenario(const Scenario& scenario) {
         if (!replacement.network_.addRoad(road)) throw std::invalid_argument("Invalid scenario road");
     }
     for (const auto& plan : scenario.signals)
-        replacement.configureSignals(plan.intersection, plan.phases, plan.conflicts);
+        replacement.configureSignals(plan.intersection, plan.phases, plan.conflicts, plan.adaptivePolicy);
     replacement.scenario_ = scenario;
     *this = std::move(replacement);
 }
@@ -34,9 +34,10 @@ void Simulation::setRouteProvider(RouteProvider provider) {
 
 void Simulation::configureSignals(const IntersectionId& intersection,
                                   std::vector<SignalPhase> phases,
-                                  const std::vector<MovementConflict>& conflicts) {
+                                  const std::vector<MovementConflict>& conflicts,
+                                  std::optional<AdaptiveSignalPolicy> adaptivePolicy) {
     if (currentTick_ != 0) throw std::logic_error("Configure signals before starting simulation");
-    signals_.configure(intersection, std::move(phases), conflicts);
+    signals_.configure(intersection, std::move(phases), conflicts, adaptivePolicy);
 }
 
 AdmissionBatch Simulation::step() {
@@ -53,7 +54,8 @@ AdmissionBatch Simulation::step() {
     for (std::size_t index = 0; index < arrivals.generated.size(); ++index) metrics_.recordGenerated();
     lastCongestionReport_ =
         congestionDetector_.evaluate(network_, vehicles_, scenario_->lanes);
-    signals_.advance(currentTick_);
+    const auto movementQueues = movement_.readyMovementQueues(currentTick_, network_, vehicles_);
+    signals_.advance(currentTick_, movementQueues);
     movement_.advance(currentTick_, network_, signals_, vehicles_);
     for (const auto& lane : scenario_->lanes) metrics_.observeQueue(vehicles_.lane(lane.id)->size());
     ++currentTick_;
