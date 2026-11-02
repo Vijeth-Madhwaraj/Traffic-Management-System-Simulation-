@@ -13,7 +13,8 @@ class MovementEngine {
 public:
     // Entry-lane vehicles start on their first route road. At an intersection,
     // a crossing requires the matching `<incoming-road>-to-<outgoing-road>`
-    // movement to be Green and the outgoing road to have capacity.
+    // movement to be Green and the outgoing road and any configured lane on it
+    // to have capacity.
     // Integration dependency (FR-06): use the exact MovementId values from
     // each intersection's SignalPhase plan. Check permits() immediately before
     // crossing; it denies unknown movements and all Yellow/Red states.
@@ -22,10 +23,12 @@ public:
 private:
     struct TransitState {
         RoadId road;
+        std::string lane;
         Tick enteredAt{};
     };
 
     std::map<VehicleId, TransitState> inTransit_;
+    std::map<std::string, std::size_t> laneOccupancy_;
     std::optional<Tick> lastAdvanced_;
 };
 

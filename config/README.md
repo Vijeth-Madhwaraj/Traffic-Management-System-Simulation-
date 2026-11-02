@@ -13,7 +13,7 @@ seed <unsigned-64-bit-seed>
 duration <ticks>
 intersection <id>
 road <id> <from> <to> <capacity> <travel-ticks>
-lane <id> <entry-road-id> <capacity>
+lane <id> <road-id> <capacity>
 phase <intersection> <green-ticks> <yellow-ticks> <all-red-ticks> <movement>...
 conflict <intersection> <movement> <conflicting-movement>
 arrival <tick> <lane> <destination> <standard|emergency> <route-road>...
@@ -27,9 +27,10 @@ most one arrival per stream per tick. Probability is in `[0,1]`. Scheduled arriv
 same tick preserve file order; streams run afterwards in stream-ID order. Emergency class
 does not change FIFO order or bypass signal safety.
 
-Lane capacity limits waiting vehicles, separately from road occupancy in transit. Each lane
-capacity must not exceed its entry road's capacity. Full queues defer arrivals with their
-original IDs; pending vehicles enter before new arrivals. No route is a controlled
+Lane capacity limits waiting vehicles; for movement, the same configured lane capacity also
+limits the number of vehicles in transit on that lane. Road capacity remains a separate
+aggregate limit. Each lane capacity must not exceed its road's capacity. Full queues defer
+arrivals with their original IDs; pending vehicles enter before new arrivals. No route is a controlled
 `Unroutable` result, not a full-lane condition.
 
 Limits: 1 MiB per file, 4096 bytes per line, 2–1024 intersections, 1–4096 roads and lanes,

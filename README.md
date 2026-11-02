@@ -8,9 +8,10 @@ It does not control real traffic infrastructure.
 Implemented: validated text scenarios, scheduled/seeded vehicle generation, unique IDs,
 vehicle/route validation, FIFO entry queues, capacity-limited admission and deferred retries,
 reset/reproducibility, timed signal phases with safety checks, validated road-network edges,
-and movement over explicit routes through permitted green phases.
+and explicit-route movement through permitted green phases with road and configured lane
+capacity limits.
 
-Automatic route selection, full downstream lane-capacity handling, adaptive signals, emergency
+Automatic route selection, adaptive signals, emergency
 priority, congestion, and incident response remain incomplete. Metrics have basic counters/CSV
 helpers, but completed-trip reporting is not integrated. The CLI reports **input/admission counts**.
 
@@ -42,13 +43,13 @@ cmake --build build-analysis --parallel 2
 
 - **Aarya:** scenario/vehicle input and lane queues, FR-01–FR-04; shared FR-18 reproducibility.
 - **Vijeth:** signal control, FR-05–FR-08.
-- **Vaibhav:** road network representation and vehicle movement, FR-09–FR-10 (implemented; [coverage matrix](docs/vaibhav-test-matrix.md)); additional lane-capacity enforcement and routing, FR-11–FR-12.
+- **Vaibhav:** road network representation and vehicle movement, FR-09–FR-11 (implemented; [coverage matrix](docs/vaibhav-test-matrix.md)); automatic route selection, FR-12, remains in progress.
 - **Vainik:** congestion, incidents, metrics, and reporting, FR-13–FR-17.
 
 See [architecture](docs/architecture.md), [requirement traceability](docs/traceability.md),
 and [Aarya's test evidence and remaining work](docs/aarya-test-matrix.md).
 Explicitly routed vehicles can now move through green intersections. Automatic route
-selection, downstream lane-capacity handling, and completed-trip metrics remain in progress.
+selection and completed-trip metrics remain in progress.
 
 Use focused feature branches, meaningful commits, and teammate review before merge.
 Local tests, CI configuration, and successful remote CI runs are separate evidence.

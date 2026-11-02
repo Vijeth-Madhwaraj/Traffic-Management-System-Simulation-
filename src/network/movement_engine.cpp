@@ -22,6 +22,7 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
         }
     };
 
+    const auto configuredLanes = vehicles.entryLanes();
     std::vector<VehicleId> readyVehicles;
     readyVehicles.reserve(inTransit_.size());
     for (const auto& transit : inTransit_) readyVehicles.push_back(transit.first);
@@ -48,6 +49,7 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
         if (vehicle->routeIndex + 1 == vehicle->route.size()) {
             if (currentRoad->to == vehicle->destination) {
                 --currentRoad->occupancy;
+                if (!transit->second.lane.empty()) --laneOccupancy_.at(transit->second.lane);
                 vehicle->routeIndex = vehicle->route.size();
                 vehicle->state = VehicleState::Completed;
                 inTransit_.erase(transit);
@@ -65,16 +67,32 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
         }
 
         const MovementId movement = currentRoad->id + "-to-" + nextRoad->id;
+        const EntryLane* targetLane = nullptr;
+        bool hasTargetLanes = false;
+        for (const auto& lane : configuredLanes) {
+            if (lane.road != nextRoad->id) continue;
+            hasTargetLanes = true;
+            if (laneOccupancy_[lane.id] < lane.capacity) {
+                targetLane = &lane;
+                break;
+            }
+        }
+        const bool laneFull = hasTargetLanes && targetLane == nullptr;
         if (!signals.permits(currentRoad->to, movement) ||
-            (nextRoad->id != currentRoad->id && nextRoad->occupancy >= nextRoad->capacity)) {
+            (nextRoad->id != currentRoad->id && nextRoad->occupancy >= nextRoad->capacity) || laneFull) {
             recordWait(vehicle);
             continue;
         }
 
-        TransitState nextTransit{nextRoad->id, now};
+        const std::string nextLaneId = targetLane ? targetLane->id : std::string{};
+        TransitState nextTransit{nextRoad->id, nextLaneId, now};
         if (nextRoad->id != currentRoad->id) {
             --currentRoad->occupancy;
             ++nextRoad->occupancy;
+        }
+        if (transit->second.lane != nextLaneId) {
+            if (!transit->second.lane.empty()) --laneOccupancy_.at(transit->second.lane);
+            if (!nextLaneId.empty()) ++laneOccupancy_[nextLaneId];
         }
         ++vehicle->routeIndex;
         transit->second = std::move(nextTransit);
@@ -97,12 +115,12 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
             auto* vehicle = vehicles.find(*front);
             if (!vehicle || vehicle->state != VehicleState::Waiting || vehicle->route.empty() ||
                 vehicle->route.front() != road->id || vehicle->source != road->from || !road->enabled ||
-                road->occupancy >= road->capacity) {
+                road->occupancy >= road->capacity || laneOccupancy_[entryLane.id] >= entryLane.capacity) {
                 recordWait(vehicle);
                 break;
             }
 
-            auto inserted = inTransit_.emplace(*front, TransitState{road->id, now});
+            auto inserted = inTransit_.emplace(*front, TransitState{road->id, entryLane.id, now});
             if (!inserted.second) break;
             const auto popped = queue->pop();
             if (!popped || *popped != *front) {
@@ -110,6 +128,7 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
                 break;
             }
             ++road->occupancy;
+            ++laneOccupancy_[entryLane.id];
             vehicle->state = VehicleState::InTransit;
         }
     }

@@ -25,8 +25,9 @@ For offline testing with a previously downloaded GoogleTest source tree, configu
 only the application and does not establish test results.
 
 See [Aarya's matrix](../docs/aarya-test-matrix.md) for the recorded input-module run and
-remaining integration/NFR work. Explicit-route movement has unit coverage; automatic routing,
-full lane-capacity, incident and trip-metric acceptance remain in progress.
+remaining integration/NFR work. Explicit-route movement and FR-11 road/lane capacity have
+unit coverage; CI evidence for the new lane case, automatic routing, incident handling and
+trip-metric acceptance remain in progress.
 
 ## Windows PowerShell (local MinGW toolchain)
 
