@@ -42,24 +42,24 @@ void Simulation::configureScenario(const Scenario& scenario) {
         }
     }
 
-    // FR-14: Register all scheduled incidents.
-    // These incidents will be activated by step() at their start tick.
+    // FR-14: Register scheduled incidents.
     for (const auto& incident : scenario.incidents) {
         replacement.incidents_.schedule(incident);
     }
 
-    // Configure traffic signals.
+    // Configure traffic signals, including adaptive policies.
     for (const auto& plan : scenario.signals) {
         replacement.configureSignals(
             plan.intersection,
             plan.phases,
-            plan.conflicts
+            plan.conflicts,
+            plan.adaptivePolicy
         );
     }
 
     replacement.scenario_ = scenario;
 
-    // Replace the current simulation only after successful configuration.
+    // Replace current simulation only after successful configuration.
     *this = std::move(replacement);
 }
 
@@ -76,7 +76,8 @@ void Simulation::setRouteProvider(RouteProvider provider) {
 void Simulation::configureSignals(
     const IntersectionId& intersection,
     std::vector<SignalPhase> phases,
-    const std::vector<MovementConflict>& conflicts
+    const std::vector<MovementConflict>& conflicts,
+    std::optional<AdaptiveSignalPolicy> adaptivePolicy
 ) {
     if (currentTick_ != 0) {
         throw std::logic_error(
@@ -87,7 +88,8 @@ void Simulation::configureSignals(
     signals_.configure(
         intersection,
         std::move(phases),
-        conflicts
+        conflicts,
+        adaptivePolicy
     );
 }
 
@@ -102,13 +104,13 @@ AdmissionBatch Simulation::step() {
         return {};
     }
 
-    // FR-14: Apply scheduled incidents before calculating routes.
+    // FR-14: Apply incidents before calculating routes.
     incidents_.advance(currentTick_, network_);
 
-    // FR-15: Use an injected route provider or production
-    // shortest-path routing that avoids disabled roads.
+    // FR-15: Use injected routing or shortest-path routing
+    // that avoids disabled roads.
     const RouteProvider routes = routeProvider_
-        ? routeProvider_
+        ? *routeProvider_
         : RouteProvider{
               [this](
                   const IntersectionId& source,
@@ -143,8 +145,14 @@ AdmissionBatch Simulation::step() {
         scenario_->lanes
     );
 
-    // Advance traffic signals.
-    signals_.advance(currentTick_);
+    // Master feature: Update signals using movement-aware queues.
+    const auto movementQueues = movement_.readyMovementQueues(
+        currentTick_,
+        network_,
+        vehicles_
+    );
+
+    signals_.advance(currentTick_, movementQueues);
 
     // Advance vehicle movement.
     movement_.advance(
@@ -154,7 +162,7 @@ AdmissionBatch Simulation::step() {
         vehicles_
     );
 
-    // FR-16: Record completed vehicles and their waiting times.
+    // FR-16: Record completed vehicles and waiting times.
     for (const auto vehicleId : trackedVehicles_) {
         const Vehicle* vehicle = vehicles_.find(vehicleId);
 
@@ -166,7 +174,7 @@ AdmissionBatch Simulation::step() {
         }
     }
 
-    // FR-16: Record queue lengths after processing this tick.
+    // FR-16: Record queue lengths safely.
     for (const auto& lane : scenario_->lanes) {
         const auto* queue = vehicles_.lane(lane.id);
 
@@ -225,6 +233,7 @@ Tick Simulation::currentTick() const noexcept {
     return currentTick_;
 }
 
+// FR-16: Return simulation performance metrics.
 MetricsSnapshot Simulation::metricsSnapshot() const noexcept {
     const auto summary = inputSummary();
 
@@ -238,6 +247,7 @@ MetricsSnapshot Simulation::metricsSnapshot() const noexcept {
     return metrics_.snapshot(unfinished);
 }
 
+// FR-17: Prepare the final simulation report.
 SimulationReport Simulation::createReport() const noexcept {
     const auto summary = inputSummary();
     const auto metrics = metricsSnapshot();
@@ -268,6 +278,31 @@ SimulationReport Simulation::createReport() const noexcept {
             : incidents_.activeIncidentCount(finalProcessedTick);
 
     return report;
+}
+
+// Master feature: Return signal status snapshots.
+std::vector<std::pair<IntersectionId, SignalStatus>>
+Simulation::signalSnapshots(Tick tick) const {
+    std::vector<std::pair<IntersectionId, SignalStatus>> result;
+
+    if (!scenario_) {
+        return result;
+    }
+
+    result.reserve(scenario_->signals.size());
+
+    for (const auto& plan : scenario_->signals) {
+        const auto status = signals_.status(
+            plan.intersection,
+            tick
+        );
+
+        if (status) {
+            result.emplace_back(plan.intersection, *status);
+        }
+    }
+
+    return result;
 }
 
 }  // namespace traffic

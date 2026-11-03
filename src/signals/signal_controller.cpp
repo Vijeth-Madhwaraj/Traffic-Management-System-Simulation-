@@ -1,6 +1,7 @@
 #include "traffic/signals/signal_controller.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -8,12 +9,18 @@ namespace traffic {
 
 void SignalController::configure(const IntersectionId& intersection,
                                  std::vector<SignalPhase> phases,
-                                 const std::vector<MovementConflict>& conflicts) {
+                                 const std::vector<MovementConflict>& conflicts,
+                                 std::optional<AdaptiveSignalPolicy> adaptivePolicy) {
     if (intersection.empty()) {
         throw std::invalid_argument("Signal intersection ID must not be empty");
     }
     if (phases.empty()) {
         throw std::invalid_argument("A controlled intersection must have at least one signal phase");
+    }
+    if (adaptivePolicy && (adaptivePolicy->minimumGreenDuration == 0 ||
+        adaptivePolicy->minimumGreenDuration > adaptivePolicy->maximumGreenDuration ||
+        adaptivePolicy->extendQueueThreshold == 0 || adaptivePolicy->adjustment == 0)) {
+        throw std::invalid_argument("Invalid adaptive signal timing policy");
     }
 
     std::unordered_set<MovementId> allMovements;
@@ -21,6 +28,10 @@ void SignalController::configure(const IntersectionId& intersection,
         const auto& phase = phases[index];
         if (phase.greenDuration == 0 || phase.yellowDuration == 0 || phase.allRedDuration == 0) {
             throw std::invalid_argument("Signal phase durations must all be greater than zero");
+        }
+        if (adaptivePolicy && (phase.greenDuration < adaptivePolicy->minimumGreenDuration ||
+            phase.greenDuration > adaptivePolicy->maximumGreenDuration)) {
+            throw std::invalid_argument("Base green duration must be within adaptive timing limits");
         }
         if (phase.permittedMovements.empty()) {
             throw std::invalid_argument("Signal phase must permit at least one movement");
@@ -59,10 +70,18 @@ void SignalController::configure(const IntersectionId& intersection,
 
     // The first phase is active at tick zero. Apply only after validation so a
     // bad replacement plan cannot leave the intersection in a partial state.
-    states_[intersection] = State{std::move(phases), 0, SignalColor::Green, 0, 0};
+    std::vector<Tick> greenDurations;
+    greenDurations.reserve(phases.size());
+    for (const auto& phase : phases) greenDurations.push_back(phase.greenDuration);
+    states_[intersection] = State{std::move(phases), 0, SignalColor::Green, 0, 0,
+                                  adaptivePolicy, std::move(greenDurations), true};
 }
 
 void SignalController::advance(Tick now) {
+    advance(now, {});
+}
+
+void SignalController::advance(Tick now, const MovementQueueCounts& queues) {
     // Validate first so a backwards tick cannot partially advance the network
     // before an out-of-order intersection is encountered.
     for (const auto& entry : states_) {
@@ -72,17 +91,47 @@ void SignalController::advance(Tick now) {
     }
 
     for (auto& entry : states_) {
+        const auto& intersection = entry.first;
         auto& state = entry.second;
+        const auto adaptGreen = [&]() {
+            if (!state.adaptivePolicy || !state.adaptOnGreenStart) return;
+            std::size_t queued = 0;
+            const auto intersectionQueues = queues.find(intersection);
+            if (intersectionQueues != queues.end()) {
+                for (const auto& movement : state.phases[state.activePhase].permittedMovements) {
+                    const auto movementQueue = intersectionQueues->second.find(movement);
+                    if (movementQueue != intersectionQueues->second.end()) {
+                        const auto count = movementQueue->second;
+                        queued = count > std::numeric_limits<std::size_t>::max() - queued
+                                     ? std::numeric_limits<std::size_t>::max()
+                                     : queued + count;
+                    }
+                }
+            }
+            auto& duration = state.greenDurations[state.activePhase];
+            const auto& policy = *state.adaptivePolicy;
+            if (queued >= policy.extendQueueThreshold) {
+                duration = policy.maximumGreenDuration - duration < policy.adjustment
+                               ? policy.maximumGreenDuration
+                               : duration + policy.adjustment;
+            } else if (queued == 0) {
+                duration = duration - policy.minimumGreenDuration < policy.adjustment
+                               ? policy.minimumGreenDuration
+                               : duration - policy.adjustment;
+            }
+            state.adaptOnGreenStart = false;
+        };
         const auto currentDuration = [&state]() {
             const auto& phase = state.phases[state.activePhase];
             switch (state.color) {
-                case SignalColor::Green: return phase.greenDuration;
+                case SignalColor::Green: return state.greenDurations[state.activePhase];
                 case SignalColor::Yellow: return phase.yellowDuration;
                 case SignalColor::Red: return phase.allRedDuration;
             }
             return Tick{0};
         };
 
+        adaptGreen();
         while (now - state.colorStarted >= currentDuration()) {
             const Tick duration = currentDuration();
             state.colorStarted += duration;
@@ -94,6 +143,8 @@ void SignalController::advance(Tick now) {
             } else {
                 state.activePhase = (state.activePhase + 1) % state.phases.size();
                 state.color = SignalColor::Green;
+                state.adaptOnGreenStart = true;
+                adaptGreen();
             }
         }
         state.lastAdvanced = now;
@@ -123,7 +174,8 @@ std::optional<SignalStatus> SignalController::status(const IntersectionId& inter
     const auto& phase = state.phases[state.activePhase];
     return SignalStatus{state.activePhase, state.color, now - state.colorStarted,
                         state.color == SignalColor::Green ? phase.permittedMovements
-                                                         : std::vector<MovementId>{}};
+                                                         : std::vector<MovementId>{},
+                        state.greenDurations[state.activePhase]};
 }
 
 }  // namespace traffic

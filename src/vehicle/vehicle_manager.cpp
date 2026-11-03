@@ -32,7 +32,8 @@ void VehicleManager::validateVehicle(const Vehicle& vehicle) const {
         vehicle.source == vehicle.destination) throw std::invalid_argument("Vehicle requires distinct known endpoints");
     if (vehicle.vehicleClass != VehicleClass::Standard && vehicle.vehicleClass != VehicleClass::Emergency)
         throw std::invalid_argument("Unknown vehicle class");
-    if (vehicle.state != VehicleState::Waiting || vehicle.routeIndex != 0 || vehicle.waitingTicks != 0)
+    if (vehicle.state != VehicleState::Waiting || vehicle.routeIndex != 0 || vehicle.waitingTicks != 0 ||
+        vehicle.routeFailure != RouteFailure::None)
         throw std::invalid_argument("New vehicle must have initial state");
     auto node = vehicle.source;
     for (const auto& id : vehicle.route) {
@@ -78,13 +79,26 @@ AdmissionBatch VehicleManager::advanceArrivals(Tick now, const RouteProvider& ro
     for (const auto& event : replacement.generate(now)) {
         auto& vehicle = *replacement.find(event.id);
         batch.generated.push_back(event.id);
-        if (vehicle.route.empty() && routes) vehicle.route = routes(vehicle.source, vehicle.destination);
+        const bool requestedRoute = vehicle.route.empty();
+        // Provider exceptions stay outside the validation catch: operational failures
+        // must preserve the tick for retry, not be mistaken for an invalid route.
+        if (requestedRoute && routes) vehicle.route = routes(vehicle.source, vehicle.destination);
         if (vehicle.route.empty()) {
+            vehicle.routeFailure = RouteFailure::NoRoute;
+        } else {
+            try {
+                replacement.validateVehicle(vehicle);
+                replacement.validateEntry(vehicle, event.lane);
+            } catch (const std::invalid_argument&) {
+                if (!requestedRoute) throw;
+                vehicle.routeFailure = RouteFailure::InvalidRoute;
+            }
+        }
+        if (vehicle.routeFailure != RouteFailure::None) {
+            vehicle.route.clear(); // Invalid provider data must not reach movement.
             vehicle.state = VehicleState::Unroutable;
             batch.unroutable.push_back(event.id);
         } else {
-            replacement.validateVehicle(vehicle);
-            replacement.validateEntry(vehicle, event.lane);
             replacement.lanes_.at(event.lane).pending.push_back(event.id);
         }
     }
@@ -92,7 +106,8 @@ AdmissionBatch VehicleManager::advanceArrivals(Tick now, const RouteProvider& ro
         auto& state = entry.second;
         while (!state.pending.empty() && state.queue.hasSpace()) {
             const auto id = state.pending.front();
-            state.queue.enqueue(id);
+            if (!state.queue.enqueue(id))
+                throw std::logic_error("Pending vehicle is invalid or already queued");
             state.pending.pop_front();
             batch.admitted.push_back(id);
         }
@@ -106,10 +121,27 @@ LaneQueue* VehicleManager::lane(const std::string& id) noexcept {
     const auto found = lanes_.find(id);
     return found == lanes_.end() ? nullptr : &found->second.queue;
 }
+std::vector<EntryLane> VehicleManager::entryLanes() const {
+    std::vector<EntryLane> result;
+    result.reserve(lanes_.size());
+    for (const auto& entry : lanes_) result.push_back(entry.second.spec);
+    return result;
+}
 const LaneQueue* VehicleManager::lane(const std::string& id) const noexcept {
     const auto found = lanes_.find(id);
     return found == lanes_.end() ? nullptr : &found->second.queue;
 }
+std::vector<EntryLaneSnapshot> VehicleManager::laneSnapshots() const {
+    std::vector<EntryLaneSnapshot> snapshots;
+    snapshots.reserve(lanes_.size());
+    for (const auto& entry : lanes_) {
+        const auto& state = entry.second;
+        snapshots.push_back({entry.first, state.spec.road, state.queue.capacity(),
+            state.queue.snapshot(), {state.pending.begin(), state.pending.end()}});
+    }
+    return snapshots;
+}
+
 std::size_t VehicleManager::pendingCount() const noexcept {
     std::size_t count = 0;
     for (const auto& entry : lanes_) count += entry.second.pending.size();
@@ -139,7 +171,8 @@ void VehicleManager::setStreams(std::vector<ArrivalStream> streams) {
     for (const auto& stream : streams) {
         if (stream.id.empty() || !ids.insert(stream.id).second || stream.lane.empty() ||
             stream.firstTick >= stream.endTick || !std::isfinite(stream.probability) ||
-            stream.probability < 0 || stream.probability > 1)
+            stream.probability < 0 || stream.probability > 1 ||
+            stream.vehiclesPerArrival == 0 || stream.vehiclesPerArrival > ArrivalStream::maxVehiclesPerArrival)
             throw std::invalid_argument("Invalid arrival stream");
         validateVehicle(stream.vehicle);
         if (!lanes_.empty()) validateEntry(stream.vehicle, stream.lane);
@@ -178,8 +211,10 @@ std::vector<GeneratedArrival> VehicleManager::generate(Tick now) {
         if (now < stream.firstTick || now >= stream.endTick) continue;
         // Use explicit integer thresholds rather than library-specific distributions.
         const auto threshold = static_cast<std::uint64_t>(stream.probability * 4294967296.0);
-        if ((rng_() >> 32U) < threshold)
-            result.push_back({stream.lane, addVehicle(stream.vehicle)});
+        if ((rng_() >> 32U) < threshold) {
+            for (std::size_t index = 0; index < stream.vehiclesPerArrival; ++index)
+                result.push_back({stream.lane, addVehicle(stream.vehicle)});
+        }
     }
     lastGenerated_ = now;
     return result;
@@ -205,5 +240,15 @@ Vehicle* VehicleManager::find(VehicleId id) noexcept {
 }
 
 std::size_t VehicleManager::size() const noexcept { return vehicles_.size(); }
+
+std::vector<Vehicle> VehicleManager::vehicleSnapshots() const {
+    std::vector<Vehicle> result;
+    result.reserve(vehicles_.size());
+    for (const auto& entry : vehicles_) result.push_back(entry.second);
+    std::sort(result.begin(), result.end(), [](const Vehicle& left, const Vehicle& right) {
+        return left.id < right.id;
+    });
+    return result;
+}
 
 }  // namespace traffic

@@ -1,0 +1,7 @@
+scenario 1
+seed 42
+duration 5
+intersection A
+intersection B
+road AB A B -1 1
+lane entry AB 1

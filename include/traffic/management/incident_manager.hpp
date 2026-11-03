@@ -27,6 +27,7 @@ public:
 
     // Query currently active road blockages.
     bool isRoadBlocked(const RoadId& roadId) const noexcept;
+
     std::vector<RoadId> activeBlockedRoads() const;
 
     // Count incidents active at the specified tick.
@@ -37,8 +38,11 @@ public:
         return incidents_;
     }
 
-    // Clear incident state.
+    // Clear incident state without accessing a road network.
     void clear() noexcept;
+
+    // Restore affected roads and clear all scheduled and active incidents.
+    void clear(RoadNetwork& network);
 
 private:
     std::vector<Incident> incidents_;

@@ -14,6 +14,7 @@ using MovementId = std::string;
 
 enum class VehicleClass { Standard, Emergency };
 enum class VehicleState { Waiting, InTransit, Completed, Unroutable };
+enum class RouteFailure { None, NoRoute, InvalidRoute };
 enum class SignalColor { Red, Yellow, Green };
 
 struct Vehicle {
@@ -25,6 +26,7 @@ struct Vehicle {
     std::vector<RoadId> route;
     std::size_t routeIndex{};
     Tick waitingTicks{};
+    RouteFailure routeFailure{RouteFailure::None};
 };
 
 struct Road {

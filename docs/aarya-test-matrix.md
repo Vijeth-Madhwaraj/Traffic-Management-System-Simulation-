@@ -102,3 +102,113 @@ has not been performed locally.
 
 No full-trip, adaptive-signal, incident-response, completed-report, coverage percentage,
 or final acceptance claim is made by this branch.
+
+
+## 30 October 2026: FR-01 scenario preview
+
+`traffic_sim --validate <file>` validates and previews scenario configuration without
+starting the simulation. `cli_validate_only` checks the preview counts, absence of run
+output, and rejection of mixed command modes. `cli_validate_invalid` and
+`cli_validate_missing` verify nonzero results for invalid data and unreadable files.
+Linux GCC 15.2 Debug build: **43/43 CTest cases passed**, including the existing signal
+and road-network tests. This extends FR-01; it does not add routing or movement functionality.
+
+
+## 30 October 2026: FR-04 queue safety and per-lane inspection
+
+Queue insertion now rejects ID zero and duplicate IDs already in the same queue without
+consuming capacity. IDs can re-enter after removal. `LaneQueue::snapshot()` and
+`VehicleManager::laneSnapshots()` expose independent FIFO snapshots, including deferred IDs
+and lane capacities; lanes are sorted by ID. `--scenario <file> --lane-status` displays this
+information on request. These snapshots do not establish global vehicle membership across
+lanes; placement remains owned by `VehicleManager`.
+
+Added tests:
+
+- `LaneQueueTest.FR04_RejectsZeroAndDuplicateIdsWithoutUsingCapacity`
+- `LaneQueueTest.FR04_SnapshotPreservesOrderWithoutExposingMutableStorage`
+- `VehicleInputTest.FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset`
+- `cli_lane_status` (also checks concise default output and rejection with validation mode)
+
+Linux GCC 15.2 C++17 Debug: **47/47 CTest cases passed**, including all current signal
+and road-network tests. The new work extends FR-01 and FR-04 already implemented in the
+previous PR; it does not claim two previously unimplemented requirements as newly complete.
+
+The 30 October warning-as-error build and Clang static analysis also passed: all 10
+project translation units produced zero findings. Remote CI for today's new branch has
+not run because these commits have not been pushed.
+
+
+## 31 October 2026: PR #69 integration
+
+Merged current master into the movement branch while preserving scenario preview, FIFO
+safeguards, per-lane snapshots, congestion detection and incident tests. Queue/deferral
+counts from the 23/30 October runs above describe the earlier movement stub. With FR-10
+explicit-route movement, the standard demo now generates and admits 3 vehicles and ends with
+zero queued/deferred vehicles.
+
+`cli_lane_status` checks that drained result and a separate slow-road fixture that ends
+with vehicle 2 queued and vehicle 3 deferred. Linux GCC 15.2 C++17 Debug execution passed
+**63/63 CTest cases**, including signal, vehicle, scenario, management, network, movement
+and CLI coverage. The required `Basic CI Check` remains a unique aggregate job that
+requires Windows tests, Linux tests and static analysis to succeed.
+
+Clang static analysis passed for all 11 project translation units with zero findings;
+the application also built with compiler warnings treated as errors.
+
+
+## 31 October 2026: FR-02 configurable batch arrivals
+
+One functional improvement for FR-02 on `feature/aarya-vehicle-generation`: an optional
+`batch <stream-id> <count>` setting allows 1–1000 vehicles per successful probability
+decision, instead of requiring repeated streams to model higher traffic volumes. Existing
+scenarios default to one vehicle. Batches preserve deterministic RNG draws, unique IDs,
+stream ordering, capacity enforcement and FIFO deferral. The scenario's 100000-vehicle
+budget includes batch sizes and is checked before multiplication to avoid overflow.
+
+New tests:
+
+- `VehicleInputTest.FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering`
+- `VehicleInputTest.FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules`
+- `VehicleInputTest.FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams`
+- `VehicleInputTest.FR02_IndependentSeededBatchRunsAreReproducible`
+- `VehicleInputTest.FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions`
+- `ScenarioTest.FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility`
+- `ScenarioTest.FR02_RejectsInvalidDuplicateAndUnknownBatchSettings`
+- `ScenarioTest.FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying`
+- `cli_batch_arrivals`
+
+Linux GCC 15.2 C++17 Debug: **72/72 CTest cases passed** (63 existing and 9 new). The batch
+CLI fixture generates 12 vehicles, admits 4, and retains deferred IDs 5–12 in order. This
+is an FR-02 capability extension; FR-03 work is left for a later change.
+
+For this FR-02 change, the warning-as-error build and Clang static analysis passed for
+all 11 project translation units with zero findings. Remote CI remains unverified until
+the new feature branch is pushed.
+
+
+## 1 November 2026: FR-03 isolate invalid route-provider results
+
+One functional improvement on `feature/aarya-vehicle-validation`: a malformed nonempty
+route returned by the route provider no longer aborts all arrivals at the tick. Only that
+vehicle becomes `Unroutable`; its invalid route is cleared and valid vehicles proceed.
+`Vehicle::routeFailure` distinguishes `None`, `NoRoute` and `InvalidRoute` so callers can
+identify the reason. Invalid explicit scenario routes still fail setup, and exceptions
+thrown by a provider still roll back the tick rather than being swallowed. Reset removes
+previous failures along with the vehicle registry.
+
+New tests cover:
+
+- Mixed invalid-provider, valid-provider and explicit routes at the same tick.
+- Unknown/disabled/disconnected roads, incomplete routes and the wrong entry road.
+- Missing routes versus invalid routes, followed by a successful reset/retry.
+- A thrown provider exception after an earlier rejection, preserving IDs and queues.
+- Rejection of new vehicle templates carrying an old routing failure.
+- A full simulation continuing and completing valid vehicles after one bad provider route.
+
+Linux GCC 15.2 C++17 Debug: **78/78 CTest cases passed** (72 existing and 6 new). This is
+an FR-03 validation improvement; automatic route calculation remains the FR-12 owner's work.
+
+For this FR-03 change, Clang static analysis passed for all 11 project translation units
+with zero findings, and the application built with warnings treated as errors. These are
+local results; remote CI remains pending until the new branch is pushed.

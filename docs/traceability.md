@@ -11,23 +11,68 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 | FR-18 | `src/vehicle/vehicle_manager.cpp`, `src/simulation/simulation.cpp`, `src/main.cpp` | UT-A02; TC-18 input event reproducibility (passed); full-trip comparison blocked |
 | FR-05 | `SignalController::configure`, `SignalController::status` | TC-05 (planned), UT-VI01, UT-VI04 |
 | FR-06 | `SignalController::advance`, `SignalController::permits` | TC-06 (planned), UT-VI02, UT-VI03, UT-VI04, UT-VI08 |
-| FR-07, FR-08 | `SignalController` (planned) | UT-VI05 to UT-VI07, UT-VI10 |
+| FR-07 | `SignalController`, `MovementEngine::readyMovementQueues`, scenario `adaptive` record | TC-07 policy, queue integration, bounds, and safety tests (passed) |
+| FR-08 | `SignalController` (planned) | UT-VI07 (blocked; emergency-priority API not implemented) |
 | FR-09 | `RoadNetwork` | UT-VA01, UT-VA11; `vaibhav-fr09-test-cases.md` (passed in Windows/Linux CI) |
 | FR-12 | `RoadNetwork` | UT-VA02 to UT-VA04 (planned) |
-| FR-10, FR-11 | `MovementEngine` | UT-VA05 to UT-VA10 |
-| FR-13 to FR-15 | `IncidentManager` and congestion policy | UT-VN01 to UT-VN06 |
+| FR-10 | `MovementEngine` | UT-VA05 to UT-VA07, UT-VA09 to UT-VA10 (passed in Windows/Linux CI for PR #68) |
+| FR-11 | `MovementEngine` | UT-VA08 road-capacity behavior (passed; lane coverage remains) |
+| NFR-02 | `MovementEngine::advance` | UT-VA10 (passed in Windows/Linux CI for PR #68) |
+| FR-13 | Congestion policy | UT-VN01 to UT-VN03, UT-VN11 (`tests/unit/management/congestion_detector_test.cpp`) |
+| FR-14 | `IncidentManager` | UT-VN04 to UT-VN06, UT-VN12 to UT-VN14 (`tests/unit/management/incident_manager_test.cpp`) |
+| FR-15 | Rerouting after incidents | Pending; not implemented by this change |
 | FR-16, FR-17 | `MetricsCollector` and report output | UT-VN07 to UT-VN10 |
 
-The FR-05/06 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; their automated tests are in `tests/unit/signals/signal_controller_test.cpp`. The signal matrix records a prior eight-test MinGW GCC Windows pass; the current Linux run also passed those eight tests. FR-07/08 tests remain blocked pending implementation. Remote CI for this feature branch has not run. Add integration/system results as work lands; keep NFR coverage visible in the validation plans.
+The FR-05/06/07 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; automated tests are in `tests/unit/signals/signal_controller_test.cpp`. FR-07 uses ready-to-cross movement queues and bounded per-phase green adjustments. FR-08 emergency priority remains unimplemented. Existing remote CI evidence applies to earlier commits; run CI for this branch before merge.
 
 
-FR-09–FR-12 planned case details are in [Vaibhav's test matrix](vaibhav-test-matrix.md). They remain blocked: `RoadNetwork::shortestRoute` and `MovementEngine::advance` are currently stubs, and automated test sources for these modules have not yet been added.
+FR-09–FR-12 evidence is in [Vaibhav's test matrix](vaibhav-test-matrix.md). FR-09 road data and FR-10 explicit-route movement passed Windows/Linux CI. FR-11 road-capacity checks are covered; downstream-lane coverage and FR-12 automatic route selection remain incomplete. `RoadNetwork::shortestRoute` is still a stub.
 
 ## Aarya implementation evidence
 
 See [Aarya's matrix](aarya-test-matrix.md) for source/test mapping, execution environment,
-NFR-01–NFR-10 evidence, and integration blockers. The current Linux run passed 38 CTest
-cases, including the existing eight signal tests. FR-01–FR-04 input behavior is implemented;
-production automatic routing and full vehicle journeys remain blocked on FR-09–FR-12.
+NFR-01–NFR-10 evidence, and integration blockers. Aarya's recorded Linux run passed 38 CTest
+cases, including the eight signal tests at that time. FR-01–FR-04 input behavior is implemented;
+automatic routing, complete downstream lane-capacity handling, and completed-trip reporting
+remain in progress.
 Neither IT-01 nor IT-04 is claimed as passed. Module paths in the starter rows for other
 owners remain plans unless their specific evidence establishes otherwise.
+
+
+## 30 October 2026 input refinements
+
+- FR-01: `src/main.cpp` adds validation-only preview; `cli_validate_only`,
+  `cli_validate_invalid` and `cli_validate_missing` verify the new mode.
+- FR-04: `src/vehicle/lane_queue.cpp` rejects invalid/duplicate queued IDs and exposes
+  snapshots; `src/vehicle/vehicle_manager.cpp` exposes per-lane FIFO/pending state.
+  The `FR04_*` unit tests and `cli_lane_status` verify these behaviors.
+- All 47 current CTest cases passed on Linux. Existing 23 October results above are
+  historical execution evidence; see `aarya-test-matrix.md` for today's additions.
+
+
+## 31 October 2026 movement integration
+
+PR #69 reconciles FR-10 movement with the latest input and management modules. All 63
+CTest cases passed locally on Linux. `cli_lane_status` now tests both draining traffic
+and a congested entry-road fixture; the earlier input-only queue counts above are
+historical. Road-availability access, management tests and input CLI modes are preserved.
+
+
+## 31 October 2026 FR-02 batch generation
+
+`ArrivalStream::vehiclesPerArrival` and `VehicleManager::generate` support configurable
+batch sizes. `ScenarioLoader` accepts optional `batch` records and validates their stream
+references, bounds and total vehicle budget. Evidence: `FR02_*` tests in
+`tests/unit/vehicle/vehicle_manager_test.cpp` and `tests/unit/input/scenario_test.cpp`,
+plus `cli_batch_arrivals`. All 72 current CTest cases passed locally on Linux.
+
+
+## 1 November 2026 FR-03 route-result validation
+
+`Vehicle::routeFailure` in `include/traffic/types.hpp` and
+`VehicleManager::advanceArrivals` in `src/vehicle/vehicle_manager.cpp` provide per-vehicle
+route-failure outcomes while preserving validation and rollback rules. Evidence is in
+`VehicleInputTest.FR03_*` and
+`ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles`.
+All 78 current CTest cases passed locally on Linux. Invalid explicit scenario input
+remains rejected; automatic route selection is not implemented by this change.

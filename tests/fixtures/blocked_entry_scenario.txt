@@ -1,0 +1,14 @@
+# The first vehicle occupies AB throughout this short run.
+scenario 1
+seed 42
+duration 2
+intersection A
+intersection B
+intersection C
+road AB A B 1 10
+road BC B C 1 1
+lane entry AB 1
+phase B 3 1 1 AB-to-BC
+arrival 0 entry C standard AB BC
+arrival 0 entry C standard AB BC
+arrival 0 entry C standard AB BC

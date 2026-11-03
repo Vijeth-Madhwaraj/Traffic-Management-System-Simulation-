@@ -1,3 +1,4 @@
+
 #include "traffic/input/scenario.hpp"
 #include "traffic/simulation/simulation.hpp"
 
@@ -14,49 +15,53 @@ Scenario fixture() {
     std::istringstream file(
         "scenario 1\n"
         "seed 42\n"
-        "duration 4\n"
+        "duration 6\n"
         "intersection A\n"
         "intersection B\n"
+        "intersection C\n"
         "road AB A B 2 1\n"
+        "road BC B C 2 1\n"
         "lane entry AB 1\n"
-        "phase A 2 1 1 AB\n"
-        "arrival 0 entry B standard AB\n"
-        "arrival 0 entry B emergency AB\n"
-        "arrival 1 entry B standard AB\n"
-    );
+        "phase B 2 1 1 AB-to-BC\n"
+        "arrival 0 entry C standard AB BC\n"
+        "arrival 0 entry C emergency AB BC\n"
+        "arrival 1 entry C standard AB BC\n");
 
     return ScenarioLoader::load(file);
 }
 
 TEST(
     ScenarioInputIntegrationTest,
-    TC_01_TC_04_LoadsGeneratesAndDefersWithoutClaimingMovement
+    TC_01_TC_04_LoadsGeneratesAndMovesExplicitRoutes
 ) {
     Simulation simulation({});
     simulation.configureScenario(fixture());
 
     EXPECT_EQ(
         simulation.step().generated,
-        (std::vector<VehicleId>{1, 2})
-    );
+        (std::vector<VehicleId>{1, 2}));
 
     simulation.run();
 
     const auto summary = simulation.inputSummary();
 
     EXPECT_EQ(summary.generated, 3U);
-    EXPECT_EQ(summary.admitted, 1U);
-    EXPECT_EQ(summary.queued, 1U);
-    EXPECT_EQ(summary.pending, 2U);
+    EXPECT_EQ(summary.admitted, 3U);
+    EXPECT_EQ(summary.queued, 0U);
+    EXPECT_EQ(summary.pending, 0U);
     EXPECT_EQ(summary.unroutable, 0U);
-    EXPECT_EQ(simulation.currentTick(), 4U);
+    EXPECT_EQ(simulation.currentTick(), 6U);
+
+    for (VehicleId id = 1; id <= 3; ++id) {
+        ASSERT_NE(simulation.vehicles().find(id), nullptr);
+        EXPECT_EQ(
+            simulation.vehicles().find(id)->state,
+            VehicleState::Completed);
+    }
 
     simulation.run();
 
-    EXPECT_EQ(
-        simulation.inputSummary().generated,
-        3U
-    );
+    EXPECT_EQ(simulation.inputSummary().generated, 3U);
 }
 
 TEST(
@@ -73,21 +78,14 @@ TEST(
 
     EXPECT_THROW(
         simulation.configureScenario(invalid),
-        std::invalid_argument
-    );
+        std::invalid_argument);
 
     EXPECT_EQ(simulation.currentTick(), 1U);
-    EXPECT_EQ(
-        simulation.inputSummary().generated,
-        2U
-    );
+    EXPECT_EQ(simulation.inputSummary().generated, 2U);
 
     simulation.run();
 
-    EXPECT_EQ(
-        simulation.inputSummary().generated,
-        3U
-    );
+    EXPECT_EQ(simulation.inputSummary().generated, 3U);
 }
 
 TEST(
@@ -102,8 +100,7 @@ TEST(
     auto vehicle = fixture().arrivals[0].vehicle;
 
     scenario.streams = {
-        {"traffic", "entry", 0, 100, 0.5, vehicle}
-    };
+        {"traffic", "entry", 0, 100, 0.5, vehicle}};
 
     Simulation simulation({});
     simulation.configureScenario(scenario);
@@ -113,8 +110,8 @@ TEST(
 
         while (
             simulation.currentTick() <
-            scenario.config.duration
-        ) {
+            scenario.config.duration) {
+
             const auto tick = simulation.currentTick();
 
             for (const auto id : simulation.step().generated) {
@@ -133,10 +130,7 @@ TEST(
     simulation.reset();
 
     EXPECT_EQ(simulation.currentTick(), 0U);
-    EXPECT_EQ(
-        simulation.inputSummary().generated,
-        0U
-    );
+    EXPECT_EQ(simulation.inputSummary().generated, 0U);
 
     EXPECT_EQ(run(), first);
 }
@@ -153,45 +147,31 @@ TEST(
     Simulation simulation({});
     simulation.configureScenario(scenario);
 
+    // FR-15: Production routing should find a valid route automatically.
     simulation.run();
 
-    EXPECT_EQ(
-        simulation.inputSummary().unroutable,
-        0U
-    );
-
-    EXPECT_EQ(
-        simulation.inputSummary().admitted,
-        1U
-    );
+    EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
+    EXPECT_EQ(simulation.inputSummary().admitted, 1U);
 
     simulation.reset();
 
+    // A custom route provider can also supply the route.
     simulation.setRouteProvider(
         [](const auto& source, const auto& destination) {
             EXPECT_EQ(source, "A");
-            EXPECT_EQ(destination, "B");
+            EXPECT_EQ(destination, "C");
 
-            return std::vector<RoadId>{"AB"};
-        }
-    );
+            return std::vector<RoadId>{"AB", "BC"};
+        });
 
     simulation.run();
 
-    EXPECT_EQ(
-        simulation.inputSummary().unroutable,
-        0U
-    );
-
-    EXPECT_EQ(
-        simulation.inputSummary().admitted,
-        1U
-    );
+    EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
+    EXPECT_EQ(simulation.inputSummary().admitted, 1U);
 
     EXPECT_THROW(
         simulation.setRouteProvider({}),
-        std::logic_error
-    );
+        std::logic_error);
 }
 
 TEST(
@@ -200,20 +180,54 @@ TEST(
 ) {
     Simulation simulation({});
 
-    EXPECT_THROW(
-        simulation.step(),
-        std::logic_error
-    );
+    EXPECT_THROW(simulation.step(), std::logic_error);
+    EXPECT_THROW(simulation.run(), std::logic_error);
+    EXPECT_THROW(simulation.reset(), std::logic_error);
+}
 
-    EXPECT_THROW(
-        simulation.run(),
-        std::logic_error
-    );
+// Master integration test: invalid routing for one vehicle
+// must not prevent other vehicles from completing their journeys.
+TEST(
+    ScenarioInputIntegrationTest,
+    FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles
+) {
+    auto scenario = fixture();
 
-    EXPECT_THROW(
-        simulation.reset(),
-        std::logic_error
-    );
+    scenario.arrivals[0].vehicle.route.clear();
+
+    Simulation simulation({});
+    simulation.configureScenario(scenario);
+
+    simulation.setRouteProvider(
+        [](const auto&, const auto&) {
+            return std::vector<RoadId>{"unknown"};
+        });
+
+    EXPECT_NO_THROW(simulation.run());
+
+    EXPECT_EQ(simulation.inputSummary().generated, 3U);
+    EXPECT_EQ(simulation.inputSummary().unroutable, 1U);
+    EXPECT_EQ(simulation.inputSummary().admitted, 2U);
+
+    ASSERT_NE(simulation.vehicles().find(1), nullptr);
+    ASSERT_NE(simulation.vehicles().find(2), nullptr);
+    ASSERT_NE(simulation.vehicles().find(3), nullptr);
+
+    EXPECT_EQ(
+        simulation.vehicles().find(1)->routeFailure,
+        RouteFailure::InvalidRoute);
+
+    EXPECT_EQ(
+        simulation.vehicles().find(2)->state,
+        VehicleState::Completed);
+
+    EXPECT_EQ(
+        simulation.vehicles().find(3)->state,
+        VehicleState::Completed);
+
+    EXPECT_EQ(
+        simulation.currentTick(),
+        scenario.config.duration);
 }
 
 // FR-14: Scenario incident records must be parsed and validated.
@@ -229,8 +243,7 @@ TEST(
         "intersection B\n"
         "road AB A B 5 1\n"
         "lane entry AB 2\n"
-        "incident AB 1 4\n"
-    );
+        "incident AB 1 4\n");
 
     const auto scenario = ScenarioLoader::load(input);
 
@@ -253,17 +266,15 @@ TEST(
         "intersection B\n"
         "road AB A B 5 1\n"
         "lane entry AB 2\n"
-        "incident UNKNOWN 1 4\n"
-    );
+        "incident UNKNOWN 1 4\n");
 
     EXPECT_THROW(
         ScenarioLoader::load(input),
-        std::invalid_argument
-    );
+        std::invalid_argument);
 }
 
 // FR-14 and FR-15: An active incident blocks a road.
-// Production routing selects an available alternative.
+// Production routing should select an available alternative.
 TEST(
     ScenarioInputIntegrationTest,
     IncidentAwareRoutingUsesAlternativeRoad
@@ -282,8 +293,7 @@ TEST(
         "road DC D C 5 2\n"
         "lane entry AB 2\n"
         "incident BC 0 2\n"
-        "arrival 0 entry C standard -\n"
-    );
+        "arrival 0 entry C standard -\n");
 
     const auto scenario = ScenarioLoader::load(input);
 
@@ -302,8 +312,7 @@ TEST(
 
     EXPECT_EQ(
         vehicle->route,
-        (std::vector<RoadId>{"AB", "BD", "DC"})
-    );
+        (std::vector<RoadId>{"AB", "BD", "DC"}));
 }
 
 }  // namespace

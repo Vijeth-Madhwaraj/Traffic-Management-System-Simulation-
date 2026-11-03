@@ -1,3 +1,4 @@
+
 #include "traffic/input/scenario.hpp"
 
 #include <algorithm>
@@ -10,6 +11,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
+#include <utility>
 
 namespace traffic {
 namespace {
@@ -117,6 +119,12 @@ Scenario ScenarioLoader::load(std::istream& input) {
     std::size_t lineNumber = 0;
 
     std::vector<Record> arrivals;
+
+    std::map<
+        std::string,
+        std::pair<std::size_t, std::size_t>
+    > batches;
+
     std::map<IntersectionId, ScenarioSignals> signals;
 
     std::string line;
@@ -188,6 +196,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
                 }
 
                 header = true;
+
             } else if (kind == "duration") {
                 fields(words, 2);
 
@@ -270,7 +279,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
                 );
 
             } else if (kind == "incident") {
-                // Format: incident ROAD_ID START_TICK END_TICK
+                // FR-14: incident ROAD_ID START_TICK END_TICK
                 fields(words, 4);
 
                 scenario.incidents.push_back({
@@ -278,6 +287,47 @@ Scenario ScenarioLoader::load(std::istream& input) {
                     number(words[2], maxDuration),
                     number(words[3], maxDuration)
                 });
+
+            } else if (kind == "adaptive") {
+                fields(words, 6);
+
+                auto& plan = signals[words[1]];
+                plan.intersection = words[1];
+
+                if (plan.adaptivePolicy) {
+                    throw std::invalid_argument(
+                        "Duplicate adaptive signal policy"
+                    );
+                }
+
+                plan.adaptivePolicy = AdaptiveSignalPolicy{
+                    number(words[2], maxValue, true),
+                    number(words[3], maxValue, true),
+                    static_cast<std::size_t>(
+                        number(words[4], maxValue, true)
+                    ),
+                    number(words[5], maxValue, true)
+                };
+
+            } else if (kind == "batch") {
+                fields(words, 3);
+
+                const auto count = static_cast<std::size_t>(
+                    number(
+                        words[2],
+                        ArrivalStream::maxVehiclesPerArrival,
+                        true
+                    )
+                );
+
+                if (!batches.emplace(
+                    words[1],
+                    std::make_pair(count, lineNumber)
+                ).second) {
+                    throw std::invalid_argument(
+                        "Duplicate batch setting for stream: " + words[1]
+                    );
+                }
 
             } else if (kind == "arrival" || kind == "stream") {
                 fields(
@@ -309,9 +359,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
     }
 
     for (auto& entry : signals) {
-        scenario.signals.push_back(
-            std::move(entry.second)
-        );
+        scenario.signals.push_back(std::move(entry.second));
     }
 
     for (const auto& record : arrivals) {
@@ -389,6 +437,26 @@ Scenario ScenarioLoader::load(std::istream& input) {
         }
     }
 
+    // Apply batch settings after all streams have been parsed.
+    for (const auto& batch : batches) {
+        const auto stream = std::find_if(
+            scenario.streams.begin(),
+            scenario.streams.end(),
+            [&](const auto& value) {
+                return value.id == batch.first;
+            }
+        );
+
+        if (stream == scenario.streams.end()) {
+            throw lineError(
+                batch.second.second,
+                "Batch references unknown stream: " + batch.first
+            );
+        }
+
+        stream->vehiclesPerArrival = batch.second.first;
+    }
+
     validate(scenario);
 
     return scenario;
@@ -398,9 +466,7 @@ Scenario ScenarioLoader::loadFile(const std::string& path) {
     std::ifstream input(path);
 
     if (!input) {
-        throw std::runtime_error(
-            "Cannot open scenario file"
-        );
+        throw std::runtime_error("Cannot open scenario file");
     }
 
     return load(input);
@@ -484,17 +550,28 @@ void ScenarioLoader::validate(const Scenario& scenario) {
             );
         }
 
-        const auto potential =
-            stream.endTick - stream.firstTick;
+        if (stream.vehiclesPerArrival == 0 ||
+            stream.vehiclesPerArrival >
+                ArrivalStream::maxVehiclesPerArrival) {
+            throw std::invalid_argument(
+                "Stream batch size must be between 1 and 1000"
+            );
+        }
 
-        if (potential > maxVehicles - potentialVehicles) {
+        const auto ticks = stream.endTick - stream.firstTick;
+
+        // Divide before multiplying to prevent integer overflow.
+        if (ticks >
+            (maxVehicles - potentialVehicles) /
+                stream.vehiclesPerArrival) {
             throw std::invalid_argument(
                 "Scenario could exceed 100000 vehicles"
             );
         }
 
         potentialVehicles +=
-            static_cast<std::size_t>(potential);
+            static_cast<std::size_t>(ticks) *
+            stream.vehiclesPerArrival;
     }
 
     VehicleManager validator(scenario.config.seed);
@@ -538,7 +615,8 @@ void ScenarioLoader::validate(const Scenario& scenario) {
         signals.configure(
             plan.intersection,
             plan.phases,
-            plan.conflicts
+            plan.conflicts,
+            plan.adaptivePolicy
         );
     }
 }
