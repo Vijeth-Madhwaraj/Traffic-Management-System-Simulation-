@@ -10,7 +10,7 @@ GoogleTest v1.15.2. Clang 21.1.8 is used for static analysis.
 |---|---|---|
 | FR-01 | `ScenarioLoader`, text format, CLI, atomic `Simulation::configureScenario`; scenario and CLI tests | Pass for input capability |
 | FR-02 | Scheduled arrivals and bounded probabilistic streams; UT-A01, UT-A02, UT-A08 | Pass |
-| FR-03 | Unique IDs, known endpoints/class, connected explicit routes; replaceable route provider; UT-A01, UT-A03, UT-A09 | Pass for module; production automatic routing blocked |
+| FR-03 | Unique IDs, known endpoints/class, connected explicit routes; replaceable route provider; UT-A01, UT-A03, UT-A09 | Pass for module; production automatic routing supplied by FR-12 |
 | FR-04 | FIFO lane operations, admission limits, stable pending IDs and retries; UT-A04–UT-A06 | Pass |
 | FR-18 | Seed recorded, actual arrival-event sequences repeat after reset; TC-18 | Pass for input subsystem; complete simulation results blocked |
 

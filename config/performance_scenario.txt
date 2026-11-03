@@ -1,5 +1,5 @@
 # Input workload for later full-system NFR-03 validation.
-# Current movement is a stub: this only exercises generation/admission of 500 vehicles.
+# FR-12 route is explicit to keep this workload focused on simulation throughput.
 scenario 1
 seed 496
 duration 500
