@@ -20,7 +20,9 @@ arrival <tick> <lane> <destination> <standard|emergency> <route-road>...
 stream <id> <lane> <destination> <standard|emergency> <first-tick> <end-tick> <probability> <route-road>...
 ```
 
-Use a single `-` instead of route roads to ask the route provider. Source is derived from
+Use a single `-` instead of route roads to request automatic routing. The default provider
+selects the enabled route with the lowest total road travel time; equal-cost routes are
+resolved lexicographically by road ID. A caller may inject another provider. Source is derived from
 the lane's entry road. An explicit route must start on that road, follow connected enabled
 roads, and end at the destination. Stream intervals are `[first-tick, end-tick)`, with at
 most one arrival per stream per tick. Probability is in `[0,1]`. Scheduled arrivals at the
@@ -41,9 +43,8 @@ Limits: 1 MiB per file, 4096 bytes per line, 2–1024 intersections, 1–4096 ro
 the run duration. Invalid files are rejected as a whole. Seed zero is valid.
 
 `demo_scenario.txt` demonstrates admission and deferral; `seeded_scenario.txt` demonstrates
-repeatable random arrivals. Neither proves movement or completed-trip performance: routing
-and movement remain teammate dependencies.
+repeatable random arrivals. These scenarios do not establish completed-trip metrics or
+full-system performance.
 
 `performance_scenario.txt` provides 4 intersections and 500 guaranteed arrivals for later
-NFR-03 validation. Its present run exercises only generation/admission, because movement
-and completed-trip reporting remain incomplete.
+NFR-03 validation. Movement is implemented; completed-trip reporting remains incomplete.
