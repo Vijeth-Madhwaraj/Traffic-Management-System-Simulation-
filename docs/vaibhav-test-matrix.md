@@ -9,8 +9,8 @@ planned work. Status is recorded only after the corresponding assertions run.
 |---|---|---|---|---|---|
 | FR-09 | UT-VA01 | Register intersections, add connected roads, retrieve their properties, and query outgoing roads. | Road and neighbor data are available through `RoadNetwork`. | `tests/unit/network/road_network_test.cpp` | Pass (1 test) |
 | FR-09 | UT-VA11 | Reject empty/duplicate intersections, unknown endpoints, empty/duplicate road IDs, zero capacity/travel time, and occupancy above capacity. | Invalid roads are rejected without changing stored roads or adjacency. | `tests/unit/network/road_network_test.cpp` | Pass (1 test) |
-| FR-12 | UT-VA02 | Configure connected alternatives with different total travel times and request a route. | The enabled route with minimum total travel time is returned in traversal order. | `tests/unit/network/road_network_test.cpp` | Added; pending CI |
-| FR-12 | UT-VA03, UT-VA04 | Request routes to unknown/unreachable destinations and verify disabled roads are excluded and equal-cost ties are deterministic. | No invalid route is returned; equal-cost alternatives resolve by road-ID order. | `tests/unit/network/road_network_test.cpp` | Added; pending CI |
+| FR-12 | UT-VA02 | Configure connected alternatives with different total travel times and request a route. | The enabled route with minimum total travel time is returned in traversal order. | `tests/unit/network/road_network_test.cpp` | Pass (Windows/Linux CI) |
+| FR-12 | UT-VA03, UT-VA04 | Request routes to unknown/unreachable destinations and verify disabled roads are excluded and equal-cost ties are deterministic. | No invalid route is returned; equal-cost alternatives resolve by road-ID order. | `tests/unit/network/road_network_test.cpp` | Pass (Windows/Linux CI) |
 
 ## Vehicle movement
 
@@ -34,5 +34,4 @@ planned work. Status is recorded only after the corresponding assertions run.
   route selection using total travel time. Equal-cost routes resolve by road-ID order.
 - UT-VA13 exercises FR-11 road and lane capacity through direct `MovementEngine`
   calls, supporting NFR-02 module testability; Windows and Linux CI passed.
-- FR-12 unit and integration tests are added; CI evidence will be recorded after
-  the routing change is pushed.
+- FR-12 unit and integration tests passed Windows/Linux CI on PR #75.

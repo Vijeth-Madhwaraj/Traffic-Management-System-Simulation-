@@ -13,7 +13,7 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 | FR-06 | `SignalController::advance`, `SignalController::permits` | TC-06 (planned), UT-VI02, UT-VI03, UT-VI04, UT-VI08 |
 | FR-07, FR-08 | `SignalController` (planned) | UT-VI05 to UT-VI07, UT-VI10 |
 | FR-09 | `RoadNetwork` | UT-VA01, UT-VA11; `vaibhav-fr09-test-cases.md` (passed in Windows/Linux CI) |
-| FR-12 | `RoadNetwork::shortestRoute`, `Simulation::step` | UT-VA02 to UT-VA04 and automatic-route integration test (pending CI) |
+| FR-12 | `RoadNetwork::shortestRoute`, `Simulation::step` | UT-VA02 to UT-VA04 and automatic-route integration test (passed Windows/Linux CI on PR #75) |
 | FR-10 | `MovementEngine` | UT-VA05 to UT-VA07, UT-VA09 to UT-VA10 (passed in Windows/Linux CI) |
 | FR-11 | `MovementEngine` | UT-VA08 road capacity; UT-VA13 road and downstream-lane capacity (passed Windows/Linux CI) |
 | NFR-02 | `MovementEngine::advance` | UT-VA10 (passed in Windows/Linux CI); UT-VA13 (pending CI) |
@@ -23,7 +23,7 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 The FR-05/06 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; their automated tests are in `tests/unit/signals/signal_controller_test.cpp`. The signal matrix records an eight-test MinGW GCC Windows pass; the Linux CI job also passed those signal tests. FR-07/08 tests remain blocked pending implementation. Windows and Linux CI for PR #68 passed; continue adding integration/system results as features land.
 
 
-FR-09–FR-12 evidence is in [Vaibhav's test matrix](vaibhav-test-matrix.md). FR-09 road data, FR-10 explicit-route movement, and FR-11 road/lane capacity passed Windows/Linux CI. FR-12 weighted shortest-route selection and automatic routing are implemented; CI evidence for its new cases is pending.
+FR-09–FR-12 evidence is in [Vaibhav's test matrix](vaibhav-test-matrix.md). FR-09 road data, FR-10 explicit-route movement, FR-11 road/lane capacity, and FR-12 weighted route selection passed Windows/Linux CI on their respective PRs.
 
 ## Aarya implementation evidence
 
