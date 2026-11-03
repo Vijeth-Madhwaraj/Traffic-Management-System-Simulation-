@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "traffic/input/scenario.hpp"
@@ -9,6 +8,10 @@
 #include "traffic/network/movement_engine.hpp"
 #include "traffic/signals/signal_controller.hpp"
 #include "traffic/types.hpp"
+
+#include <optional>
+#include <unordered_set>
+#include <vector>
 
 namespace traffic {
 
@@ -42,10 +45,10 @@ public:
     void run();
     Tick currentTick() const noexcept;
 
-    // FR-16: Return a snapshot of the collected simulation metrics.
+    // FR-16
     MetricsSnapshot metricsSnapshot() const noexcept;
 
-    // FR-17: Build a report containing the final simulation statistics.
+    // FR-17
     SimulationReport createReport() const noexcept;
 
 private:
@@ -63,15 +66,19 @@ private:
     SignalController signals_;
     MovementEngine movement_;
 
-    // FR-13: Congestion detection.
+    // FR-13
     CongestionDetector congestionDetector_;
     CongestionReport lastCongestionReport_;
 
-    // FR-14: Incident scheduling and road blockages.
+    // FR-14
     IncidentManager incidents_;
 
-    // FR-16: Performance metrics.
+    // FR-16
     MetricsCollector metrics_;
+
+    // Track vehicles for completion metrics.
+    std::vector<VehicleId> trackedVehicles_;
+    std::unordered_set<VehicleId> recordedCompletions_;
 };
 
 }  // namespace traffic

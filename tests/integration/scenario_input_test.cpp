@@ -1,8 +1,8 @@
-
 #include "traffic/input/scenario.hpp"
 #include "traffic/simulation/simulation.hpp"
 
 #include <gtest/gtest.h>
+
 #include <sstream>
 #include <stdexcept>
 #include <vector>
@@ -53,7 +53,10 @@ TEST(
 
     simulation.run();
 
-    EXPECT_EQ(simulation.inputSummary().generated, 3U);
+    EXPECT_EQ(
+        simulation.inputSummary().generated,
+        3U
+    );
 }
 
 TEST(
@@ -74,11 +77,17 @@ TEST(
     );
 
     EXPECT_EQ(simulation.currentTick(), 1U);
-    EXPECT_EQ(simulation.inputSummary().generated, 2U);
+    EXPECT_EQ(
+        simulation.inputSummary().generated,
+        2U
+    );
 
     simulation.run();
 
-    EXPECT_EQ(simulation.inputSummary().generated, 3U);
+    EXPECT_EQ(
+        simulation.inputSummary().generated,
+        3U
+    );
 }
 
 TEST(
@@ -102,7 +111,10 @@ TEST(
     const auto run = [&]() {
         std::vector<Tick> ticks;
 
-        while (simulation.currentTick() < scenario.config.duration) {
+        while (
+            simulation.currentTick() <
+            scenario.config.duration
+        ) {
             const auto tick = simulation.currentTick();
 
             for (const auto id : simulation.step().generated) {
@@ -121,7 +133,10 @@ TEST(
     simulation.reset();
 
     EXPECT_EQ(simulation.currentTick(), 0U);
-    EXPECT_EQ(simulation.inputSummary().generated, 0U);
+    EXPECT_EQ(
+        simulation.inputSummary().generated,
+        0U
+    );
 
     EXPECT_EQ(run(), first);
 }
@@ -138,13 +153,18 @@ TEST(
     Simulation simulation({});
     simulation.configureScenario(scenario);
 
-    // FR-15: Production routing should find the available A-to-B road.
     simulation.run();
 
-    EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
-    EXPECT_EQ(simulation.inputSummary().admitted, 1U);
+    EXPECT_EQ(
+        simulation.inputSummary().unroutable,
+        0U
+    );
 
-    // Verify that an injected route provider also works after reset.
+    EXPECT_EQ(
+        simulation.inputSummary().admitted,
+        1U
+    );
+
     simulation.reset();
 
     simulation.setRouteProvider(
@@ -158,8 +178,15 @@ TEST(
 
     simulation.run();
 
-    EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
-    EXPECT_EQ(simulation.inputSummary().admitted, 1U);
+    EXPECT_EQ(
+        simulation.inputSummary().unroutable,
+        0U
+    );
+
+    EXPECT_EQ(
+        simulation.inputSummary().admitted,
+        1U
+    );
 
     EXPECT_THROW(
         simulation.setRouteProvider({}),
@@ -173,9 +200,110 @@ TEST(
 ) {
     Simulation simulation({});
 
-    EXPECT_THROW(simulation.step(), std::logic_error);
-    EXPECT_THROW(simulation.run(), std::logic_error);
-    EXPECT_THROW(simulation.reset(), std::logic_error);
+    EXPECT_THROW(
+        simulation.step(),
+        std::logic_error
+    );
+
+    EXPECT_THROW(
+        simulation.run(),
+        std::logic_error
+    );
+
+    EXPECT_THROW(
+        simulation.reset(),
+        std::logic_error
+    );
+}
+
+// FR-14: Scenario incident records must be parsed and validated.
+TEST(
+    ScenarioInputIntegrationTest,
+    ParsesAndValidatesScheduledIncidents
+) {
+    std::istringstream input(
+        "scenario 1\n"
+        "seed 42\n"
+        "duration 5\n"
+        "intersection A\n"
+        "intersection B\n"
+        "road AB A B 5 1\n"
+        "lane entry AB 2\n"
+        "incident AB 1 4\n"
+    );
+
+    const auto scenario = ScenarioLoader::load(input);
+
+    ASSERT_EQ(scenario.incidents.size(), 1U);
+
+    EXPECT_EQ(scenario.incidents[0].roadId, "AB");
+    EXPECT_EQ(scenario.incidents[0].startsAt, 1U);
+    EXPECT_EQ(scenario.incidents[0].endsAt, 4U);
+}
+
+TEST(
+    ScenarioInputIntegrationTest,
+    RejectsIncidentWithUnknownRoad
+) {
+    std::istringstream input(
+        "scenario 1\n"
+        "seed 42\n"
+        "duration 5\n"
+        "intersection A\n"
+        "intersection B\n"
+        "road AB A B 5 1\n"
+        "lane entry AB 2\n"
+        "incident UNKNOWN 1 4\n"
+    );
+
+    EXPECT_THROW(
+        ScenarioLoader::load(input),
+        std::invalid_argument
+    );
+}
+
+// FR-14 and FR-15: An active incident blocks a road.
+// Production routing selects an available alternative.
+TEST(
+    ScenarioInputIntegrationTest,
+    IncidentAwareRoutingUsesAlternativeRoad
+) {
+    std::istringstream input(
+        "scenario 1\n"
+        "seed 42\n"
+        "duration 4\n"
+        "intersection A\n"
+        "intersection B\n"
+        "intersection C\n"
+        "intersection D\n"
+        "road AB A B 5 1\n"
+        "road BC B C 5 1\n"
+        "road BD B D 5 2\n"
+        "road DC D C 5 2\n"
+        "lane entry AB 2\n"
+        "incident BC 0 2\n"
+        "arrival 0 entry C standard -\n"
+    );
+
+    const auto scenario = ScenarioLoader::load(input);
+
+    Simulation simulation({});
+    simulation.configureScenario(scenario);
+
+    const auto batch = simulation.step();
+
+    ASSERT_EQ(batch.generated.size(), 1U);
+    ASSERT_EQ(batch.admitted.size(), 1U);
+
+    const auto* vehicle =
+        simulation.vehicles().find(batch.generated.front());
+
+    ASSERT_NE(vehicle, nullptr);
+
+    EXPECT_EQ(
+        vehicle->route,
+        (std::vector<RoadId>{"AB", "BD", "DC"})
+    );
 }
 
 }  // namespace

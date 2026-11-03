@@ -14,6 +14,7 @@ void Simulation::configureScenario(const Scenario& scenario) {
 
     Simulation replacement(scenario.config);
 
+    // Configure vehicle topology and arrival schedules.
     replacement.vehicles_.configureTopology(
         scenario.intersections,
         scenario.roads
@@ -23,18 +24,31 @@ void Simulation::configureScenario(const Scenario& scenario) {
     replacement.vehicles_.setSchedule(scenario.arrivals);
     replacement.vehicles_.setStreams(scenario.streams);
 
+    // Add intersections to the road network.
     for (const auto& intersection : scenario.intersections) {
         if (!replacement.network_.addIntersection(intersection)) {
-            throw std::invalid_argument("Invalid scenario intersection");
+            throw std::invalid_argument(
+                "Invalid scenario intersection"
+            );
         }
     }
 
+    // Add roads to the road network.
     for (const auto& road : scenario.roads) {
         if (!replacement.network_.addRoad(road)) {
-            throw std::invalid_argument("Invalid scenario road");
+            throw std::invalid_argument(
+                "Invalid scenario road"
+            );
         }
     }
 
+    // FR-14: Register all scheduled incidents.
+    // These incidents will be activated by step() at their start tick.
+    for (const auto& incident : scenario.incidents) {
+        replacement.incidents_.schedule(incident);
+    }
+
+    // Configure traffic signals.
     for (const auto& plan : scenario.signals) {
         replacement.configureSignals(
             plan.intersection,
@@ -44,6 +58,8 @@ void Simulation::configureScenario(const Scenario& scenario) {
     }
 
     replacement.scenario_ = scenario;
+
+    // Replace the current simulation only after successful configuration.
     *this = std::move(replacement);
 }
 
@@ -86,10 +102,11 @@ AdmissionBatch Simulation::step() {
         return {};
     }
 
-    // FR-14: Apply scheduled incidents.
+    // FR-14: Apply scheduled incidents before calculating routes.
     incidents_.advance(currentTick_, network_);
 
-    // FR-15: Use an injected route provider or production shortest-path routing.
+    // FR-15: Use an injected route provider or production
+    // shortest-path routing that avoids disabled roads.
     const RouteProvider routes = routeProvider_
         ? routeProvider_
         : RouteProvider{
@@ -113,29 +130,41 @@ AdmissionBatch Simulation::step() {
     admitted_ += arrivals.admitted.size();
     unroutable_ += arrivals.unroutable.size();
 
-    // FR-16: Record generated vehicles.
-    for (std::size_t index = 0;
-         index < arrivals.generated.size();
-         ++index) {
+    // FR-16: Record generated vehicles and retain their IDs.
+    for (const auto vehicleId : arrivals.generated) {
+        trackedVehicles_.push_back(vehicleId);
         metrics_.recordGenerated();
     }
 
-    // FR-13: Evaluate congestion.
+    // FR-13: Evaluate road and lane congestion.
     lastCongestionReport_ = congestionDetector_.evaluate(
         network_,
         vehicles_,
         scenario_->lanes
     );
 
-    // Advance traffic signals and movement engine.
+    // Advance traffic signals.
     signals_.advance(currentTick_);
 
+    // Advance vehicle movement.
     movement_.advance(
         currentTick_,
         network_,
         signals_,
         vehicles_
     );
+
+    // FR-16: Record completed vehicles and their waiting times.
+    for (const auto vehicleId : trackedVehicles_) {
+        const Vehicle* vehicle = vehicles_.find(vehicleId);
+
+        if (vehicle != nullptr &&
+            vehicle->state == VehicleState::Completed &&
+            recordedCompletions_.insert(vehicleId).second) {
+
+            metrics_.recordCompleted(vehicle->waitingTicks);
+        }
+    }
 
     // FR-16: Record queue lengths after processing this tick.
     for (const auto& lane : scenario_->lanes) {
@@ -211,7 +240,6 @@ MetricsSnapshot Simulation::metricsSnapshot() const noexcept {
 
 SimulationReport Simulation::createReport() const noexcept {
     const auto summary = inputSummary();
-
     const auto metrics = metricsSnapshot();
 
     const Tick finalProcessedTick =
