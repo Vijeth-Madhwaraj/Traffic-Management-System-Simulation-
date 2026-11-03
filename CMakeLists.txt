@@ -16,6 +16,7 @@ add_library(traffic_core
     src/management/incident_manager.cpp
     src/management/congestion_detector.cpp
     src/management/metrics_collector.cpp
+    src/management/report_writer.cpp
     src/simulation/simulation.cpp
 )
 
@@ -73,8 +74,6 @@ include(CTest)
 if(BUILD_TESTING)
     include(FetchContent)
 
-    # GoogleTest is fetched at configure time when BUILD_TESTING is enabled.
-    # Pin a release tag so local and CI builds use the same test framework.
     set(gtest_force_shared_crt ON CACHE BOOL "Use the shared MSVC runtime" FORCE)
     set(BUILD_GMOCK OFF CACHE BOOL "Do not build Google Mock for these unit tests" FORCE)
 
@@ -111,6 +110,8 @@ if(BUILD_TESTING)
     add_executable(traffic_management_tests
         tests/unit/management/congestion_detector_test.cpp
         tests/unit/management/incident_manager_test.cpp
+        tests/unit/management/metrics_collector_test.cpp
+        tests/unit/management/report_writer_test.cpp
     )
 
     target_link_libraries(
@@ -118,7 +119,6 @@ if(BUILD_TESTING)
         PRIVATE traffic_core GTest::gtest_main
     )
 
-    # Road network unit tests
     add_executable(traffic_network_tests
         tests/unit/network/road_network_test.cpp
     )
