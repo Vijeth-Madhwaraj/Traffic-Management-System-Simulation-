@@ -88,5 +88,57 @@ TEST(ScenarioTest, FailedLoadLeavesPreviouslyLoadedValueUnchanged) {
     broken.setstate(std::ios::badbit);
     EXPECT_THROW(ScenarioLoader::load(broken), std::runtime_error);
 }
+TEST(ScenarioTest, FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility) {
+    const auto scenario = parse(base + "batch traffic 3\n"
+        "stream traffic entry C standard 0 5 1 AB BC\n"
+        "stream single entry C standard 0 5 1 AB BC\n");
+    ASSERT_EQ(scenario.streams.size(), 2U);
+    EXPECT_EQ(scenario.streams[0].vehiclesPerArrival, 3U);
+    EXPECT_EQ(scenario.streams[1].vehiclesPerArrival, 1U);
+}
+TEST(ScenarioTest, FR02_RejectsInvalidDuplicateAndUnknownBatchSettings) {
+    const std::string stream = "stream traffic entry C standard 0 5 1 AB BC\n";
+    for (const auto& count : {"0", "-1", "1001", "18446744073709551616", "1.5"}) {
+        EXPECT_THROW(parse(base + stream + "batch traffic " + count + "\n"), std::invalid_argument);
+    }
+    EXPECT_THROW(parse(base + stream + "batch traffic 2\nbatch traffic 3\n"), std::invalid_argument);
+    EXPECT_THROW(parse(base + "batch missing 2\n"), std::invalid_argument);
+}
+TEST(ScenarioTest, FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying) {
+    auto scenario = parse(base + "stream traffic entry C standard 0 5 1 AB BC\n");
+    scenario.config.duration = 100000;
+    scenario.streams[0].endTick = 100;
+    scenario.streams[0].vehiclesPerArrival = 1000;
+    EXPECT_NO_THROW(ScenarioLoader::validate(scenario)); // Exactly 100000 possible vehicles.
+    scenario.arrivals.push_back({0, "entry", scenario.streams[0].vehicle});
+    EXPECT_THROW(ScenarioLoader::validate(scenario), std::invalid_argument);
+    scenario.arrivals.clear();
+    scenario.streams[0].endTick = 100000;
+    EXPECT_THROW(ScenarioLoader::validate(scenario), std::invalid_argument);
+    scenario.streams[0].vehiclesPerArrival = 0;
+    EXPECT_THROW(ScenarioLoader::validate(scenario), std::invalid_argument);
+}
+
+TEST(ScenarioTest, TC_07_LoadsAdaptiveSignalPolicy) {
+    const auto scenario = parse(base + "adaptive B 2 5 3 1\n"
+        "phase B 3 1 1 AB-to-BC\n");
+    ASSERT_EQ(scenario.signals.size(), 1U);
+    ASSERT_TRUE(scenario.signals[0].adaptivePolicy.has_value());
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->minimumGreenDuration, 2U);
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->maximumGreenDuration, 5U);
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->extendQueueThreshold, 3U);
+    EXPECT_EQ(scenario.signals[0].adaptivePolicy->adjustment, 1U);
+}
+
+TEST(ScenarioTest, TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies) {
+    const std::string phase = "phase B 2 1 1 AB-to-BC\n";
+    for (const auto& policy : {"adaptive B 0 4 2 1\n", "adaptive B 1 4 0 1\n",
+                               "adaptive B 1 4 2 0\n", "adaptive B 3 2 2 1\n",
+                               "adaptive B 3 4 2 1\n", "adaptive B 1 1 2 1\n"}) {
+        EXPECT_THROW(parse(base + phase + policy), std::invalid_argument) << policy;
+    }
+    EXPECT_THROW(parse(base + phase + "adaptive B 1 4 2 1\nadaptive B 1 5 2 1\n"),
+                 std::invalid_argument);
+}
 }  // namespace
 }  // namespace traffic

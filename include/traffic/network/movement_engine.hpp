@@ -11,6 +11,10 @@ namespace traffic {
 
 class MovementEngine {
 public:
+    // Ready-to-cross queues used by adaptive signal timing.
+    MovementQueueCounts readyMovementQueues(
+        Tick now, const RoadNetwork& network, const VehicleManager& vehicles) const;
+
     // Entry-lane vehicles start on their first route road. At an intersection,
     // a crossing requires the matching `<incoming-road>-to-<outgoing-road>`
     // movement to be Green and the outgoing road and any configured lane on it

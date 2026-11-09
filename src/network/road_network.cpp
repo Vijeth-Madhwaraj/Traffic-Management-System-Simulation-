@@ -1,14 +1,19 @@
+
 #include "traffic/network/road_network.hpp"
 
 #include <algorithm>
+#include <functional>
 #include <limits>
 #include <queue>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace traffic {
 
 bool RoadNetwork::addIntersection(const IntersectionId& id) {
-    return !id.empty() && adjacency_.emplace(id, std::vector<RoadId>{}).second;
+    return !id.empty() &&
+           adjacency_.emplace(id, std::vector<RoadId>{}).second;
 }
 
 bool RoadNetwork::hasIntersection(const IntersectionId& id) const noexcept {
@@ -16,18 +21,31 @@ bool RoadNetwork::hasIntersection(const IntersectionId& id) const noexcept {
 }
 
 bool RoadNetwork::addRoad(Road road) {
-    if (road.id.empty() || !hasIntersection(road.from) || !hasIntersection(road.to) ||
-        road.capacity == 0 || road.travelTime == 0 || road.occupancy > road.capacity) return false;
+    if (road.id.empty() ||
+        !hasIntersection(road.from) ||
+        !hasIntersection(road.to) ||
+        road.capacity == 0 ||
+        road.travelTime == 0 ||
+        road.occupancy > road.capacity) {
+        return false;
+    }
+
     const auto id = road.id;
     const auto from = road.from;
+
     const auto inserted = roads_.emplace(id, std::move(road));
-    if (!inserted.second) return false;
+
+    if (!inserted.second) {
+        return false;
+    }
+
     try {
         adjacency_.at(from).push_back(id);
     } catch (...) {
         roads_.erase(inserted.first);
         throw;
     }
+
     return true;
 }
 
@@ -41,9 +59,14 @@ Road* RoadNetwork::findRoad(const RoadId& id) noexcept {
     return it == roads_.end() ? nullptr : &it->second;
 }
 
-std::vector<RoadId> RoadNetwork::neighbors(const IntersectionId& intersection) const {
+std::vector<RoadId> RoadNetwork::neighbors(
+    const IntersectionId& intersection) const {
+
     const auto it = adjacency_.find(intersection);
-    return it == adjacency_.end() ? std::vector<RoadId>{} : it->second;
+
+    return it == adjacency_.end()
+        ? std::vector<RoadId>{}
+        : it->second;
 }
 
 std::vector<RoadId> RoadNetwork::shortestRoute(const IntersectionId& from,

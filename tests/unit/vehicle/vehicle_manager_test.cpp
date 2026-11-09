@@ -166,5 +166,184 @@ TEST_F(VehicleInputTest, RejectsLaneMismatchAndUnknownLanesBeforeGeneration) {
     EXPECT_THROW(manager.setSchedule({{0, "entry", v}}), std::invalid_argument);
     EXPECT_EQ(manager.size(), 0U);
 }
+TEST_F(VehicleInputTest, FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset) {
+    manager.configureLanes({{"z-entry", "AB", 1}, {"a-entry", "AB", 1}});
+    manager.setSchedule({{0, "z-entry", vehicle()}, {0, "z-entry", vehicle()},
+                         {0, "a-entry", vehicle()}, {0, "a-entry", vehicle()}});
+    auto snapshots = manager.laneSnapshots();
+    ASSERT_EQ(snapshots.size(), 2U);
+    EXPECT_TRUE(snapshots[0].queued.empty());
+    EXPECT_TRUE(snapshots[0].pending.empty());
+    manager.advanceArrivals(0, {});
+    snapshots = manager.laneSnapshots();
+    EXPECT_EQ(snapshots[0].id, "a-entry");
+    EXPECT_EQ(snapshots[0].road, "AB");
+    EXPECT_EQ(snapshots[0].capacity, 1U);
+    EXPECT_EQ(snapshots[0].queued, (std::vector<VehicleId>{3}));
+    EXPECT_EQ(snapshots[0].pending, (std::vector<VehicleId>{4}));
+    EXPECT_EQ(snapshots[1].id, "z-entry");
+    EXPECT_EQ(snapshots[1].queued, (std::vector<VehicleId>{1}));
+    EXPECT_EQ(snapshots[1].pending, (std::vector<VehicleId>{2}));
+    snapshots[0].queued.clear();
+    snapshots[0].pending.clear();
+    EXPECT_EQ(manager.queuedCount(), 2U);
+    EXPECT_EQ(manager.pendingCount(), 2U);
+    EXPECT_EQ(manager.lane("a-entry")->pop(), 3U);
+    manager.advanceArrivals(1, {});
+    snapshots = manager.laneSnapshots();
+    EXPECT_EQ(snapshots[0].queued, (std::vector<VehicleId>{4}));
+    EXPECT_TRUE(snapshots[0].pending.empty());
+    EXPECT_EQ(snapshots[1].pending, (std::vector<VehicleId>{2}));
+    manager.reset();
+    for (const auto& lane : manager.laneSnapshots()) {
+        EXPECT_TRUE(lane.queued.empty());
+        EXPECT_TRUE(lane.pending.empty());
+    }
+}
+TEST_F(VehicleInputTest, FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering) {
+    manager.setSchedule({{0, "scheduled", vehicle()}});
+    manager.setStreams({{"traffic", "entry", 0, 2, 1, vehicle(), 3}});
+    const auto arrivals = manager.generate(0);
+    ASSERT_EQ(arrivals.size(), 4U);
+    EXPECT_EQ(arrivals[0].lane, "scheduled");
+    for (std::size_t index = 0; index < arrivals.size(); ++index) {
+        EXPECT_EQ(arrivals[index].id, index + 1);
+        EXPECT_EQ(manager.find(arrivals[index].id)->route, vehicle().route);
+        if (index > 0) EXPECT_EQ(arrivals[index].lane, "entry");
+    }
+    EXPECT_TRUE(manager.generate(0).empty());
+    const auto next = manager.generate(1);
+    ASSERT_EQ(next.size(), 3U);
+    EXPECT_EQ(next.front().id, 5U);
+    EXPECT_EQ(next.back().id, 7U);
+    EXPECT_TRUE(manager.generate(2).empty());
+}
+TEST_F(VehicleInputTest, FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules) {
+    manager.configureLanes({{"entry", "AB", 1}});
+    manager.setStreams({{"traffic", "entry", 0, 1, 1, vehicle(), 3}});
+    auto arrivals = manager.advanceArrivals(0, {});
+    EXPECT_EQ(arrivals.generated, (std::vector<VehicleId>{1, 2, 3}));
+    EXPECT_EQ(arrivals.admitted, (std::vector<VehicleId>{1}));
+    EXPECT_EQ(manager.pendingCount(), 2U);
+    manager.lane("entry")->pop();
+    arrivals = manager.advanceArrivals(1, {});
+    EXPECT_TRUE(arrivals.generated.empty());
+    EXPECT_EQ(arrivals.admitted, (std::vector<VehicleId>{2}));
+    EXPECT_EQ(manager.laneSnapshots()[0].pending, (std::vector<VehicleId>{3}));
+    manager.reset();
+    EXPECT_EQ(manager.advanceArrivals(0, {}).generated, (std::vector<VehicleId>{1, 2, 3}));
+}
+TEST_F(VehicleInputTest, FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams) {
+    manager.setStreams({{"valid", "entry", 0, 1, 1, vehicle(), 2}});
+    EXPECT_THROW(manager.setStreams({{"bad", "entry", 0, 1, 1, vehicle(), 0}}), std::invalid_argument);
+    EXPECT_THROW(manager.setStreams({{"bad", "entry", 0, 1, 1, vehicle(), 1001}}), std::invalid_argument);
+    EXPECT_EQ(manager.generate(0).size(), 2U);
+}
+TEST_F(VehicleInputTest, FR02_IndependentSeededBatchRunsAreReproducible) {
+    const auto run = [&](std::uint64_t seed) {
+        VehicleManager independent(seed);
+        independent.configureTopology({"A", "B", "C"},
+            {{"AB", "A", "B", 2, 1}, {"BC", "B", "C", 2, 1}});
+        independent.setStreams({{"traffic", "entry", 0, 100, 0.5, vehicle(), 3}});
+        std::vector<Tick> ticks;
+        VehicleId expectedId = 1;
+        for (Tick now = 0; now < 100; ++now) {
+            const auto events = independent.generate(now);
+            EXPECT_TRUE(events.empty() || events.size() == 3U);
+            for (const auto& event : events) {
+                EXPECT_EQ(event.id, expectedId++);
+                ticks.push_back(now);
+            }
+        }
+        return ticks;
+    };
+    const auto first = run(42);
+    EXPECT_FALSE(first.empty());
+    EXPECT_EQ(run(42), first);
+    EXPECT_NE(run(43), first);
+}
+TEST_F(VehicleInputTest, FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions) {
+    const auto run = [&](std::size_t count) {
+        manager.reset();
+        manager.setStreams({{"a-batched", "entry", 0, 100, 0.5, vehicle(), count},
+                            {"z-other", "other-entry", 0, 100, 0.5, vehicle()}});
+        std::vector<Tick> otherArrivals;
+        for (Tick now = 0; now < 100; ++now) {
+            for (const auto& event : manager.generate(now)) {
+                if (event.lane == "other-entry") otherArrivals.push_back(now);
+            }
+        }
+        return otherArrivals;
+    };
+    const auto single = run(1);
+    EXPECT_EQ(run(3), single);
+}
+TEST_F(VehicleInputTest, FR03_InvalidProviderRouteDoesNotBlockValidVehiclesAtSameTick) {
+    manager.configureLanes({{"entry", "AB", 2}});
+    auto automatic = vehicle(); automatic.route.clear();
+    manager.setSchedule({{0, "entry", automatic}, {0, "entry", automatic}, {0, "entry", vehicle()}});
+    int calls = 0;
+    const auto batch = manager.advanceArrivals(0, [&](const auto&, const auto&) {
+        return ++calls == 1 ? std::vector<RoadId>{"missing"} : vehicle().route;
+    });
+    EXPECT_EQ(batch.generated, (std::vector<VehicleId>{1, 2, 3}));
+    EXPECT_EQ(batch.unroutable, (std::vector<VehicleId>{1}));
+    EXPECT_EQ(batch.admitted, (std::vector<VehicleId>{2, 3}));
+    EXPECT_EQ(manager.find(1)->state, VehicleState::Unroutable);
+    EXPECT_EQ(manager.find(1)->routeFailure, RouteFailure::InvalidRoute);
+    EXPECT_TRUE(manager.find(1)->route.empty());
+    EXPECT_EQ(manager.find(2)->routeFailure, RouteFailure::None);
+    EXPECT_EQ(manager.lane("entry")->snapshot(), (std::vector<VehicleId>{2, 3}));
+    EXPECT_TRUE(manager.advanceArrivals(0, {}).generated.empty());
+}
+TEST_F(VehicleInputTest, FR03_RejectsDisconnectedIncompleteDisabledAndWrongEntryProviderRoutes) {
+    manager.configureTopology({"A", "B", "C"},
+        {{"AB", "A", "B", 2, 1}, {"BC", "B", "C", 2, 1},
+         {"AC", "A", "C", 2, 1}, {"CA", "C", "A", 2, 1, 0, false}});
+    manager.configureLanes({{"entry", "AB", 1}});
+    auto automatic = vehicle(); automatic.route.clear();
+    manager.setSchedule({{0, "entry", automatic}});
+    for (const auto& route : std::vector<std::vector<RoadId>>{{"unknown"}, {"BC", "AB"}, {"AB"}, {"AC"}, {"AB", "BC", "CA", "AC"}}) {
+        manager.reset();
+        const auto batch = manager.advanceArrivals(0, [&](const auto&, const auto&) { return route; });
+        EXPECT_EQ(batch.unroutable, (std::vector<VehicleId>{1}));
+        EXPECT_TRUE(batch.admitted.empty());
+        EXPECT_EQ(manager.find(1)->routeFailure, RouteFailure::InvalidRoute);
+        EXPECT_EQ(manager.queuedCount(), 0U);
+        EXPECT_EQ(manager.pendingCount(), 0U);
+    }
+}
+TEST_F(VehicleInputTest, FR03_DistinguishesUnavailableRouteAndResetsFailureState) {
+    manager.configureLanes({{"entry", "AB", 1}});
+    auto automatic = vehicle(); automatic.route.clear();
+    manager.setSchedule({{0, "entry", automatic}});
+    manager.advanceArrivals(0, {});
+    EXPECT_EQ(manager.find(1)->routeFailure, RouteFailure::NoRoute);
+    manager.reset();
+    EXPECT_EQ(manager.find(1), nullptr);
+    EXPECT_EQ(manager.advanceArrivals(0, [&](const auto&, const auto&) { return vehicle().route; }).admitted,
+              (std::vector<VehicleId>{1}));
+    EXPECT_EQ(manager.find(1)->routeFailure, RouteFailure::None);
+}
+TEST_F(VehicleInputTest, FR03_ProviderExceptionsRollBackEvenAfterARejectedVehicle) {
+    manager.configureLanes({{"entry", "AB", 2}});
+    auto automatic = vehicle(); automatic.route.clear();
+    manager.setSchedule({{0, "entry", automatic}, {0, "entry", automatic}});
+    int calls = 0;
+    EXPECT_THROW(manager.advanceArrivals(0, [&](const auto&, const auto&) -> std::vector<RoadId> {
+        if (++calls == 2) throw std::invalid_argument("Provider unavailable");
+        return {"unknown"};
+    }), std::invalid_argument);
+    EXPECT_EQ(manager.size(), 0U);
+    EXPECT_EQ(manager.queuedCount(), 0U);
+    EXPECT_EQ(manager.advanceArrivals(0, [&](const auto&, const auto&) { return vehicle().route; }).admitted,
+              (std::vector<VehicleId>{1, 2}));
+}
+TEST_F(VehicleInputTest, FR03_NewVehicleCannotCarryAnOldRoutingFailure) {
+    auto invalid = vehicle();
+    invalid.routeFailure = RouteFailure::InvalidRoute;
+    EXPECT_THROW(manager.addVehicle(invalid), std::invalid_argument);
+    EXPECT_EQ(manager.size(), 0U);
+}
 } // namespace
 } // namespace traffic

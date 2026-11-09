@@ -159,5 +159,88 @@ TEST(SignalControllerTest, UT_VI08_AdvancesAcrossSkippedTicksDeterministically) 
     EXPECT_EQ(state->colorElapsed, 0U);
 }
 
+TEST(SignalControllerTest, TC_07_ExtendsGreenForLongQueuesUpToMaximum) {
+    SignalController signals;
+    const AdaptiveSignalPolicy policy{1, 3, 2, 1};
+    signals.configure("junction", {makePhase({"north-south"}, 2, 1, 1)}, {}, policy);
+
+    MovementQueueCounts queues{{"junction", {{"north-south", 2}}}};
+    signals.advance(0, queues);
+    auto state = signals.status("junction", 0);
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state->color, SignalColor::Green);
+    EXPECT_EQ(state->greenDuration, 3U);
+    EXPECT_TRUE(signals.permits("junction", "north-south"));
+
+    signals.advance(5, queues);  // The next green starts after yellow and all-red.
+    state = signals.status("junction", 5);
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state->color, SignalColor::Green);
+    EXPECT_EQ(state->greenDuration, policy.maximumGreenDuration);
+}
+
+TEST(SignalControllerTest, TC_07_ShortensEmptyGreenToMinimumAndCanExtendAgain) {
+    SignalController signals;
+    const AdaptiveSignalPolicy policy{1, 4, 2, 1};
+    signals.configure("junction", {makePhase({"north-south"}, 3, 1, 1)}, {}, policy);
+
+    signals.advance(0, {});
+    auto state = signals.status("junction", 0);
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state->greenDuration, 2U);
+    signals.advance(2, {});
+    ASSERT_EQ(signals.status("junction", 2)->color, SignalColor::Yellow);
+    signals.advance(4, {});
+    state = signals.status("junction", 4);
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state->color, SignalColor::Green);
+    EXPECT_EQ(state->greenDuration, policy.minimumGreenDuration);
+
+    MovementQueueCounts queues{{"junction", {{"north-south", 2}}}};
+    signals.advance(7, queues);
+    state = signals.status("junction", 7);
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state->color, SignalColor::Green);
+    EXPECT_EQ(state->greenDuration, 2U);
+}
+
+TEST(SignalControllerTest, TC_07_AdaptiveTimingPreservesConflictAndClearanceSafety) {
+    SignalController signals;
+    const AdaptiveSignalPolicy policy{1, 3, 1, 1};
+    signals.configure("junction",
+        {makePhase({"north-south"}, 1, 1, 1), makePhase({"east-west"}, 1, 1, 1)},
+        kConflicts, policy);
+    MovementQueueCounts queues{{"junction", {{"north-south", 4}, {"east-west", 4}}}};
+
+    for (Tick tick = 0; tick <= 24; ++tick) {
+        signals.advance(tick, queues);
+        const auto state = signals.status("junction", tick);
+        ASSERT_TRUE(state.has_value());
+        EXPECT_GE(state->greenDuration, policy.minimumGreenDuration);
+        EXPECT_LE(state->greenDuration, policy.maximumGreenDuration);
+        EXPECT_FALSE(signals.permits("junction", "north-south") &&
+                     signals.permits("junction", "east-west"));
+        if (state->color != SignalColor::Green) {
+            EXPECT_FALSE(signals.permits("junction", "north-south"));
+            EXPECT_FALSE(signals.permits("junction", "east-west"));
+        }
+    }
+}
+
+TEST(SignalControllerTest, TC_07_RejectsInvalidAdaptiveLimits) {
+    SignalController signals;
+    const auto phases = std::vector<SignalPhase>{makePhase({"north-south"}, 2, 1, 1)};
+    EXPECT_THROW(signals.configure("junction", phases, {}, AdaptiveSignalPolicy{0, 4, 2, 1}),
+                 std::invalid_argument);
+    EXPECT_THROW(signals.configure("junction", phases, {}, AdaptiveSignalPolicy{3, 2, 2, 1}),
+                 std::invalid_argument);
+    EXPECT_THROW(signals.configure("junction", phases, {}, AdaptiveSignalPolicy{1, 4, 0, 1}),
+                 std::invalid_argument);
+    EXPECT_THROW(signals.configure("junction", phases, {}, AdaptiveSignalPolicy{1, 4, 2, 0}),
+                 std::invalid_argument);
+    EXPECT_THROW(signals.configure("junction", phases, {}, AdaptiveSignalPolicy{3, 4, 2, 1}),
+                 std::invalid_argument);
+}
+
 }  // namespace
 }  // namespace traffic

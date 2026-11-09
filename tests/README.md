@@ -1,7 +1,7 @@
 # Automated tests
 
 The suite includes Vijeth's signal tests, Aarya's vehicle, lane, scenario, integration and CLI
-tests, and Vaibhav's road-network and movement tests. GoogleTest v1.15.2 is fetched on first
+tests, Vaibhav's road-network and movement tests, and Vainik's management/reporting tests. GoogleTest v1.15.2 is fetched on first
 configure and registered with CTest.
 
 ## Linux
@@ -76,17 +76,23 @@ if (Test-Path -LiteralPath .\build) {
 
 The `windows-latest` GitHub Actions job runs configure, build, and all CTest cases for
 pushes, pull requests, and manual dispatches. View results in the repository's
-Actions tab; a branch protection rule can require the `Vijeth signal tests
-(Windows)` check before merging.
+Actions tab. The required `Basic CI Check` aggregate passes only when Windows tests,
+Linux tests, and static analysis all succeed; each job has a unique display name.
 
 ## Vijeth ownership status
 
 See [`../docs/vijeth-test-matrix.md`](../docs/vijeth-test-matrix.md) for the
-UT-VI01 to UT-VI10 status. Tests are added only where the current interface
-supports real assertions. FR-07 adaptation and FR-08 emergency priority remain
-blocked on implementation/API work; they are not represented as passing tests.
+UT-VI01 to UT-VI10 status. FR-07 queue-adaptive green timing now has controller,
+movement-queue, scenario-policy, bound, and safety coverage. FR-08 emergency
+priority remains blocked on implementation/API work and is not represented as passing.
 
 
 Linux unit/integration/CLI and Clang static-analysis jobs are configured alongside Windows.
 Remote CI results are pending until the branch is pushed; local Linux success is recorded
 separately. The existing signal matrix describes signal-specific evidence only.
+
+
+PR #69 integration (31 October 2026): 63/63 CTest cases passed locally on Linux,
+including management and explicit-route movement tests. `cli_lane_status` verifies
+both a draining demo and the slow-road fixture in `tests/fixtures/blocked_entry_scenario.txt`.
+Remote workflow results are recorded separately after pushing the integration commit.

@@ -12,21 +12,21 @@ runs successfully.
 | FR-06 | UT-VI02 | Green remains active before its duration expires and changes to Yellow at the exact boundary. | `tests/unit/signals/signal_controller_test.cpp` | Pass (1 test) |
 | FR-06 | UT-VI03 | Yellow and all-red clearance occur before the next phase becomes Green. | `tests/unit/signals/signal_controller_test.cpp` | Pass (1 test) |
 | FR-06, NFR-04 | UT-VI08 | Invalid or unsafe plans and backwards ticks are rejected; failed reconfiguration preserves the last valid plan. | `tests/unit/signals/signal_controller_test.cpp` | Pass (4 tests) |
-| FR-07 | UT-VI05 | Queue-aware extension remains within the configured maximum green. | Adaptive timing policy/API is not implemented. | Blocked |
-| FR-07 | UT-VI06 | Low-demand approaches do not starve beyond the configured limit. | Minimum-green/starvation policy/API is not implemented. | Blocked |
+| FR-07 | TC-07 | Ready-to-cross queues extend green by a configured step, bounded by the maximum. | `TC_07_ExtendsGreenForLongQueuesUpToMaximum`; `TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingClearance` | Pass (2 tests) |
+| FR-07 | TC-07 | Empty movement queues shorten green by a configured step, bounded by the minimum. | `TC_07_ShortensEmptyGreenToMinimumAndCanExtendAgain` | Pass |
 | FR-08 | UT-VI07 | Emergency priority is accepted only when safe. | Emergency-priority request/API is not implemented. | Blocked |
 | FR-06 | UT-VI09 | Reset restores the initial phase and timer. | `SignalController` has no reset API. | Blocked |
-| FR-07 | UT-VI10 | Identical queue inputs produce deterministic adaptive phase decisions. | Queue-aware decision API is not implemented. | Blocked |
+| FR-07, FR-06 | TC-07 | Adaptive timing preserves phase movement safety and yellow/all-red clearance. | `TC_07_AdaptiveTimingPreservesConflictAndClearanceSafety` | Pass |
+| FR-07 | TC-07 | Invalid limits and base green durations outside configured bounds are rejected. | `TC_07_RejectsInvalidAdaptiveLimits`; `TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies` | Pass |
 
 ## Execution notes
 
 - GoogleTest is enabled through `BUILD_TESTING` in the root CMake project and
   each test is registered with CTest.
-- Local Windows MinGW Debug run: 8/8 discovered tests passed.
+- Local Windows MinGW Debug run: 12/12 signal tests passed after FR-07 implementation.
 - The Windows CI workflow builds with the runner's Visual C++ toolchain and
   runs the same suite. The local PowerShell instructions use MinGW GCC.
 - `UT-VI08` includes input-validation and timer-order robustness checks because
   the current signal API has no separate reset operation.
-- Add FR-07/08 tests when those behaviors and their public interfaces are
-  implemented. Do not change a blocked row to `Pass` without executing a real
-  test.
+- FR-08 emergency priority remains blocked. Do not change a blocked row to `Pass`
+  without executing a real test.

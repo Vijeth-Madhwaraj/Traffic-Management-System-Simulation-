@@ -184,5 +184,38 @@ TEST_F(MovementEngineTest, UT_VA10_NFR02_IsDeterministicAndCallableWithoutSimula
     EXPECT_EQ(runDirectly(), runDirectly());
 }
 
+TEST_F(MovementEngineTest, TC_07_CountsOnlyVehiclesReadyToCrossByMovement) {
+    const auto id = enqueueRoute();
+    EXPECT_TRUE(engine.readyMovementQueues(0, network, vehicles).empty());
+
+    signals.advance(0);
+    engine.advance(0, network, signals, vehicles);
+    const auto queues = engine.readyMovementQueues(1, network, vehicles);
+    ASSERT_TRUE(queues.count("B"));
+    ASSERT_TRUE(queues.at("B").count("AB-to-BC"));
+    EXPECT_EQ(queues.at("B").at("AB-to-BC"), 1U);
+    EXPECT_EQ(vehicles.find(id)->state, VehicleState::InTransit);
+}
+
+TEST_F(MovementEngineTest, TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingClearance) {
+    SignalController adaptiveSignals;
+    const AdaptiveSignalPolicy policy{1, 3, 1, 1};
+    adaptiveSignals.configure("B", {{{"AB-to-BC"}, 2, 1, 1}}, {}, policy);
+    const auto id = enqueueRoute();
+
+    for (Tick tick = 0; tick <= 3; ++tick) {
+        const auto queues = engine.readyMovementQueues(tick, network, vehicles);
+        adaptiveSignals.advance(tick, queues);
+        engine.advance(tick, network, adaptiveSignals, vehicles);
+    }
+
+    const auto state = adaptiveSignals.status("B", 3);
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state->color, SignalColor::Green);
+    EXPECT_EQ(state->greenDuration, 2U);
+    EXPECT_EQ(vehicles.find(id)->routeIndex, 1U);
+    EXPECT_FALSE(adaptiveSignals.permits("B", "unconfigured-movement"));
+}
+
 }  // namespace
 }  // namespace traffic

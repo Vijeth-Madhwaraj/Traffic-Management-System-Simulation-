@@ -5,13 +5,16 @@
 #include <cstddef>
 #include <deque>
 #include <optional>
+#include <vector>
 
 namespace traffic {
 
 class LaneQueue {
 public:
     explicit LaneQueue(std::size_t capacity);
+    // Reject zero IDs, IDs already in this queue, and arrivals beyond capacity.
     bool enqueue(VehicleId vehicleId);
+    std::vector<VehicleId> snapshot() const;
     std::optional<VehicleId> front() const noexcept;
     std::optional<VehicleId> pop() noexcept;
     void clear() noexcept;

@@ -25,34 +25,49 @@
   Ticks start at zero and are consecutive; duplicate calls for the latest tick are no-ops.
 - Scheduled arrivals run in stable tick/file order, followed by streams in sorted ID order.
   Each active stream consumes one RNG draw per tick, including probability 0 or 1.
+  A successful decision creates `vehiclesPerArrival` vehicles (default 1, maximum 1000)
+  with separate IDs. Batch size does not consume additional random draws. Scenario limits
+  count interval length times batch size before accepting the configuration.
   Compare the upper 32 bits of `mt19937_64` against `floor(probability * 2^32)`.
 - Admission uses supplied validated routes or invokes `RouteProvider(source, destination)`.
   Providers must return an enabled connected route beginning on the configured entry road.
-  An empty route marks the vehicle `Unroutable`; invalid nonempty routes reject the tick.
-  Provider failure does not consume the arrival or advance RNG state.
+  An empty result marks that vehicle `Unroutable` with `RouteFailure::NoRoute`.
+  Invalid provider results (unknown/disabled/disconnected roads, wrong destination or entry
+  road) mark only that vehicle `Unroutable` with `RouteFailure::InvalidRoute`; the bad route
+  is cleared and valid arrivals continue. Explicit scenario routes are still validated
+  before the run. Exceptions thrown by the provider roll back the whole admission tick,
+  preserving IDs, queues and RNG state for retry.
 - Full queues retain pending IDs in FIFO order. Each tick admits old pending vehicles
   before newer vehicles; emergency class uses the same FIFO policy.
+- `laneSnapshots()` returns independent value snapshots sorted by lane ID, including capacity,
+  queued IDs and pending IDs in FIFO order. Consumers can inspect them without mutating
+  queues or advancing arrivals. `LaneQueue::enqueue` rejects zero and duplicate queued IDs.
 - `lane(id)` exposes front/pop for movement integration. Reacquire lane/vehicle pointers
   after `advanceArrivals`, reset, or reconfiguration; those operations may replace storage.
   After removing an ID, the movement owner updates its registry state and road occupancy.
-- `Simulation::step()` applies incidents, generates/admit arrivals, advances signals, calls
-  movement, observes queues, then increments the tick. Congestion measurement belongs before
-  signals; waiting/travel/complete-trip metrics remain integration work after movement.
+- `Simulation::step()` applies incidents, generates/admit arrivals, measures congestion,
+  counts ready-to-cross vehicles by signal movement, advances signals with those queues, calls
+  movement, records newly completed vehicles and observes queues, then increments the tick.
+  Reports include completed/unfinished counts, average waiting ticks and maximum queue length;
+  travel-time metrics remain separate work.
 - `run()` continues from the current tick; repeated calls at completion do nothing. `reset()`
   reloads the original scenario and restores seeded input state while retaining an injected
   route provider. Loading another scenario clears an injected provider.
-- The CLI reports cumulative admission and current queue/pending/unroutable counts. Admission
-  is not completion. A run ends at its configured duration even with pending vehicles.
+- The CLI reports cumulative admission, vehicles that reached their destination, in-transit
+  vehicles, and current queue/pending/unroutable counts. Admission is not completion. A run
+  ends at its configured duration even with pending or in-transit vehicles.
 
 Scenario grammar, bounds, and examples are in [`../config/README.md`](../config/README.md).
 Signal movement IDs and complete conflict tables remain the intersection owner's contract;
-adaptive timing and safe emergency-priority behavior remain separate features.
+FR-07 adaptive timing uses the optional scenario policy and does not change phase movements or
+clearance intervals. Safe emergency-priority behavior remains separate work.
 
-## Signal module integration contract (FR-05 / FR-06)
+## Signal module integration contract (FR-05 / FR-06 / FR-07)
 
 - The intersection/network owner must define stable movement IDs and provide a complete list of conflicting movement pairs for each controlled intersection. IDs in the signal plan must exactly match those used by `MovementEngine`.
 - The scenario/configuration owner must create a non-empty phase plan with positive green, yellow, and all-red durations, then call `Simulation::configureSignals` before `run()`. Invalid plans throw `std::invalid_argument`; the CLI/configuration boundary should catch this and show a readable error.
-- `Simulation` must configure signals before the run and call `SignalController::advance(tick)` in non-decreasing tick order, before `MovementEngine::advance` for that tick.
+- `Simulation` configures signals before the run and passes ready-to-cross movement queue counts to `SignalController::advance(tick, queues)` before `MovementEngine::advance` for that tick.
+- When an `adaptive` policy is configured, a Green phase extends by its adjustment step when its permitted movements' ready queue reaches the configured threshold, and shortens by one step when that queue is empty. Each phase's green duration remains within the configured minimum and maximum. Yellow and all-red durations and the phase's permitted movements do not change.
 - `MovementEngine` must call `permits(intersection, movement)` immediately before crossing. Only movements in the current Green phase are allowed; Yellow and Red deny movement.
 - A phase cannot contain both sides of any declared conflict pair. The controller validates the supplied table; the intersection owner is responsible for making that table complete and correct.
 - Emergency priority is separate work (FR-08). Its owner must request safe priority through the signal module and must not bypass phase or conflict checks.
