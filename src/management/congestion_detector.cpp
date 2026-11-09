@@ -1,4 +1,3 @@
-
 #include "traffic/management/congestion_detector.hpp"
 
 #include <algorithm>
