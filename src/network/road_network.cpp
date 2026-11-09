@@ -1,5 +1,10 @@
 #include "traffic/network/road_network.hpp"
 
+#include <algorithm>
+#include <limits>
+#include <queue>
+#include <utility>
+
 namespace traffic {
 
 bool RoadNetwork::addIntersection(const IntersectionId& id) {
@@ -41,9 +46,56 @@ std::vector<RoadId> RoadNetwork::neighbors(const IntersectionId& intersection) c
     return it == adjacency_.end() ? std::vector<RoadId>{} : it->second;
 }
 
-std::vector<RoadId> RoadNetwork::shortestRoute(const IntersectionId&, const IntersectionId&) const {
-    // TODO: implement weighted shortest path over enabled roads; return empty
-    // when the destination is unreachable.
+std::vector<RoadId> RoadNetwork::shortestRoute(const IntersectionId& from,
+                                               const IntersectionId& to) const {
+    if (!hasIntersection(from) || !hasIntersection(to) || from == to) return {};
+
+    struct RouteLabel {
+        Tick cost{};
+        std::vector<RoadId> roads;
+    };
+    struct QueueEntry {
+        IntersectionId intersection;
+        RouteLabel label;
+    };
+    const auto comesAfter = [](const QueueEntry& left, const QueueEntry& right) {
+        if (left.label.cost != right.label.cost) return left.label.cost > right.label.cost;
+        if (left.label.roads != right.label.roads) return left.label.roads > right.label.roads;
+        return left.intersection > right.intersection;
+    };
+
+    std::priority_queue<QueueEntry, std::vector<QueueEntry>, decltype(comesAfter)> pending(comesAfter);
+    std::unordered_map<IntersectionId, RouteLabel> best;
+    best.emplace(from, RouteLabel{});
+    pending.push({from, {}});
+
+    while (!pending.empty()) {
+        auto current = pending.top();
+        pending.pop();
+        const auto known = best.find(current.intersection);
+        if (known == best.end() || known->second.cost != current.label.cost ||
+            known->second.roads != current.label.roads) continue;
+        if (current.intersection == to) return current.label.roads;
+
+        const auto outgoing = adjacency_.find(current.intersection);
+        if (outgoing == adjacency_.end()) continue;
+        for (const auto& roadId : outgoing->second) {
+            const auto roadIt = roads_.find(roadId);
+            if (roadIt == roads_.end() || !roadIt->second.enabled || roadIt->second.travelTime == 0 ||
+                current.label.cost > std::numeric_limits<Tick>::max() - roadIt->second.travelTime) continue;
+
+            RouteLabel candidate = current.label;
+            candidate.cost += roadIt->second.travelTime;
+            candidate.roads.push_back(roadId);
+            const auto previous = best.find(roadIt->second.to);
+            const bool improves = previous == best.end() || candidate.cost < previous->second.cost ||
+                (candidate.cost == previous->second.cost && candidate.roads < previous->second.roads);
+            if (!improves) continue;
+            best[roadIt->second.to] = candidate;
+            pending.push({roadIt->second.to, std::move(candidate)});
+        }
+    }
+
     return {};
 }
 

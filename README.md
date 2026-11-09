@@ -8,11 +8,11 @@ It does not control real traffic infrastructure.
 Implemented: validated text scenarios, scheduled/seeded vehicle generation, unique IDs,
 vehicle/route validation, FIFO entry queues, capacity-limited admission and deferred retries,
 reset/reproducibility, timed signal phases with safety checks, validated road-network edges,
-and explicit-route movement through permitted green phases with road and configured lane
-capacity limits.
+and explicit or minimum-travel-time route movement through permitted green phases with road
+and configured lane capacity limits.
 
-Automatic route selection, adaptive signals, emergency
-priority, congestion, and incident response remain incomplete. Metrics have basic counters/CSV
+Adaptive signals, emergency priority, congestion, and incident response remain incomplete.
+Metrics have basic counters/CSV
 helpers, but completed-trip reporting is not integrated. The CLI reports **input/admission counts**.
 
 ## Build, test, and run
@@ -28,8 +28,8 @@ ctest --test-dir build --output-on-failure
 ```
 
 The scheduled demo generates 3 vehicles, admits 1, and defers 2. The seeded demo prints its
-seed and generates a repeatable sequence. Explicit routes permit these input demonstrations
-while automatic routing is still a stub. See [scenario format](config/README.md).
+seed and generates a repeatable sequence. Vehicles may use explicit routes or automatic
+minimum-travel-time routing. See [scenario format](config/README.md).
 
 To build without downloading test dependencies, configure with `-DBUILD_TESTING=OFF`.
 For static analysis, install Clang and configure a separate build:
@@ -43,13 +43,13 @@ cmake --build build-analysis --parallel 2
 
 - **Aarya:** scenario/vehicle input and lane queues, FR-01–FR-04; shared FR-18 reproducibility.
 - **Vijeth:** signal control, FR-05–FR-08.
-- **Vaibhav:** road network representation and vehicle movement, FR-09–FR-11 (implemented; [coverage matrix](docs/vaibhav-test-matrix.md)); automatic route selection, FR-12, remains in progress.
+- **Vaibhav:** road network representation and vehicle movement, FR-09–FR-12 (implemented; [coverage matrix](docs/vaibhav-test-matrix.md)).
 - **Vainik:** congestion, incidents, metrics, and reporting, FR-13–FR-17.
 
 See [architecture](docs/architecture.md), [requirement traceability](docs/traceability.md),
 and [Aarya's test evidence and remaining work](docs/aarya-test-matrix.md).
-Explicitly routed vehicles can now move through green intersections. Automatic route
-selection and completed-trip metrics remain in progress.
+Explicitly routed and automatically routed vehicles can move through green intersections.
+Completed-trip metrics remain in progress.
 
 Use focused feature branches, meaningful commits, and teammate review before merge.
 Local tests, CI configuration, and successful remote CI runs are separate evidence.

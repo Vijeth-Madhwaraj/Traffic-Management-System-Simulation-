@@ -77,15 +77,18 @@ TEST(ScenarioInputIntegrationTest, TC_18_ResetRepeatsActualSeededArrivalEvents) 
     EXPECT_EQ(run(), first);
 }
 
-TEST(ScenarioInputIntegrationTest, UsesInjectedRoutesAndReportsProductionRoutingStubAsUnroutable) {
+TEST(ScenarioInputIntegrationTest, UsesShortestRouteByDefaultAndSupportsInjectedRoutes) {
     auto scenario = fixture();
     scenario.arrivals.resize(1);
     scenario.arrivals[0].vehicle.route.clear();
     Simulation simulation({});
     simulation.configureScenario(scenario);
     simulation.run();
-    EXPECT_EQ(simulation.inputSummary().unroutable, 1U);
-    EXPECT_EQ(simulation.inputSummary().admitted, 0U);
+    EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
+    EXPECT_EQ(simulation.inputSummary().admitted, 1U);
+    ASSERT_NE(simulation.vehicles().find(1), nullptr);
+    EXPECT_EQ(simulation.vehicles().find(1)->route, (std::vector<RoadId>{"AB", "BC"}));
+    EXPECT_EQ(simulation.vehicles().find(1)->state, VehicleState::Completed);
     simulation.reset();
     simulation.setRouteProvider([](const auto& source, const auto& destination) {
         EXPECT_EQ(source, "A"); EXPECT_EQ(destination, "C");
