@@ -69,120 +69,57 @@ std::vector<RoadId> RoadNetwork::neighbors(
         : it->second;
 }
 
-std::vector<RoadId> RoadNetwork::shortestRoute(
-    const IntersectionId& from,
-    const IntersectionId& to) const {
+std::vector<RoadId> RoadNetwork::shortestRoute(const IntersectionId& from,
+                                               const IntersectionId& to) const {
+    if (!hasIntersection(from) || !hasIntersection(to) || from == to) return {};
 
-    // Check whether both intersections exist.
-    if (!hasIntersection(from) || !hasIntersection(to)) {
-        return {};
-    }
+    struct RouteLabel {
+        Tick cost{};
+        std::vector<RoadId> roads;
+    };
+    struct QueueEntry {
+        IntersectionId intersection;
+        RouteLabel label;
+    };
+    const auto comesAfter = [](const QueueEntry& left, const QueueEntry& right) {
+        if (left.label.cost != right.label.cost) return left.label.cost > right.label.cost;
+        if (left.label.roads != right.label.roads) return left.label.roads > right.label.roads;
+        return left.intersection > right.intersection;
+    };
 
-    // No roads are required when source and destination are the same.
-    if (from == to) {
-        return {};
-    }
+    std::priority_queue<QueueEntry, std::vector<QueueEntry>, decltype(comesAfter)> pending(comesAfter);
+    std::unordered_map<IntersectionId, RouteLabel> best;
+    best.emplace(from, RouteLabel{});
+    pending.push({from, {}});
 
-    using QueueEntry = std::pair<Tick, IntersectionId>;
+    while (!pending.empty()) {
+        auto current = pending.top();
+        pending.pop();
+        const auto known = best.find(current.intersection);
+        if (known == best.end() || known->second.cost != current.label.cost ||
+            known->second.roads != current.label.roads) continue;
+        if (current.intersection == to) return current.label.roads;
 
-    // Min-priority queue: smallest travel time is processed first.
-    std::priority_queue<
-        QueueEntry,
-        std::vector<QueueEntry>,
-        std::greater<QueueEntry>
-    > queue;
+        const auto outgoing = adjacency_.find(current.intersection);
+        if (outgoing == adjacency_.end()) continue;
+        for (const auto& roadId : outgoing->second) {
+            const auto roadIt = roads_.find(roadId);
+            if (roadIt == roads_.end() || !roadIt->second.enabled || roadIt->second.travelTime == 0 ||
+                current.label.cost > std::numeric_limits<Tick>::max() - roadIt->second.travelTime) continue;
 
-    std::unordered_map<IntersectionId, Tick> distances;
-    std::unordered_map<IntersectionId, RoadId> previousRoad;
-
-    // Initialize every intersection with infinite distance.
-    for (const auto& intersection : adjacency_) {
-        distances[intersection.first] =
-            std::numeric_limits<Tick>::max();
-    }
-
-    // Starting intersection has distance zero.
-    distances[from] = 0;
-    queue.push({0, from});
-
-    // Dijkstra's shortest-path algorithm.
-    while (!queue.empty()) {
-        const auto current = queue.top();
-        queue.pop();
-
-        const Tick currentDistance = current.first;
-        const IntersectionId currentIntersection = current.second;
-
-        // Ignore outdated queue entries.
-        if (currentDistance != distances[currentIntersection]) {
-            continue;
-        }
-
-        // Destination reached.
-        if (currentIntersection == to) {
-            break;
-        }
-
-        // Examine outgoing roads.
-        for (const auto& roadId : neighbors(currentIntersection)) {
-            const Road* road = findRoad(roadId);
-
-            // Ignore missing or disabled roads.
-            if (road == nullptr || !road->enabled) {
-                continue;
-            }
-
-            // Prevent integer overflow.
-            if (currentDistance >
-                std::numeric_limits<Tick>::max() - road->travelTime) {
-                continue;
-            }
-
-            const Tick newDistance =
-                currentDistance + road->travelTime;
-
-            // Update route if a shorter path is found.
-            if (newDistance < distances[road->to]) {
-                distances[road->to] = newDistance;
-                previousRoad[road->to] = roadId;
-
-                queue.push({newDistance, road->to});
-            }
+            RouteLabel candidate = current.label;
+            candidate.cost += roadIt->second.travelTime;
+            candidate.roads.push_back(roadId);
+            const auto previous = best.find(roadIt->second.to);
+            const bool improves = previous == best.end() || candidate.cost < previous->second.cost ||
+                (candidate.cost == previous->second.cost && candidate.roads < previous->second.roads);
+            if (!improves) continue;
+            best[roadIt->second.to] = candidate;
+            pending.push({roadIt->second.to, std::move(candidate)});
         }
     }
 
-    // Destination cannot be reached.
-    if (distances[to] == std::numeric_limits<Tick>::max()) {
-        return {};
-    }
-
-    // Reconstruct the route from destination to source.
-    std::vector<RoadId> route;
-    IntersectionId current = to;
-
-    while (current != from) {
-        const auto previous = previousRoad.find(current);
-
-        if (previous == previousRoad.end()) {
-            return {};
-        }
-
-        const RoadId roadId = previous->second;
-        route.push_back(roadId);
-
-        const Road* road = findRoad(roadId);
-
-        if (road == nullptr) {
-            return {};
-        }
-
-        current = road->from;
-    }
-
-    // Reverse to get source-to-destination order.
-    std::reverse(route.begin(), route.end());
-
-    return route;
+    return {};
 }
 
 }  // namespace traffic

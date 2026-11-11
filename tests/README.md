@@ -1,7 +1,7 @@
 # Automated tests
 
 The suite includes Vijeth's signal tests, Aarya's vehicle, lane, scenario, integration and CLI
-tests, and Vaibhav's road-network and movement tests. GoogleTest v1.15.2 is fetched on first
+tests, Vaibhav's road-network and movement tests, and Vainik's management/reporting tests. GoogleTest v1.15.2 is fetched on first
 configure and registered with CTest.
 
 ## Linux
@@ -25,8 +25,9 @@ For offline testing with a previously downloaded GoogleTest source tree, configu
 only the application and does not establish test results.
 
 See [Aarya's matrix](../docs/aarya-test-matrix.md) for the recorded input-module run and
-remaining integration/NFR work. Explicit-route movement has unit coverage; automatic routing,
-full lane-capacity, incident and trip-metric acceptance remain in progress.
+remaining integration/NFR work. Explicit-route movement and FR-11 road/lane capacity have
+passing CI coverage. FR-12 automatic routing has unit and integration coverage pending CI;
+incident handling and trip-metric acceptance remain in progress.
 
 ## Windows PowerShell (local MinGW toolchain)
 

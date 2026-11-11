@@ -153,6 +153,11 @@ TEST(
     EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
     EXPECT_EQ(simulation.inputSummary().admitted, 1U);
 
+    ASSERT_NE(simulation.vehicles().find(1), nullptr);
+    EXPECT_EQ(simulation.vehicles().find(1)->route,
+              (std::vector<RoadId>{"AB", "BC"}));
+    EXPECT_EQ(simulation.vehicles().find(1)->state, VehicleState::Completed);
+
     simulation.reset();
 
     // A custom route provider can also supply the route.
@@ -313,6 +318,54 @@ TEST(
     EXPECT_EQ(
         vehicle->route,
         (std::vector<RoadId>{"AB", "BD", "DC"}));
+}
+
+
+// Merge regression: FR-11/12 must coexist with adaptive signals, incidents and reports.
+TEST(ScenarioInputIntegrationTest, LaneCapacityPreservesSignalsIncidentsReportsAndReset) {
+    std::istringstream input(
+        "scenario 1\nseed 42\nduration 12\n"
+        "intersection A\nintersection B\nintersection C\n"
+        "road AB A B 2 1\nroad BC B C 2 2\n"
+        "lane entry AB 2\nlane outbound BC 1\n"
+        "phase B 4 1 1 AB-to-BC\nadaptive B 2 6 1 1\n"
+        "incident BC 2 4\n"
+        "arrival 0 entry C standard -\narrival 0 entry C standard -\n");
+    Simulation simulation({});
+    simulation.configureScenario(ScenarioLoader::load(input));
+    const auto firstBatch = simulation.step();
+    ASSERT_EQ(firstBatch.admitted.size(), 2U);
+    for (const auto id : firstBatch.admitted) {
+        ASSERT_NE(simulation.vehicles().find(id), nullptr);
+        EXPECT_EQ(simulation.vehicles().find(id)->route,
+                  (std::vector<RoadId>{"AB", "BC"}));
+    }
+    simulation.step();
+    EXPECT_EQ(simulation.vehicles().find(1)->routeIndex, 1U);
+    EXPECT_EQ(simulation.vehicles().find(2)->routeIndex, 0U);
+    EXPECT_EQ(simulation.vehicles().find(2)->waitingTicks, 1U);
+    simulation.step();
+    EXPECT_EQ(simulation.createReport().activeIncidents, 1U);
+    EXPECT_EQ(simulation.vehicles().find(2)->routeIndex, 0U);
+    simulation.run();
+    const auto report = simulation.createReport();
+    EXPECT_EQ(report.generated, 2U);
+    EXPECT_EQ(report.metrics.completed, 2U);
+    EXPECT_EQ(report.metrics.unfinished, 0U);
+    EXPECT_EQ(report.activeIncidents, 0U);
+    std::ostringstream firstCsv;
+    ReportWriter::writeCsv(firstCsv, report);
+
+    // Reset while the downstream lane is occupied; stale occupancy must not survive.
+    simulation.reset();
+    simulation.step();
+    simulation.step();
+    ASSERT_EQ(simulation.vehicles().find(1)->routeIndex, 1U);
+    simulation.reset();
+    simulation.run();
+    std::ostringstream secondCsv;
+    ReportWriter::writeCsv(secondCsv, simulation.createReport());
+    EXPECT_EQ(secondCsv.str(), firstCsv.str());
 }
 
 }  // namespace

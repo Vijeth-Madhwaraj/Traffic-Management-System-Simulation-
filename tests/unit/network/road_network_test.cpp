@@ -56,5 +56,47 @@ TEST(RoadNetworkTest, UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNet
     EXPECT_EQ(network.neighbors("north"), (std::vector<RoadId>{"north-south"}));
 }
 
+TEST(RoadNetworkTest, UT_VA02_ReturnsConnectedRouteWithMinimumTravelTime) {
+    RoadNetwork network;
+    for (const auto& intersection : {"A", "B", "C", "D"})
+        ASSERT_TRUE(network.addIntersection(intersection));
+    ASSERT_TRUE(network.addRoad({"AB", "A", "B", 4, 4, 0, true}));
+    ASSERT_TRUE(network.addRoad({"BD", "B", "D", 4, 4, 0, true}));
+    ASSERT_TRUE(network.addRoad({"AC", "A", "C", 4, 2, 0, true}));
+    ASSERT_TRUE(network.addRoad({"CD", "C", "D", 4, 3, 0, true}));
+    ASSERT_TRUE(network.addRoad({"AD", "A", "D", 4, 9, 0, true}));
+
+    EXPECT_EQ(network.shortestRoute("A", "D"), (std::vector<RoadId>{"AC", "CD"}));
+}
+
+TEST(RoadNetworkTest, UT_VA03_ReturnsEmptyForUnknownOrUnreachableDestinations) {
+    RoadNetwork network;
+    ASSERT_TRUE(network.addIntersection("A"));
+    ASSERT_TRUE(network.addIntersection("B"));
+    ASSERT_TRUE(network.addIntersection("C"));
+    ASSERT_TRUE(network.addRoad({"AB", "A", "B", 1, 1, 0, true}));
+
+    EXPECT_TRUE(network.shortestRoute("A", "C").empty());
+    EXPECT_TRUE(network.shortestRoute("unknown", "B").empty());
+    EXPECT_TRUE(network.shortestRoute("A", "unknown").empty());
+    EXPECT_TRUE(network.shortestRoute("A", "A").empty());
+}
+
+TEST(RoadNetworkTest, UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies) {
+    RoadNetwork network;
+    for (const auto& intersection : {"A", "B", "C", "D"})
+        ASSERT_TRUE(network.addIntersection(intersection));
+    ASSERT_TRUE(network.addRoad({"AA", "A", "B", 2, 1, 0, false}));
+    ASSERT_TRUE(network.addRoad({"AB", "A", "B", 2, 2, 0, true}));
+    ASSERT_TRUE(network.addRoad({"BD", "B", "D", 2, 2, 0, true}));
+    ASSERT_TRUE(network.addRoad({"AC", "A", "C", 2, 2, 0, true}));
+    ASSERT_TRUE(network.addRoad({"CD", "C", "D", 2, 2, 0, true}));
+
+    const std::vector<RoadId> expected{"AB", "BD"};
+    EXPECT_EQ(network.shortestRoute("A", "D"), expected);
+    EXPECT_EQ(network.shortestRoute("A", "D"), expected);
+    EXPECT_TRUE(network.shortestRoute("D", "A").empty());
+}
+
 }  // namespace
 }  // namespace traffic

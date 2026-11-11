@@ -24,7 +24,7 @@ protected:
         ASSERT_TRUE(network.addRoad({"BC", "B", "C", 2, 1, 0, true}));
         vehicles.configureTopology({"A", "B", "C"},
                                    {{"AB", "A", "B", 2, 1}, {"BC", "B", "C", 2, 1}});
-        vehicles.configureLanes({{"entry", "AB", 2}});
+        vehicles.configureLanes({{"entry", "AB", 2}, {"outbound", "BC", 1}});
         configureSignal("AB-to-BC", 10);
     }
 
@@ -112,6 +112,27 @@ TEST_F(MovementEngineTest, UT_VA08_DoesNotCrossWhenDownstreamRoadIsFull) {
     EXPECT_EQ(vehicles.find(id)->waitingTicks, 1U);
     EXPECT_EQ(network.findRoad("AB")->occupancy, 1U);
     EXPECT_EQ(network.findRoad("BC")->occupancy, network.findRoad("BC")->capacity);
+}
+
+TEST_F(MovementEngineTest, UT_VA13_FR11_NFR02_DoesNotEnterFullDownstreamLane) {
+    const auto first = enqueueRoute();
+    const auto second = enqueueRoute();
+
+    advance(0);
+    advance(1);
+    EXPECT_EQ(vehicles.find(first)->routeIndex, 1U);
+    EXPECT_EQ(vehicles.find(second)->routeIndex, 0U);
+    EXPECT_EQ(vehicles.find(second)->waitingTicks, 1U);
+    EXPECT_EQ(network.findRoad("BC")->occupancy, 1U);
+
+    advance(2);
+    EXPECT_EQ(vehicles.find(first)->state, VehicleState::Completed);
+    EXPECT_EQ(vehicles.find(second)->routeIndex, 0U);
+    EXPECT_EQ(network.findRoad("BC")->occupancy, 0U);
+
+    advance(3);
+    EXPECT_EQ(vehicles.find(second)->routeIndex, 1U);
+    EXPECT_EQ(network.findRoad("BC")->occupancy, 1U);
 }
 
 TEST_F(MovementEngineTest, UT_VA09_CompletesVehicleAfterTraversingItsPlannedRoute) {

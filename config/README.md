@@ -17,7 +17,7 @@ seed <unsigned-64-bit-seed>
 duration <ticks>
 intersection <id>
 road <id> <from> <to> <capacity> <travel-ticks>
-lane <id> <entry-road-id> <capacity>
+lane <id> <road-id> <capacity>
 phase <intersection> <green-ticks> <yellow-ticks> <all-red-ticks> <movement>...
 conflict <intersection> <movement> <conflicting-movement>
 adaptive <intersection> <minimum-green> <maximum-green> <queue-threshold> <adjustment>
@@ -26,7 +26,9 @@ stream <id> <lane> <destination> <standard|emergency> <first-tick> <end-tick> <p
 batch <stream-id> <vehicles-per-successful-arrival>
 ```
 
-Use a single `-` instead of route roads to ask the route provider. Source is derived from
+Use a single `-` instead of route roads to request automatic routing. The default provider
+selects the enabled route with the lowest total road travel time; equal-cost routes are
+resolved lexicographically by road ID. A caller may inject another provider. Source is derived from
 the lane's entry road. An explicit route must start on that road, follow connected enabled
 roads, and end at the destination. Stream intervals are `[first-tick, end-tick)`, with at
 most one probability decision per stream per tick. Probability is in `[0,1]`.
@@ -48,8 +50,10 @@ green duration must be within the configured bounds. Yellow and all-red clearanc
 phase order, and permitted movements are unchanged. Without an `adaptive` record, timing stays
 fixed as before.
 
-Lane capacity limits waiting vehicles, separately from road occupancy in transit. Each lane
-capacity must not exceed its entry road's capacity. Full queues defer arrivals with their
+Lane capacity limits waiting vehicles. When crossing into a downstream road with configured
+lanes, each lane also limits in-transit occupancy; source-queue entry does not consume that
+downstream occupancy. Road capacity remains an aggregate limit. Each lane capacity must not
+exceed its road's capacity. Full queues defer arrivals with their
 original IDs; pending vehicles enter before new arrivals. `--scenario <file> --lane-status`
 shows per-lane queue capacity, queued IDs, and deferred IDs without changing queue order.
 Queue insertion rejects ID zero and an ID already present in that same queue; rejected
@@ -69,8 +73,8 @@ the run duration. Invalid files are rejected as a whole. Seed zero is valid.
 `demo_scenario.txt` demonstrates admission and movement over explicit routes; its entry
 queue drains by the end of the run. `seeded_scenario.txt` demonstrates repeatable random
 arrivals. The CLI lane-status test also uses `tests/fixtures/blocked_entry_scenario.txt`,
-whose slow entry road leaves vehicle 2 queued and vehicle 3 deferred. Automatic routing
-and detailed completed-trip performance/reporting remain incomplete. The CLI summary includes
+whose slow entry road leaves vehicle 2 queued and vehicle 3 deferred. Automatic minimum-travel-time routing and CSV trip reports are available; incident-driven
+rerouting of vehicles already travelling remains incomplete. The CLI summary includes
 counts of vehicles that reached their destination and vehicles still in transit; `--trace`
 shows the reached-destination count after each tick.
 

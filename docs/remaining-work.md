@@ -24,15 +24,11 @@ This note summarizes gaps visible in the current implementation and project requ
 
 ## Simulation behavior still missing or incomplete
 
-### Automatic route selection — incomplete
+### Routing and lane-capacity integration
 
-- Vehicles in current demos use explicit routes from the scenario file.
-- `RoadNetwork::shortestRoute` is still a stub, so the simulator does not automatically select a route based on connectivity, travel time, or current conditions.
-
-### Downstream lane-capacity handling — incomplete
-
-- Road occupancy has a capacity check during movement.
-- Full downstream lane-capacity behavior is not integrated end to end; the current movement model does not provide complete per-lane storage, selection, and spillback handling at every intersection.
+- Automatic minimum-travel-time routing and deterministic equal-cost route selection are implemented.
+- Configured downstream lanes limit in-transit occupancy separately from source waiting queues; road capacity remains the aggregate limit.
+- Automatic routing still needs entry-road awareness when the globally shortest route starts on a different road from the configured entry lane.
 
 ### Adaptive signals and emergency priority — partial
 
@@ -45,12 +41,12 @@ This note summarizes gaps visible in the current implementation and project requ
 ### Incident response and rerouting — incomplete
 
 - Congestion can be detected, and scheduled incidents can temporarily block roads.
-- The simulation does not automatically choose alternate routes or adapt signal timing in response to congestion or a road blockage.
+- New arrivals can route around roads already blocked by an incident. Vehicles already travelling do not recalculate their assigned routes after a later blockage. Congestion detection does not yet trigger rerouting.
 
 ### Detailed trip metrics and reports — incomplete
 
 - The CLI reports generated, admitted, queued, deferred, unroutable, reached-destination, and in-transit counts.
-- Basic metrics counters and CSV helpers exist, but detailed trip and system reporting is not fully connected to the simulation. Examples include completed-trip travel times, integrated waiting-time summaries, throughput over time, and complete performance reports.
+- Completed/unfinished counts, average waiting ticks, maximum queue length and CSV output are connected to the simulation. Waiting-time semantics need clarification, and the CLI must check buffered flush/close failures before reporting that a CSV was saved. Completed-trip travel times and throughput over time are not reported.
 
 ### Whole-system performance evidence — incomplete
 
@@ -62,14 +58,14 @@ This note summarizes gaps visible in the current implementation and project requ
 - Validated text scenarios, scheduled and seeded streams, batch arrivals, and unique vehicle IDs.
 - FIFO entry queues with capacity limits and deferred retries.
 - Fixed signal phase plans with safety checks and queue-responsive green durations bounded by configured limits.
-- Directed road networks and explicit-route vehicle movement through permitted green phases, subject to road capacity.
+- Directed road networks, deterministic minimum-travel-time routing and movement through permitted green phases, subject to road and configured downstream-lane capacity.
 - Congestion detection, scheduled road blocking, scenario preview, tick trace, and basic destination counts.
 
 ## Possible implementation order
 
 1. Add a visual scenario editor and map preview so users can create and inspect networks without hand-editing configuration files.
 2. Add first-class two-way-road support with clearly defined capacity semantics for each direction.
-3. Complete automatic routing and downstream lane-capacity handling.
+3. Fix entry-road-aware automatic routing and validate downstream-lane integration.
 4. Add safe emergency priority and incident-driven rerouting; consider further adaptive-signal
    refinements after FR-07 use and review.
 5. Integrate complete trip metrics and run documented end-to-end performance evaluations.

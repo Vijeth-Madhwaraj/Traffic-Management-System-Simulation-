@@ -6,7 +6,7 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 |---|---|---|
 | FR-01 | `src/input/scenario.cpp`, `src/simulation/simulation.cpp`, `src/main.cpp` | TC-01; `ScenarioTest.*`; CLI tests (passed) |
 | FR-02 | `src/vehicle/vehicle_manager.cpp` | UT-A01, UT-A02, UT-A08 (passed) |
-| FR-03 | `src/vehicle/vehicle_manager.cpp` | UT-A01, UT-A03, UT-A09 (module passed; production routing blocked) |
+| FR-03 | `src/vehicle/vehicle_manager.cpp`, `RoadNetwork::shortestRoute` | UT-A01, UT-A03, UT-A09; FR-12 automatic route integration (implemented) |
 | FR-04 | `src/vehicle/lane_queue.cpp`, `src/vehicle/vehicle_manager.cpp` | UT-A04–UT-A07, UT-A10 (passed) |
 | FR-18 | `src/vehicle/vehicle_manager.cpp`, `src/simulation/simulation.cpp`, `src/main.cpp` | UT-A02; TC-18 input event reproducibility (passed); full-trip comparison blocked |
 | FR-05 | `SignalController::configure`, `SignalController::status` | TC-05 (planned), UT-VI01, UT-VI04 |
@@ -14,9 +14,9 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 | FR-07 | `SignalController`, `MovementEngine::readyMovementQueues`, scenario `adaptive` record | TC-07 policy, queue integration, bounds, and safety tests (passed) |
 | FR-08 | `SignalController` (planned) | UT-VI07 (blocked; emergency-priority API not implemented) |
 | FR-09 | `RoadNetwork` | UT-VA01, UT-VA11; `vaibhav-fr09-test-cases.md` (passed in Windows/Linux CI) |
-| FR-12 | `RoadNetwork` | UT-VA02 to UT-VA04 (planned) |
+| FR-12 | `RoadNetwork::shortestRoute`, `Simulation::step` | UT-VA02 to UT-VA04; automatic-route integration test |
 | FR-10 | `MovementEngine` | UT-VA05 to UT-VA07, UT-VA09 to UT-VA10 (passed in Windows/Linux CI for PR #68) |
-| FR-11 | `MovementEngine` | UT-VA08 road-capacity behavior (passed; lane coverage remains) |
+| FR-11 | `MovementEngine` | UT-VA08 road capacity; UT-VA13 configured downstream-lane capacity |
 | NFR-02 | `MovementEngine::advance` | UT-VA10 (passed in Windows/Linux CI for PR #68) |
 | FR-13 | Congestion policy | UT-VN01 to UT-VN03, UT-VN11 (`tests/unit/management/congestion_detector_test.cpp`) |
 | FR-14 | `IncidentManager` | UT-VN04 to UT-VN06, UT-VN12 to UT-VN14 (`tests/unit/management/incident_manager_test.cpp`) |
@@ -26,15 +26,15 @@ The source requirements are FR-01 through FR-18 and NFR-01 through NFR-10 in the
 The FR-05/06/07 implementations are in `include/traffic/signals/signal_controller.hpp` and `src/signals/signal_controller.cpp`; automated tests are in `tests/unit/signals/signal_controller_test.cpp`. FR-07 uses ready-to-cross movement queues and bounded per-phase green adjustments. FR-08 emergency priority remains unimplemented. Existing remote CI evidence applies to earlier commits; run CI for this branch before merge.
 
 
-FR-09–FR-12 evidence is in [Vaibhav's test matrix](vaibhav-test-matrix.md). FR-09 road data and FR-10 explicit-route movement passed Windows/Linux CI. FR-11 road-capacity checks are covered; downstream-lane coverage and FR-12 automatic route selection remain incomplete. `RoadNetwork::shortestRoute` is still a stub.
+FR-09–FR-12 evidence is in [Vaibhav's test matrix](vaibhav-test-matrix.md). FR-09 road data and FR-10 explicit-route movement passed Windows/Linux CI. FR-11 downstream-lane capacity and FR-12 deterministic weighted routing are integrated with the newer adaptive-signal, incident and reporting code in PR #77. Current validation is recorded below.
 
 ## Aarya implementation evidence
 
 See [Aarya's matrix](aarya-test-matrix.md) for source/test mapping, execution environment,
 NFR-01–NFR-10 evidence, and integration blockers. Aarya's recorded Linux run passed 38 CTest
 cases, including the eight signal tests at that time. FR-01–FR-04 input behavior is implemented;
-automatic routing, complete downstream lane-capacity handling, and completed-trip reporting
-remain in progress.
+automatic routing, configured downstream lane-capacity handling and completed-trip reporting
+are now implemented; incident-driven rerouting and full-system acceptance remain incomplete.
 Neither IT-01 nor IT-04 is claimed as passed. Module paths in the starter rows for other
 owners remain plans unless their specific evidence establishes otherwise.
 
@@ -76,3 +76,20 @@ route-failure outcomes while preserving validation and rollback rules. Evidence 
 `ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles`.
 All 78 current CTest cases passed locally on Linux. Invalid explicit scenario input
 remains rejected; automatic route selection is not implemented by this change.
+
+
+## 9 November 2026 PR #77 integration
+
+Merged `origin/master` at `05eb198` into the FR-11/FR-12 branch, preserving adaptive
+signal queues, incident scheduling, management metrics, CSV output, and input CLI modes.
+The network retains deterministic road-ID tie breaking and configured downstream-lane
+occupancy limits. `LaneCapacityPreservesSignalsIncidentsReportsAndReset` verifies automatic
+routing, lane backpressure, incident blocking, completed-trip reports, and reset while a
+lane is occupied; CSV output is identical after replay.
+
+Local Linux Debug validation: **103/103 CTest cases passed** with GCC 15.2/C++17.
+The analyzer-enabled build passed warnings-as-errors and Clang analysis of all 12 project
+translation units with zero diagnostics. Remote CI for the integration commit must be
+checked separately. This does not establish full FR-15 rerouting or whole-system acceptance.
+Known entry-road routing and buffered CSV write-failure limitations remain documented in
+`remaining-work.md`.

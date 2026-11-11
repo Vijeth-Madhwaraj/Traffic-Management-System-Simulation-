@@ -4,7 +4,7 @@
 
 - `Simulation` owns the clock and orchestrates one deterministic tick at a time.
 - `VehicleManager` owns vehicle IDs and state; `LaneQueue` enforces FIFO and capacity.
-- `RoadNetwork` owns road data and will provide enabled-edge routing.
+- `RoadNetwork` owns road data and provides enabled-edge routing weighted by travel time.
 - `SignalController` owns per-intersection phases and safety decisions.
 - `MovementEngine` coordinates vehicles, signals, and road capacity.
 - `IncidentManager` schedules road restrictions and later requests management responses.
@@ -13,9 +13,9 @@
 
 ## Vehicle/input contract (FR-01–FR-04)
 
-- Roads are directed edges. Entry lanes are FIFO waiting queues keyed by lane ID;
-  their capacity is separate from occupancy while traveling. Scenario lanes reference
-  their entry road and have capacity no greater than that road's capacity.
+- Roads are directed edges. Lane queues are FIFO waiting queues keyed by lane ID;
+  their waiting capacity is separate from road occupancy while traveling. Scenario
+  lanes reference a road and have capacity no greater than that road's capacity.
 - `ScenarioLoader` returns a validated `Scenario` value. `Simulation::configureScenario`
   constructs replacement state before applying it, so invalid setup preserves the old run.
 - `VehicleManager` owns IDs, vehicle templates, seeded RNG, entry queues and pending arrivals.
@@ -47,8 +47,9 @@
   After removing an ID, the movement owner updates its registry state and road occupancy.
 - `Simulation::step()` applies incidents, generates/admit arrivals, measures congestion,
   counts ready-to-cross vehicles by signal movement, advances signals with those queues, calls
-  movement, observes queues, then increments the tick. Waiting/travel/complete-trip metrics
-  remain integration work after movement.
+  movement, records newly completed vehicles and observes queues, then increments the tick.
+  Reports include completed/unfinished counts, average waiting ticks and maximum queue length;
+  travel-time metrics remain separate work.
 - `run()` continues from the current tick; repeated calls at completion do nothing. `reset()`
   reloads the original scenario and restores seeded input state while retaining an injected
   route provider. Loading another scenario clears an injected provider.
@@ -76,8 +77,17 @@ clearance intervals. Safe emergency-priority behavior remains separate work.
 - `MovementEngine::advance` is called once per non-decreasing simulation tick. Repeating the same tick is a no-op; moving backwards is rejected.
 - Entry-lane vehicles begin on the first road in their validated route. Their initial entry does not cross an intersection signal.
 - At a downstream intersection, the movement ID is `<incoming-road-id>-to-<outgoing-road-id>`. A vehicle changes roads only after the current road's travel time has elapsed, the next road is enabled and connected, the matching signal is Green, and the next road has capacity.
+- When lanes are configured for an outgoing road, movement selects the first lane with free in-transit capacity in lane-ID order. If every configured lane or the road is full, the vehicle remains on its current road and accrues waiting time. Roads without lane definitions use road capacity alone.
 - A blocked vehicle remains on its current road, retains its route position, and accrues waiting ticks. Reaching the destination releases the occupied road and marks the vehicle `Completed`.
 - Unit tests call `MovementEngine` directly with road, signal, and vehicle modules; they do not need to construct `Simulation`.
+
+## Route selection contract (FR-12)
+
+- `RoadNetwork::shortestRoute` uses Dijkstra's algorithm over enabled directed roads, with each road's `travelTime` as its cost.
+- Equal-cost paths resolve lexicographically by road ID, so the same network returns the same route regardless of hash-map iteration order.
+- Unknown endpoints, identical endpoints, disabled-only paths, and unreachable destinations return an empty route. `Simulation` uses this provider by default when an arrival does not include an explicit route.
+
+FR-11 downstream lane occupancy is tracked by `MovementEngine` separately from an entry queue's waiting capacity. A vehicle's initial entry from its source queue does not consume downstream-lane occupancy; crossing into an outgoing road does. Each configured downstream lane bounds its in-transit vehicles, while road capacity remains an aggregate limit across the road.
 
 ## First integration milestone
 

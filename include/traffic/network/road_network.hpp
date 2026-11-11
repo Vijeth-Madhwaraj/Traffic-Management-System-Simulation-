@@ -13,18 +13,14 @@ public:
     bool addIntersection(const IntersectionId& id);
     bool hasIntersection(const IntersectionId& id) const noexcept;
     bool addRoad(Road road);
-
     const Road* findRoad(const RoadId& id) const noexcept;
     Road* findRoad(const RoadId& id) noexcept;
+    std::vector<RoadId> neighbors(const IntersectionId& intersection) const;
+    // Returns the enabled route with minimum total travel time. Equal-cost
+    // routes are resolved lexicographically by road ID; no path returns empty.
+    std::vector<RoadId> shortestRoute(const IntersectionId& from, const IntersectionId& to) const;
 
-    std::vector<RoadId> neighbors(
-        const IntersectionId& intersection) const;
-
-    std::vector<RoadId> shortestRoute(
-        const IntersectionId& from,
-        const IntersectionId& to) const;
-
-    // Read-only access to all roads for congestion detection.
+    // Read-only road access for congestion detection.
     const std::unordered_map<RoadId, Road>& roads() const noexcept {
         return roads_;
     }
