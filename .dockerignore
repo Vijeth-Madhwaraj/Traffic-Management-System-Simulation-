@@ -1,0 +1,7 @@
+.git
+build*
+cmake-build-*
+docs
+tests
+*.log
+*.csv
