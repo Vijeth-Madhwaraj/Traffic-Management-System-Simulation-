@@ -1,0 +1,55 @@
+{
+  "recorded_at": "2026-11-11T15:19:13+05:30",
+  "kind": "Captioned actual CLI output, not a historical sprint recording",
+  "commands": [
+    {
+      "arguments": [
+        "--validate",
+        "config/demo_scenario.txt"
+      ],
+      "stdout_sha256": "8ed09948190dd8dd94df0cefb1465aa4b32459c3edadc62936d87262ed6d17ce"
+    },
+    {
+      "arguments": [
+        "--scenario",
+        "config/demo_scenario.txt",
+        "--show-scenario"
+      ],
+      "stdout_sha256": "e054d7bd2b4efbb1d87ce413087cb77ec4df80ddc7bfe078729b766d90a47025"
+    },
+    {
+      "arguments": [
+        "--scenario",
+        "config/demo_scenario.txt",
+        "--trace"
+      ],
+      "stdout_sha256": "83522f8ff558839c625c9fbb88027720dde766c0da79f1a877e493f43515013a"
+    },
+    {
+      "arguments": [
+        "--scenario",
+        "config/acceptance_scenario.txt",
+        "--trace"
+      ],
+      "stdout_sha256": "417b9be7dcf5cf4e9c4c967dba8bb6a092a15162275dd067311329ea3b183112"
+    },
+    {
+      "arguments": [
+        "--scenario",
+        "config/acceptance_scenario.txt",
+        "--show-scenario"
+      ],
+      "stdout_sha256": "934cd81965cc29bde6ae39588887c348a7722909aa1319ddcd64dbac527cecd6"
+    }
+  ],
+  "videos": {
+    "sprint-1-capabilities.mp4": {
+      "duration_seconds": 60,
+      "sha256": "b23e0777f6191badb33b93627993601bd50fec57dedb2e728fc8f9df1e058a46"
+    },
+    "sprint-2-capabilities.mp4": {
+      "duration_seconds": 120,
+      "sha256": "2a24faf277f22a4a9511c3608fc31770f635fb192777b32b773c3d0a68bff492"
+    }
+  }
+}
