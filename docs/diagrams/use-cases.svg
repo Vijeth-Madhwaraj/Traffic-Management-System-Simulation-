@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+<rect width="1000" height="1000" fill="white"/>
+<g stroke="#202020" fill="none" stroke-width="2">
+<rect x="185" y="55" width="630" height="890"/>
+<ellipse cx="500" cy="140" rx="205" ry="43"/>
+<ellipse cx="500" cy="260" rx="205" ry="43"/>
+<ellipse cx="500" cy="380" rx="205" ry="43"/>
+<ellipse cx="500" cy="500" rx="205" ry="43"/>
+<ellipse cx="500" cy="620" rx="205" ry="43"/>
+<ellipse cx="500" cy="740" rx="205" ry="43"/>
+<ellipse cx="500" cy="860" rx="205" ry="43"/>
+<circle cx="75" cy="130" r="15"/>
+<path d="M75 145v50 M51 163h48 M75 195l-22 35 M75 195l22 35"/>
+<line x1="100" y1="163" x2="295" y2="140"/>
+<line x1="100" y1="163" x2="295" y2="260"/>
+<circle cx="75" cy="410" r="15"/>
+<path d="M75 425v50 M51 443h48 M75 475l-22 35 M75 475l22 35"/>
+<line x1="100" y1="443" x2="295" y2="380"/>
+<line x1="100" y1="443" x2="295" y2="500"/>
+<circle cx="925" cy="650" r="15"/>
+<path d="M925 665v50 M901 683h48 M925 715l-22 35 M925 715l22 35"/>
+<line x1="900" y1="683" x2="705" y2="620"/>
+<line x1="900" y1="683" x2="705" y2="740"/>
+<circle cx="925" cy="830" r="15"/>
+<path d="M925 845v50 M901 863h48 M925 895l-22 35 M925 895l22 35"/>
+<line x1="900" y1="863" x2="705" y2="860"/>
+</g><g fill="#111" font-family="DejaVu Sans, sans-serif" text-anchor="middle">
+<text x="500" y="32" font-size="23">Traffic Management Simulation</text>
+<text x="500" y="147" font-size="21">Load scenario</text>
+<text x="500" y="267" font-size="21">Generate vehicles</text>
+<text x="500" y="387" font-size="21">Run and trace simulation</text>
+<text x="500" y="507" font-size="21">Manage incidents and priority</text>
+<text x="500" y="627" font-size="21">Inspect traffic metrics</text>
+<text x="500" y="747" font-size="21">Export final report</text>
+<text x="500" y="867" font-size="21">Validate and replay scenario</text>
+<text x="75" y="260" font-size="19">Designer</text>
+<text x="75" y="540" font-size="19">Operator</text>
+<text x="925" y="780" font-size="19">Analyst</text>
+<text x="925" y="960" font-size="19">Tester</text>
+</g></svg>

@@ -12,9 +12,9 @@ reset/reproducibility, timed signal phases with safety checks, validated road-ne
 and movement over explicit or automatically selected minimum-travel-time routes through
 permitted green phases, with road and configured downstream-lane capacity limits.
 
-Queue-responsive green timing, congestion detection, scheduled road blocking, completed-trip
-metrics and CSV reports are implemented. Emergency priority and incident-driven rerouting
-of vehicles already travelling remain incomplete.
+Queue-responsive green timing, safe emergency-priority requests, congestion/incident suffix
+rerouting, completed-trip metrics and checked CSV output are implemented. See
+[submission status](docs/submission-checklist.md) for external validation and team sign-off.
 
 ## Build, test, and run
 
@@ -84,3 +84,36 @@ verification scope and remaining integration limitations.
 
 Use focused feature branches, meaningful commits, and teammate review before merge.
 Local tests, CI configuration, and successful remote CI runs are separate evidence.
+
+## Final validation and delivery
+
+```sh
+python3 scripts/validate.py --executable build/traffic_sim
+python3 scripts/coverage.py
+python3 -m pip install clang-format==18.1.8
+python3 scripts/format.py
+sh scripts/container-smoke.sh
+```
+
+Reporting scripts need Python 3, GCC/gcov and CMake/CTest 3.21+; coverage requires
+matching GCC/gcov versions. For offline tests, supply a cached GoogleTest tree with
+`--gtest-source /path/to/googletest` to the coverage script. Formatting uses the pinned
+18.1.8 release. Docker smoke tests require a running Docker engine.
+
+Reports: [unit](docs/reports/unit-tests.md), [system](docs/reports/system-validation.md),
+[code coverage](docs/reports/coverage/code-coverage.md),
+[branch coverage](docs/reports/coverage/branch-coverage.md).
+Run the integrated example with `--scenario config/acceptance_scenario.txt --trace` or
+add `--report result.csv` for the seed, final counts and throughput.
+
+The runtime image runs as UID 10001. Mount custom scenarios read-only, for example:
+`docker run --rm -v "$PWD/config:/scenarios:ro" traffic-sim:local --scenario /scenarios/demo_scenario.txt`.
+To write reports, mount a directory writable by the runtime UID or run with your own
+UID/GID and use a mounted output directory. The Ubuntu 22.04 tag defines the build
+platform; apt packages are resolved at build time, so byte-identical images are not promised.
+Identical scenario/seed behavior is tested separately.
+
+The Jenkins Linux agent needs CMake 3.21+, GCC/gcov, Clang, Python 3, clang-format
+18.1.8, Git and a working Docker engine, plus Jenkins JUnit support. Its stages run tests,
+system acceptance, analysis, coverage, container smoke tests and archive evidence.
+Docker and Jenkins execution were unavailable locally; new remote CI is pending push.
