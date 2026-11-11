@@ -63,7 +63,8 @@ public:
     void validateVehicle(const Vehicle& vehicle) const;
     void configureLanes(std::vector<EntryLane> lanes);
     // Invalid provider routes reject only that vehicle; thrown provider errors roll back the tick.
-    AdmissionBatch advanceArrivals(Tick now, const RouteProvider& routes);
+    AdmissionBatch advanceArrivals(Tick now, const RouteProvider& routes,
+        const std::function<std::vector<RoadId>(const EntryLane&, const Vehicle&)>& entryRoutes = {});
     std::vector<EntryLane> entryLanes() const;
     LaneQueue* lane(const std::string& id) noexcept;
     const LaneQueue* lane(const std::string& id) const noexcept;

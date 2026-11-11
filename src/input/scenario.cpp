@@ -612,6 +612,26 @@ void ScenarioLoader::validate(const Scenario& scenario) {
             }
         }
 
+        // Resolve the complete movement against actual connected road IDs. This
+        // also rejects ambiguous IDs containing the movement separator.
+        for (const auto& phase : plan.phases) {
+            for (const auto& movement : phase.permittedMovements) {
+                std::size_t matches = 0;
+                for (const auto& incoming : scenario.roads) {
+                    if (incoming.to != plan.intersection) continue;
+                    const auto prefix = incoming.id + "-to-";
+                    if (movement.compare(0, prefix.size(), prefix) != 0) continue;
+                    const auto outgoingId = movement.substr(prefix.size());
+                    for (const auto& outgoing : scenario.roads) {
+                        if (outgoing.id == outgoingId && outgoing.from == plan.intersection)
+                            ++matches;
+                    }
+                }
+                if (matches != 1) throw std::invalid_argument(
+                    "Unknown, disconnected or ambiguous signal movement: " + movement);
+            }
+        }
+
         signals.configure(
             plan.intersection,
             plan.phases,

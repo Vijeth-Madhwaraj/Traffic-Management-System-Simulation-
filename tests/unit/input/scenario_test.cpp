@@ -19,7 +19,7 @@ Scenario parse(const std::string& text) {
 TEST(ScenarioTest, TC_01_LoadsForwardReferencesClassesRoutesAndSignals) {
     const auto scenario = parse("# comment\nscenario 1\narrival 0 entry C emergency AB BC\n"
         "stream random entry C standard 1 5 0.5 -\n"
-        "phase B 3 1 1 straight\n"
+        "phase B 3 1 1 AB-to-BC\n"
         "seed 42\nduration 5\nintersection A\nintersection B\nintersection C\n"
         "road AB A B 2 1\nroad BC B C 2 1\nlane entry AB 1\n");
     EXPECT_EQ(scenario.config.seed, 42U);
@@ -140,5 +140,11 @@ TEST(ScenarioTest, TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies) {
     EXPECT_THROW(parse(base + phase + "adaptive B 1 4 2 1\nadaptive B 1 5 2 1\n"),
                  std::invalid_argument);
 }
+TEST(ScenarioTest, RejectsNonexistentOrWrongIntersectionMovements) {
+    EXPECT_THROW(parse(base + "phase B 2 1 1 nonexistent\n"), std::invalid_argument);
+    EXPECT_THROW(parse(base + "phase A 2 1 1 AB-to-BC\n"), std::invalid_argument);
+    EXPECT_NO_THROW(parse(base + "phase B 2 1 1 AB-to-BC\n"));
+}
+
 }  // namespace
 }  // namespace traffic

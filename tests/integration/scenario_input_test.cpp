@@ -368,5 +368,21 @@ TEST(ScenarioInputIntegrationTest, LaneCapacityPreservesSignalsIncidentsReportsA
     EXPECT_EQ(secondCsv.str(), firstCsv.str());
 }
 
+TEST(ScenarioInputIntegrationTest, RoutesThroughPrescribedEntryDespiteCheaperOtherRoad) {
+    std::istringstream input(
+        "scenario 1\nseed 42\nduration 8\n"
+        "intersection A\nintersection B\nintersection C\n"
+        "road AB A B 2 2\nroad BC B C 2 2\nroad AC A C 2 1\n"
+        "lane entry AB 1\nphase B 10 1 1 AB-to-BC\n"
+        "arrival 0 entry C standard -\n");
+    Simulation simulation({});
+    simulation.configureScenario(ScenarioLoader::load(input));
+    simulation.run();
+    ASSERT_NE(simulation.vehicles().find(1), nullptr);
+    EXPECT_EQ(simulation.vehicles().find(1)->route, (std::vector<RoadId>{"AB", "BC"}));
+    EXPECT_EQ(simulation.metricsSnapshot().completed, 1U);
+    EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
+}
+
 }  // namespace
 }  // namespace traffic

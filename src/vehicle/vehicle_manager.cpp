@@ -67,7 +67,9 @@ void VehicleManager::validateEntry(const Vehicle& vehicle, const std::string& la
         throw std::invalid_argument("Vehicle source or route does not match entry lane");
 }
 
-AdmissionBatch VehicleManager::advanceArrivals(Tick now, const RouteProvider& routes) {
+AdmissionBatch VehicleManager::advanceArrivals(
+    Tick now, const RouteProvider& routes,
+    const std::function<std::vector<RoadId>(const EntryLane&, const Vehicle&)>& entryRoutes) {
     if (lastAdmission_ && *lastAdmission_ == now) return {};
     if (lastGenerated_ && (!lastAdmission_ || *lastGenerated_ != *lastAdmission_))
         throw std::logic_error("Do not mix generate() and advanceArrivals() in one run");
@@ -82,7 +84,10 @@ AdmissionBatch VehicleManager::advanceArrivals(Tick now, const RouteProvider& ro
         const bool requestedRoute = vehicle.route.empty();
         // Provider exceptions stay outside the validation catch: operational failures
         // must preserve the tick for retry, not be mistaken for an invalid route.
-        if (requestedRoute && routes) vehicle.route = routes(vehicle.source, vehicle.destination);
+        if (requestedRoute && entryRoutes)
+            vehicle.route = entryRoutes(replacement.lanes_.at(event.lane).spec, vehicle);
+        else if (requestedRoute && routes)
+            vehicle.route = routes(vehicle.source, vehicle.destination);
         if (vehicle.route.empty()) {
             vehicle.routeFailure = RouteFailure::NoRoute;
         } else {

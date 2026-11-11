@@ -126,7 +126,16 @@ AdmissionBatch Simulation::step() {
     // Generate and admit vehicles.
     auto arrivals = vehicles_.advanceArrivals(
         currentTick_,
-        routes
+        routes,
+        routeProvider_ ? std::function<std::vector<RoadId>(const EntryLane&, const Vehicle&)>{}
+                       : [this](const EntryLane& lane, const Vehicle& vehicle) {
+            const auto* first = network_.findRoad(lane.road);
+            if (!first || !first->enabled) return std::vector<RoadId>{};
+            auto suffix = network_.shortestRoute(first->to, vehicle.destination);
+            if (first->to != vehicle.destination && suffix.empty()) return suffix;
+            suffix.insert(suffix.begin(), first->id);
+            return suffix;
+        }
     );
 
     admitted_ += arrivals.admitted.size();
