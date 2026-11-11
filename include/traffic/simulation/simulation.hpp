@@ -63,6 +63,7 @@ public:
     SimulationReport createReport() const noexcept;
 
 private:
+    void respondToTraffic();
     SimulationConfig config_;
 
     // Scenario and simulation state.

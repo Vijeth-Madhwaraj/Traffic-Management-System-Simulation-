@@ -1,6 +1,7 @@
 
 #include "traffic/simulation/simulation.hpp"
 
+#include <algorithm>
 #include <stdexcept>
 #include <utility>
 
@@ -97,6 +98,42 @@ bool Simulation::requestPriority(const IntersectionId& intersection, const Movem
     return scenario_ && signals_.requestPriority(intersection, movement);
 }
 
+void Simulation::respondToTraffic() {
+    auto excluded = lastCongestionReport_.congestedRoads;
+    for (const auto& lane : scenario_->lanes) {
+        if (std::find(lastCongestionReport_.congestedLanes.begin(),
+                      lastCongestionReport_.congestedLanes.end(), lane.id) !=
+            lastCongestionReport_.congestedLanes.end()) excluded.push_back(lane.road);
+    }
+    for (const auto& snapshot : vehicles_.vehicleSnapshots()) {
+        if ((snapshot.state != VehicleState::Waiting && snapshot.state != VehicleState::InTransit) ||
+            snapshot.route.empty() || snapshot.routeIndex >= snapshot.route.size()) continue;
+        const auto index = snapshot.state == VehicleState::Waiting ? 0 : snapshot.routeIndex;
+        const auto* current = network_.findRoad(snapshot.route[index]);
+        if (!current) continue;
+        bool triggered = false;
+        for (std::size_t i = index + 1; i < snapshot.route.size(); ++i) {
+            const auto* road = network_.findRoad(snapshot.route[i]);
+            if (!road || !road->enabled ||
+                std::find(excluded.begin(), excluded.end(), snapshot.route[i]) != excluded.end()) {
+                triggered = true;
+                break;
+            }
+        }
+        if (!triggered) continue;
+        auto suffix = network_.shortestRoute(current->to, snapshot.destination, excluded);
+        // If congestion exclusions remove every alternative, still avoid an incident
+        // when an enabled (but congested) path exists. Otherwise retain the old route
+        // and wait safely for restoration; no teleportation or invalid movement.
+        if (suffix.empty() && current->to != snapshot.destination)
+            suffix = network_.shortestRoute(current->to, snapshot.destination);
+        if (suffix.empty() && current->to != snapshot.destination) continue;
+        auto* vehicle = vehicles_.find(snapshot.id);
+        vehicle->route.resize(index + 1);
+        vehicle->route.insert(vehicle->route.end(), suffix.begin(), suffix.end());
+    }
+}
+
 AdmissionBatch Simulation::step() {
     if (!scenario_) {
         throw std::logic_error(
@@ -157,6 +194,8 @@ AdmissionBatch Simulation::step() {
         vehicles_,
         scenario_->lanes
     );
+
+    respondToTraffic();
 
     // Master feature: Update signals using movement-aware queues.
     const auto movementQueues = movement_.readyMovementQueues(

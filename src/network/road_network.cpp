@@ -70,7 +70,8 @@ std::vector<RoadId> RoadNetwork::neighbors(
 }
 
 std::vector<RoadId> RoadNetwork::shortestRoute(const IntersectionId& from,
-                                               const IntersectionId& to) const {
+                                               const IntersectionId& to,
+                                               const std::vector<RoadId>& excluded) const {
     if (!hasIntersection(from) || !hasIntersection(to) || from == to) return {};
 
     struct RouteLabel {
@@ -104,7 +105,8 @@ std::vector<RoadId> RoadNetwork::shortestRoute(const IntersectionId& from,
         if (outgoing == adjacency_.end()) continue;
         for (const auto& roadId : outgoing->second) {
             const auto roadIt = roads_.find(roadId);
-            if (roadIt == roads_.end() || !roadIt->second.enabled || roadIt->second.travelTime == 0 ||
+            if (std::find(excluded.begin(), excluded.end(), roadId) != excluded.end() ||
+                roadIt == roads_.end() || !roadIt->second.enabled || roadIt->second.travelTime == 0 ||
                 current.label.cost > std::numeric_limits<Tick>::max() - roadIt->second.travelTime) continue;
 
             RouteLabel candidate = current.label;

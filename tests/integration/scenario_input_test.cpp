@@ -402,5 +402,55 @@ TEST(ScenarioInputIntegrationTest, EmergencyVehicleRequestsSafePhaseWithoutReord
     EXPECT_EQ(simulation.metricsSnapshot().completed, 1U);
 }
 
+TEST(ScenarioInputIntegrationTest, TC_15_ReroutesExistingVehicleAfterLateIncidentAndReplays) {
+    std::istringstream input(
+        "scenario 1\nseed 42\nduration 8\nintersection A\nintersection B\n"
+        "intersection C\nintersection D\nroad AB A B 2 1\nroad BC B C 2 1\n"
+        "road BD B D 2 1\nroad DC D C 2 1\nlane entry AB 2\n"
+        "phase B 10 1 1 AB-to-BC AB-to-BD\nphase D 10 1 1 BD-to-DC\n"
+        "incident BC 1 7\narrival 0 entry C standard -\n");
+    Simulation simulation({});
+    simulation.configureScenario(ScenarioLoader::load(input));
+    simulation.step();
+    EXPECT_EQ(simulation.vehicles().find(1)->route, (std::vector<RoadId>{"AB", "BC"}));
+    simulation.step();
+    EXPECT_EQ(simulation.vehicles().find(1)->route, (std::vector<RoadId>{"AB", "BD", "DC"}));
+    simulation.run();
+    EXPECT_EQ(simulation.metricsSnapshot().completed, 1U);
+    simulation.reset();
+    simulation.run();
+    EXPECT_EQ(simulation.metricsSnapshot().completed, 1U);
+}
+
+TEST(ScenarioInputIntegrationTest, TC_15_NoAlternativeWaitsSafelyUntilRoadRestores) {
+    auto scenario = fixture();
+    scenario.arrivals.resize(1);
+    scenario.config.duration = 10;
+    scenario.incidents = {{"BC", 1, 4}};
+    Simulation simulation({});
+    simulation.configureScenario(scenario);
+    for (int i = 0; i < 4; ++i) simulation.step();
+    EXPECT_EQ(simulation.vehicles().find(1)->routeIndex, 0U);
+    simulation.run();
+    EXPECT_EQ(simulation.metricsSnapshot().completed, 1U);
+}
+
+TEST(ScenarioInputIntegrationTest, TC_15_CongestionTriggersAlternativeWithoutIncident) {
+    std::istringstream input(
+        "scenario 1\nseed 42\nduration 8\nintersection A\nintersection B\n"
+        "intersection C\nintersection D\nroad AB A B 2 1\nroad BC B C 1 4\n"
+        "road BD B D 2 2\nroad DC D C 2 3\nlane entry AB 2\nlane direct BC 1\n"
+        "phase B 10 1 1 AB-to-BC AB-to-BD\nphase D 10 1 1 BD-to-DC\n"
+        "arrival 0 direct C standard BC\narrival 1 entry C standard -\n");
+    Simulation simulation({});
+    simulation.configureScenario(ScenarioLoader::load(input));
+    simulation.step();
+    EXPECT_EQ(simulation.vehicles().find(1)->state, VehicleState::InTransit);
+    simulation.step();
+    EXPECT_EQ(simulation.vehicles().find(2)->route, (std::vector<RoadId>{"AB", "BD", "DC"}));
+    simulation.run();
+    EXPECT_EQ(simulation.metricsSnapshot().completed, 2U);
+}
+
 }  // namespace
 }  // namespace traffic

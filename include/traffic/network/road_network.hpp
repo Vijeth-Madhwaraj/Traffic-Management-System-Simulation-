@@ -18,7 +18,8 @@ public:
     std::vector<RoadId> neighbors(const IntersectionId& intersection) const;
     // Returns the enabled route with minimum total travel time. Equal-cost
     // routes are resolved lexicographically by road ID; no path returns empty.
-    std::vector<RoadId> shortestRoute(const IntersectionId& from, const IntersectionId& to) const;
+    std::vector<RoadId> shortestRoute(const IntersectionId& from, const IntersectionId& to,
+        const std::vector<RoadId>& excluded = {}) const;
 
     // Read-only road access for congestion detection.
     const std::unordered_map<RoadId, Road>& roads() const noexcept {
