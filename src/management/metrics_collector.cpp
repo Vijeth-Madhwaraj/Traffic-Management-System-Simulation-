@@ -10,9 +10,10 @@ void MetricsCollector::observeQueue(std::size_t queueLength) {
     if (queueLength > maximumQueueLength_) maximumQueueLength_ = queueLength;
 }
 
-MetricsSnapshot MetricsCollector::snapshot(std::size_t unfinished) const {
+MetricsSnapshot MetricsCollector::snapshot(std::size_t unfinished, Tick measurementTicks) const {
     const double average = completed_ == 0 ? 0.0 : static_cast<double>(totalWaitingTicks_) / completed_;
-    return {generated_, completed_, unfinished, average, maximumQueueLength_};
+    return {generated_, completed_, unfinished, average, maximumQueueLength_, measurementTicks,
+            measurementTicks == 0 ? 0.0 : static_cast<double>(completed_) / measurementTicks};
 }
 
 void MetricsCollector::writeCsv(std::ostream& output, std::size_t unfinished) const {

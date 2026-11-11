@@ -11,6 +11,7 @@ namespace traffic {
 
 struct SimulationReport {
     Tick finalTick{};
+    std::uint64_t seed{};
 
     std::size_t generated{};
     std::size_t admitted{};

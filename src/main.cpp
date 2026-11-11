@@ -617,7 +617,9 @@ int main(int argc, char* argv[]) {
             << "\nAverage waiting ticks: "
             << metrics.averageWaitingTicks
             << "\nMaximum queue length: "
-            << metrics.maximumQueueLength << '\n';
+            << metrics.maximumQueueLength
+            << "\nMeasurement ticks: " << metrics.measurementTicks
+            << "\nThroughput (completed/tick): " << metrics.throughputPerTick << '\n';
 
         if (laneStatus && !trace) {
             for (const auto& lane : simulation.vehicles().laneSnapshots()) {
@@ -656,13 +658,12 @@ int main(int argc, char* argv[]) {
                 simulation.createReport()
             );
 
-            if (!reportFile.good()) {
+            reportFile.close(); // close flushes buffered output and can fail.
+            if (!reportFile) {
                 throw std::runtime_error(
                     "Failed to write report file: " + reportPath
                 );
             }
-
-            reportFile.close();
 
             std::cout
                 << "CSV report saved to: "

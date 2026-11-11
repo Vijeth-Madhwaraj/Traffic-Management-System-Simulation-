@@ -452,5 +452,41 @@ TEST(ScenarioInputIntegrationTest, TC_15_CongestionTriggersAlternativeWithoutInc
     EXPECT_EQ(simulation.metricsSnapshot().completed, 2U);
 }
 
+TEST(ScenarioInputIntegrationTest, TC_16_CountsDeferredWaitingAndPeakQueueBeforeMovement) {
+    std::istringstream input(
+        "scenario 1\nseed 42\nduration 8\nintersection A\nintersection B\n"
+        "road AB A B 1 2\nlane entry AB 1\n"
+        "arrival 0 entry B standard AB\narrival 0 entry B standard AB\n"
+        "arrival 0 entry B standard AB\n");
+    Simulation simulation({});
+    simulation.configureScenario(ScenarioLoader::load(input));
+    simulation.run();
+    EXPECT_EQ(simulation.vehicles().find(1)->waitingTicks, 0U);
+    EXPECT_EQ(simulation.vehicles().find(2)->waitingTicks, 2U);
+    EXPECT_EQ(simulation.vehicles().find(3)->waitingTicks, 4U);
+    const auto metrics = simulation.metricsSnapshot();
+    EXPECT_EQ(metrics.completed, 3U);
+    EXPECT_DOUBLE_EQ(metrics.averageWaitingTicks, 2.0);
+    EXPECT_EQ(metrics.maximumQueueLength, 1U);
+    EXPECT_EQ(metrics.measurementTicks, 8U);
+    EXPECT_DOUBLE_EQ(metrics.throughputPerTick, 3.0 / 8.0);
+}
+
+TEST(ScenarioInputIntegrationTest, TC_17_FinalCongestionMatchesFinalStateAndStoresSeed) {
+    std::istringstream input(
+        "scenario 1\nseed 42\nduration 2\nintersection A\nintersection B\n"
+        "road AB A B 1 1\nlane entry AB 1\narrival 0 entry B standard AB\n");
+    Simulation simulation({});
+    simulation.configureScenario(ScenarioLoader::load(input));
+    EXPECT_DOUBLE_EQ(simulation.metricsSnapshot().throughputPerTick, 0.0);
+    simulation.run();
+    const auto report = simulation.createReport();
+    EXPECT_EQ(report.metrics.completed, 1U);
+    EXPECT_EQ(report.congestedRoads, 0U);
+    EXPECT_EQ(report.congestedLanes, 0U);
+    EXPECT_EQ(report.seed, 42U);
+    EXPECT_EQ(report.metrics.maximumQueueLength, 1U);
+}
+
 }  // namespace
 }  // namespace traffic

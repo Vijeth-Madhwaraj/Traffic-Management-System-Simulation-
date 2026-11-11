@@ -2,6 +2,7 @@
 #include "traffic/simulation/simulation.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -207,6 +208,9 @@ AdmissionBatch Simulation::step() {
     movement_.requestEmergencyPriority(currentTick_, network_, signals_, vehicles_);
     signals_.advance(currentTick_, movementQueues);
 
+    // Observe admitted queues before movement can drain them.
+    for (const auto& lane : scenario_->lanes) metrics_.observeQueue(vehicles_.lane(lane.id)->size());
+
     // Advance vehicle movement.
     movement_.advance(
         currentTick_,
@@ -214,6 +218,15 @@ AdmissionBatch Simulation::step() {
         signals_,
         vehicles_
     );
+
+    // One waiting tick for every generated vehicle still waiting at tick end,
+    // including deferred arrivals and all positions in the FIFO queue. In-transit
+    // signal/capacity waits are counted by MovementEngine, never twice here.
+    for (const auto& snapshot : vehicles_.vehicleSnapshots()) {
+        if (snapshot.state == VehicleState::Waiting && snapshot.waitingTicks < std::numeric_limits<Tick>::max())
+            ++vehicles_.find(snapshot.id)->waitingTicks;
+    }
+    lastCongestionReport_ = congestionDetector_.evaluate(network_, vehicles_, scenario_->lanes);
 
     // FR-16: Record completed vehicles and waiting times.
     for (const auto vehicleId : trackedVehicles_) {
@@ -297,7 +310,7 @@ MetricsSnapshot Simulation::metricsSnapshot() const noexcept {
             ? summary.generated - completed
             : 0;
 
-    return metrics_.snapshot(unfinished);
+    return metrics_.snapshot(unfinished, currentTick_);
 }
 
 // FR-17: Prepare the final simulation report.
@@ -311,6 +324,7 @@ SimulationReport Simulation::createReport() const noexcept {
     SimulationReport report;
 
     report.finalTick = currentTick_;
+    report.seed = config_.seed;
     report.generated = summary.generated;
     report.admitted = summary.admitted;
     report.queued = summary.queued;

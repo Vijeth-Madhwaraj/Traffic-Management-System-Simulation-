@@ -12,6 +12,7 @@ void ReportWriter::writeCsv(
 ) {
     output
         << "metric,value\n"
+        << "seed," << report.seed << '\n'
         << "final_tick," << report.finalTick << '\n'
         << "generated," << report.generated << '\n'
         << "admitted," << report.admitted << '\n'
@@ -23,6 +24,8 @@ void ReportWriter::writeCsv(
         << std::fixed << std::setprecision(2)
         << "average_waiting_ticks,"
         << report.metrics.averageWaitingTicks << '\n'
+        << "measurement_ticks," << report.metrics.measurementTicks << '\n'
+        << "throughput_per_tick," << std::setprecision(6) << report.metrics.throughputPerTick << '\n'
         << "maximum_queue_length,"
         << report.metrics.maximumQueueLength << '\n'
         << "congested_roads," << report.congestedRoads << '\n'

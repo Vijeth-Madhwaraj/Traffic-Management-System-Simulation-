@@ -13,6 +13,8 @@ struct MetricsSnapshot {
     std::size_t unfinished{};
     double averageWaitingTicks{};
     std::size_t maximumQueueLength{};
+    Tick measurementTicks{};
+    double throughputPerTick{};
 };
 
 class MetricsCollector {
@@ -20,7 +22,7 @@ public:
     void recordGenerated();
     void recordCompleted(Tick waitingTicks);
     void observeQueue(std::size_t queueLength);
-    MetricsSnapshot snapshot(std::size_t unfinished) const;
+    MetricsSnapshot snapshot(std::size_t unfinished, Tick measurementTicks = 0) const;
     void writeCsv(std::ostream& output, std::size_t unfinished) const;
 
 private:

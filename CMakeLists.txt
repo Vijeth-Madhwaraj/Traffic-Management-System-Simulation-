@@ -192,4 +192,16 @@ if(BUILD_TESTING)
 
     add_test(NAME cli_bad_arguments COMMAND traffic_sim --unknown)
     set_tests_properties(cli_bad_arguments PROPERTIES WILL_FAIL TRUE)
+    add_test(NAME cli_report_open_failure COMMAND ${CMAKE_COMMAND}
+        -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+        -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+        -DREPORT_PATH=${CMAKE_CURRENT_BINARY_DIR}/missing-directory/report.csv
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/report_failure_test.cmake)
+    if(UNIX AND EXISTS "/dev/full")
+        add_test(NAME cli_report_write_failure COMMAND ${CMAKE_COMMAND}
+            -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+            -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+            -DREPORT_PATH=/dev/full
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/report_failure_test.cmake)
+    endif()
 endif()

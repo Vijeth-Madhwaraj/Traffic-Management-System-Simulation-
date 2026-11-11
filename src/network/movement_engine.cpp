@@ -152,7 +152,6 @@ void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& s
             if (!vehicle || vehicle->state != VehicleState::Waiting || vehicle->route.empty() ||
                 vehicle->route.front() != road->id || vehicle->source != road->from || !road->enabled ||
                 road->occupancy >= road->capacity) {
-                recordWait(vehicle);
                 break;
             }
 
