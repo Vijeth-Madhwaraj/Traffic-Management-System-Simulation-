@@ -29,6 +29,22 @@ MovementQueueCounts MovementEngine::readyMovementQueues(
     return queues;
 }
 
+void MovementEngine::requestEmergencyPriority(
+    Tick now, const RoadNetwork& network, SignalController& signals, const VehicleManager& vehicles) const {
+    for (const auto& entry : inTransit_) {
+        const auto* vehicle = vehicles.find(entry.first);
+        const auto* road = network.findRoad(entry.second.road);
+        if (!vehicle || vehicle->vehicleClass != VehicleClass::Emergency ||
+            vehicle->state != VehicleState::InTransit || !road ||
+            vehicle->routeIndex >= vehicle->route.size() ||
+            vehicle->route.size() - vehicle->routeIndex < 2 ||
+            now < entry.second.enteredAt || now - entry.second.enteredAt < road->travelTime) continue;
+        const auto* next = network.findRoad(vehicle->route[vehicle->routeIndex + 1]);
+        if (next && next->enabled && next->from == road->to)
+            signals.requestPriority(road->to, road->id + "-to-" + next->id);
+    }
+}
+
 void MovementEngine::advance(Tick now, RoadNetwork& network, SignalController& signals,
                              VehicleManager& vehicles) {
     if (lastAdvanced_ && now < *lastAdvanced_) {

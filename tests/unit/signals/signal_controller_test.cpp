@@ -242,5 +242,43 @@ TEST(SignalControllerTest, TC_07_RejectsInvalidAdaptiveLimits) {
                  std::invalid_argument);
 }
 
+TEST(SignalControllerTest, TC_08_PrioritySkipsToRequestedPhaseAfterFullClearance) {
+    SignalController signals;
+    signals.configure("B", {makePhase({"AB-to-BC"}, 2, 2, 1),
+                            makePhase({"AB-to-BD"}, 2, 2, 1),
+                            makePhase({"AB-to-BE"}, 2, 2, 1)}, {});
+    EXPECT_FALSE(signals.requestPriority("missing", "AB-to-BE"));
+    EXPECT_FALSE(signals.requestPriority("B", "missing"));
+    EXPECT_TRUE(signals.requestPriority("B", "AB-to-BE"));
+    EXPECT_TRUE(signals.requestPriority("B", "AB-to-BE"));
+    signals.advance(1);
+    EXPECT_TRUE(signals.permits("B", "AB-to-BC"));
+    signals.advance(2);
+    EXPECT_EQ(signals.status("B", 2)->color, SignalColor::Yellow);
+    EXPECT_FALSE(signals.permits("B", "AB-to-BE"));
+    signals.advance(4);
+    EXPECT_EQ(signals.status("B", 4)->color, SignalColor::Red);
+    signals.advance(5);
+    EXPECT_TRUE(signals.permits("B", "AB-to-BE"));
+    EXPECT_FALSE(signals.permits("B", "AB-to-BC"));
+    signals.advance(10);
+    EXPECT_TRUE(signals.permits("B", "AB-to-BC"));
+}
+
+TEST(SignalControllerTest, TC_08_RequestsDuringClearanceRemainSafeAndFifo) {
+    SignalController signals;
+    signals.configure("J", {makePhase({"a"}, 1, 1, 1), makePhase({"b"}, 1, 1, 1),
+                            makePhase({"c"}, 1, 1, 1)}, {{"a", "b"}, {"a", "c"}, {"b", "c"}});
+    signals.advance(1);
+    EXPECT_TRUE(signals.requestPriority("J", "c"));
+    EXPECT_TRUE(signals.requestPriority("J", "b"));
+    signals.advance(3);
+    EXPECT_TRUE(signals.permits("J", "c"));
+    signals.advance(6);
+    EXPECT_TRUE(signals.permits("J", "b"));
+    signals.advance(9);
+    EXPECT_TRUE(signals.permits("J", "c")); // Normal cycle resumes.
+}
+
 }  // namespace
 }  // namespace traffic

@@ -22,6 +22,8 @@ public:
     // Integration dependency (FR-06): use the exact MovementId values from
     // each intersection's SignalPhase plan. Check permits() immediately before
     // crossing; it denies unknown movements and all Yellow/Red states.
+    void requestEmergencyPriority(Tick now, const RoadNetwork& network,
+                                  SignalController& signals, const VehicleManager& vehicles) const;
     void advance(Tick now, RoadNetwork& network, SignalController& signals, VehicleManager& vehicles);
 
 private:

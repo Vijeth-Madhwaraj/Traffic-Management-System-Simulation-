@@ -93,6 +93,10 @@ void Simulation::configureSignals(
     );
 }
 
+bool Simulation::requestPriority(const IntersectionId& intersection, const MovementId& movement) {
+    return scenario_ && signals_.requestPriority(intersection, movement);
+}
+
 AdmissionBatch Simulation::step() {
     if (!scenario_) {
         throw std::logic_error(
@@ -161,6 +165,7 @@ AdmissionBatch Simulation::step() {
         vehicles_
     );
 
+    movement_.requestEmergencyPriority(currentTick_, network_, signals_, vehicles_);
     signals_.advance(currentTick_, movementQueues);
 
     // Advance vehicle movement.

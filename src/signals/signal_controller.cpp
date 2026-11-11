@@ -74,7 +74,7 @@ void SignalController::configure(const IntersectionId& intersection,
     greenDurations.reserve(phases.size());
     for (const auto& phase : phases) greenDurations.push_back(phase.greenDuration);
     states_[intersection] = State{std::move(phases), 0, SignalColor::Green, 0, 0,
-                                  adaptivePolicy, std::move(greenDurations), true};
+                                  adaptivePolicy, std::move(greenDurations), true, {}};
 }
 
 void SignalController::advance(Tick now) {
@@ -141,14 +141,37 @@ void SignalController::advance(Tick now, const MovementQueueCounts& queues) {
             } else if (state.color == SignalColor::Yellow) {
                 state.color = SignalColor::Red;
             } else {
-                state.activePhase = (state.activePhase + 1) % state.phases.size();
+                if (state.priorityPhases.empty()) {
+                    state.activePhase = (state.activePhase + 1) % state.phases.size();
+                } else {
+                    state.activePhase = state.priorityPhases.front();
+                    state.priorityPhases.erase(state.priorityPhases.begin());
+                }
                 state.color = SignalColor::Green;
                 state.adaptOnGreenStart = true;
                 adaptGreen();
             }
         }
+        if (state.color == SignalColor::Green) {
+            auto& pending = state.priorityPhases;
+            pending.erase(std::remove(pending.begin(), pending.end(), state.activePhase), pending.end());
+        }
         state.lastAdvanced = now;
     }
+}
+
+bool SignalController::requestPriority(const IntersectionId& intersection, const MovementId& movement) {
+    const auto found = states_.find(intersection);
+    if (found == states_.end()) return false;
+    auto& state = found->second;
+    for (std::size_t index = 0; index < state.phases.size(); ++index) {
+        const auto& permitted = state.phases[index].permittedMovements;
+        if (std::find(permitted.begin(), permitted.end(), movement) == permitted.end()) continue;
+        auto& pending = state.priorityPhases;
+        if (std::find(pending.begin(), pending.end(), index) == pending.end()) pending.push_back(index);
+        return true;
+    }
+    return false;
 }
 
 bool SignalController::permits(const IntersectionId& intersection, const MovementId& movement) const {

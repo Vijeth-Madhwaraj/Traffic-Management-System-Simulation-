@@ -35,6 +35,7 @@ public:
     void configureScenario(const Scenario& scenario);
     void setRouteProvider(RouteProvider provider);
 
+    bool requestPriority(const IntersectionId& intersection, const MovementId& movement);
     AdmissionBatch step();
     void run();
     void reset();

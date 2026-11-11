@@ -384,5 +384,23 @@ TEST(ScenarioInputIntegrationTest, RoutesThroughPrescribedEntryDespiteCheaperOth
     EXPECT_EQ(simulation.inputSummary().unroutable, 0U);
 }
 
+TEST(ScenarioInputIntegrationTest, EmergencyVehicleRequestsSafePhaseWithoutReorderingEntryQueue) {
+    std::istringstream input(
+        "scenario 1\nseed 42\nduration 9\nintersection A\nintersection B\n"
+        "intersection C\nintersection D\nintersection E\n"
+        "road AB A B 2 1\nroad BC B C 2 1\nroad BD B D 2 1\nroad BE B E 2 1\n"
+        "lane entry AB 2\nphase B 2 1 1 AB-to-BC\nphase B 2 1 1 AB-to-BD\n"
+        "phase B 2 1 1 AB-to-BE\nconflict B AB-to-BC AB-to-BE\n"
+        "arrival 0 entry E emergency AB BE\n");
+    Simulation simulation({});
+    simulation.configureScenario(ScenarioLoader::load(input));
+    for (int i = 0; i < 5; ++i) simulation.step();
+    EXPECT_EQ(simulation.vehicles().find(1)->routeIndex, 1U);
+    EXPECT_TRUE(simulation.signalSnapshots(4).front().second.permittedMovements ==
+                std::vector<MovementId>{"AB-to-BE"});
+    simulation.run();
+    EXPECT_EQ(simulation.metricsSnapshot().completed, 1U);
+}
+
 }  // namespace
 }  // namespace traffic

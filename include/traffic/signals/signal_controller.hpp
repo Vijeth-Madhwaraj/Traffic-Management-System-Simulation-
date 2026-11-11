@@ -59,6 +59,9 @@ public:
 
     // MovementEngine must check this immediately before moving a vehicle. It
     // returns true only during Green; Yellow and Red always deny movement.
+    // FIFO phase requests are served at the next green boundary, after the
+    // existing green, yellow and all-red durations. Invalid movements are rejected.
+    bool requestPriority(const IntersectionId& intersection, const MovementId& movement);
     bool permits(const IntersectionId& intersection, const MovementId& movement) const;
     std::optional<SignalStatus> status(const IntersectionId& intersection, Tick now) const;
 
@@ -72,6 +75,7 @@ private:
         std::optional<AdaptiveSignalPolicy> adaptivePolicy;
         std::vector<Tick> greenDurations;
         bool adaptOnGreenStart{true};
+        std::vector<std::size_t> priorityPhases;
     };
     std::unordered_map<IntersectionId, State> states_;
 };
