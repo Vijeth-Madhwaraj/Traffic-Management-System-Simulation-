@@ -69,6 +69,17 @@ if(TRAFFIC_ENABLE_ANALYZER)
     endforeach()
 endif()
 
+option(TRAFFIC_ENABLE_COVERAGE "Instrument project code with GCC gcov coverage" OFF)
+if(TRAFFIC_ENABLE_COVERAGE)
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message(FATAL_ERROR "Coverage reporting requires matching GCC and gcov versions")
+    endif()
+    foreach(target traffic_core traffic_sim)
+        target_compile_options(${target} PRIVATE --coverage -O0 -g)
+    endforeach()
+    target_link_options(traffic_core INTERFACE --coverage)
+endif()
+
 include(CTest)
 
 if(BUILD_TESTING)
