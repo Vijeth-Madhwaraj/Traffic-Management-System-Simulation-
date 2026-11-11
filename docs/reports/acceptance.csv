@@ -1,0 +1,17 @@
+metric,value
+seed,2026
+final_tick,20
+generated,4
+admitted,4
+queued,0
+pending,0
+unroutable,0
+completed,4
+unfinished,0
+average_waiting_ticks,4.75
+measurement_ticks,20
+throughput_per_tick,0.200000
+maximum_queue_length,2
+congested_roads,0
+congested_lanes,0
+active_incidents,0

@@ -25,7 +25,7 @@ def main():
         result = subprocess.run([str(exe)] + list(map(str, arguments)), cwd=ROOT,
                                 text=True, capture_output=True, timeout=60)
         passed = result.returncode == expected and (contains is None or contains in result.stdout)
-        results.append({'name': name, 'passed': passed, 'exit': result.returncode,
+        results.append({'name': name, 'arguments': list(map(str, arguments)), 'passed': passed, 'exit': result.returncode,
                         'seconds': round(time.perf_counter() - start, 6),
                         'stdout': result.stdout, 'stderr': result.stderr})
         return result
@@ -61,13 +61,15 @@ def main():
     for path in sources:
         digest.update(path.relative_to(ROOT).as_posix().encode())
         digest.update(path.read_bytes())
-    evidence = {'platform': platform.platform(), 'processor': platform.processor(),
+    cpu = next((line.split(':', 1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), platform.processor()) if Path('/proc/cpuinfo').exists() else platform.processor()
+    memory = next((line.split(':', 1)[1].strip() for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemTotal')), 'unavailable') if Path('/proc/meminfo').exists() else 'unavailable'
+    evidence = {'cpu': cpu, 'memory': memory, 'platform': platform.platform(), 'processor': platform.processor(),
                 'compiler': subprocess.check_output(['c++', '--version'], text=True).splitlines()[0],
                 'base_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                 'source_sha256': digest.hexdigest(), 'results': results}
     (out / 'system-validation.json').write_text(json.dumps(evidence, indent=2) + '\n')
     lines = ['# System validation report', '', f'Environment: {evidence["platform"]}.',
-             f'Compiler: {evidence["compiler"]}.', '', f'Source fingerprint: `{digest.hexdigest()}`.', '',
+             f'Compiler: {evidence["compiler"]}.', f'CPU: {cpu}; memory: {memory}.', '', f'Source fingerprint: `{digest.hexdigest()}`.', '',
              'Each CLI process is bounded to 60 seconds. See the adjacent JSON for commands, outcomes and output.', '',
              '| Case | Result | Seconds |', '|---|---|---:|']
     for result in results:

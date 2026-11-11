@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "scope": "src and include/traffic; tests and dependencies excluded",
+  "branch_definition": "All gcov-reported branches, including compiler exception paths; no exclusions",
+  "totals": {
+    "lines": 1487,
+    "lines_hit": 1395,
+    "branches": 3066,
+    "branches_hit": 1917
+  },
+  "files": {
+    "include/traffic/network/road_network.hpp": {
+      "lines": 1,
+      "lines_hit": 1,
+      "branches": 0,
+      "branches_hit": 0
+    },
+    "src/input/scenario.cpp": {
+      "lines": 253,
+      "lines_hit": 247,
+      "branches": 636,
+      "branches_hit": 410
+    },
+    "src/main.cpp": {
+      "lines": 295,
+      "lines_hit": 266,
+      "branches": 883,
+      "branches_hit": 478
+    },
+    "src/management/congestion_detector.cpp": {
+      "lines": 56,
+      "lines_hit": 50,
+      "branches": 64,
+      "branches_hit": 47
+    },
+    "src/management/incident_manager.cpp": {
+      "lines": 55,
+      "lines_hit": 44,
+      "branches": 60,
+      "branches_hit": 40
+    },
+    "src/management/metrics_collector.cpp": {
+      "lines": 22,
+      "lines_hit": 22,
+      "branches": 28,
+      "branches_hit": 17
+    },
+    "src/management/report_writer.cpp": {
+      "lines": 19,
+      "lines_hit": 19,
+      "branches": 0,
+      "branches_hit": 0
+    },
+    "src/network/movement_engine.cpp": {
+      "lines": 139,
+      "lines_hit": 131,
+      "branches": 272,
+      "branches_hit": 168
+    },
+    "src/network/road_network.cpp": {
+      "lines": 77,
+      "lines_hit": 70,
+      "branches": 151,
+      "branches_hit": 100
+    },
+    "src/signals/signal_controller.cpp": {
+      "lines": 145,
+      "lines_hit": 143,
+      "branches": 232,
+      "branches_hit": 169
+    },
+    "src/simulation/simulation.cpp": {
+      "lines": 173,
+      "lines_hit": 160,
+      "branches": 260,
+      "branches_hit": 163
+    },
+    "src/vehicle/lane_queue.cpp": {
+      "lines": 25,
+      "lines_hit": 25,
+      "branches": 20,
+      "branches_hit": 17
+    },
+    "src/vehicle/vehicle_manager.cpp": {
+      "lines": 227,
+      "lines_hit": 217,
+      "branches": 460,
+      "branches_hit": 308
+    }
+  }
+}

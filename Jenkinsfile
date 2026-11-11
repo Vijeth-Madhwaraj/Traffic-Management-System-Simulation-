@@ -25,7 +25,10 @@ pipeline {
             }
         }
         stage('Coverage') {
-            steps { sh 'python3 scripts/coverage.py --output-dir build/coverage' }
+            steps {
+                sh 'python3 scripts/coverage.py --output-dir build/coverage'
+                sh 'python3 scripts/check_traceability.py --junit build/coverage/tests.xml'
+            }
         }
         stage('Container smoke test') {
             steps {

@@ -1,0 +1,1789 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Linux-c++"
+	tests="115"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname="aaryatedla-IdeaPad-Pro-5-14IMH9"
+	time="1"
+	timestamp="2026-11-11T15:11:26"
+	>
+	<testcase name="SignalControllerTest.UT_VI01_StartsEachIntersectionInItsConfiguredInitialPhase" classname="SignalControllerTest.UT_VI01_StartsEachIntersectionInItsConfiguredInitialPhase" time="0.00609433" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI01_StartsEachIntersectionInItsConfiguredInitialPhase
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI01_StartsEachIntersectionInItsConfiguredInitialPhase
+[       OK ] SignalControllerTest.UT_VI01_StartsEachIntersectionInItsConfiguredInitialPhase (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.UT_VI02_ChangesFromGreenAtTheConfiguredBoundary" classname="SignalControllerTest.UT_VI02_ChangesFromGreenAtTheConfiguredBoundary" time="0.00640625" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI02_ChangesFromGreenAtTheConfiguredBoundary
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI02_ChangesFromGreenAtTheConfiguredBoundary
+[       OK ] SignalControllerTest.UT_VI02_ChangesFromGreenAtTheConfiguredBoundary (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.UT_VI03_UsesYellowAndAllRedClearanceBeforeNextGreen" classname="SignalControllerTest.UT_VI03_UsesYellowAndAllRedClearanceBeforeNextGreen" time="0.00685157" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI03_UsesYellowAndAllRedClearanceBeforeNextGreen
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI03_UsesYellowAndAllRedClearanceBeforeNextGreen
+[       OK ] SignalControllerTest.UT_VI03_UsesYellowAndAllRedClearanceBeforeNextGreen (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.UT_VI04_NeverPermitsConflictingMovementsAtTheSameTime" classname="SignalControllerTest.UT_VI04_NeverPermitsConflictingMovementsAtTheSameTime" time="0.00537049" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI04_NeverPermitsConflictingMovementsAtTheSameTime
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI04_NeverPermitsConflictingMovementsAtTheSameTime
+[       OK ] SignalControllerTest.UT_VI04_NeverPermitsConflictingMovementsAtTheSameTime (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.UT_VI08_RejectsEmptyOrInvalidSignalPlans" classname="SignalControllerTest.UT_VI08_RejectsEmptyOrInvalidSignalPlans" time="0.0057156" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI08_RejectsEmptyOrInvalidSignalPlans
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI08_RejectsEmptyOrInvalidSignalPlans
+[       OK ] SignalControllerTest.UT_VI08_RejectsEmptyOrInvalidSignalPlans (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.UT_VI08_RejectsBackwardTicksWithoutChangingSignalState" classname="SignalControllerTest.UT_VI08_RejectsBackwardTicksWithoutChangingSignalState" time="0.00656541" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI08_RejectsBackwardTicksWithoutChangingSignalState
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI08_RejectsBackwardTicksWithoutChangingSignalState
+[       OK ] SignalControllerTest.UT_VI08_RejectsBackwardTicksWithoutChangingSignalState (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.UT_VI08_InvalidReconfigurationLeavesTheValidPlanIntact" classname="SignalControllerTest.UT_VI08_InvalidReconfigurationLeavesTheValidPlanIntact" time="0.00679091" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI08_InvalidReconfigurationLeavesTheValidPlanIntact
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI08_InvalidReconfigurationLeavesTheValidPlanIntact
+[       OK ] SignalControllerTest.UT_VI08_InvalidReconfigurationLeavesTheValidPlanIntact (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.UT_VI08_AdvancesAcrossSkippedTicksDeterministically" classname="SignalControllerTest.UT_VI08_AdvancesAcrossSkippedTicksDeterministically" time="0.00469624" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.UT_VI08_AdvancesAcrossSkippedTicksDeterministically
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.UT_VI08_AdvancesAcrossSkippedTicksDeterministically
+[       OK ] SignalControllerTest.UT_VI08_AdvancesAcrossSkippedTicksDeterministically (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.TC_07_ExtendsGreenForLongQueuesUpToMaximum" classname="SignalControllerTest.TC_07_ExtendsGreenForLongQueuesUpToMaximum" time="0.00456853" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.TC_07_ExtendsGreenForLongQueuesUpToMaximum
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.TC_07_ExtendsGreenForLongQueuesUpToMaximum
+[       OK ] SignalControllerTest.TC_07_ExtendsGreenForLongQueuesUpToMaximum (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.TC_07_ShortensEmptyGreenToMinimumAndCanExtendAgain" classname="SignalControllerTest.TC_07_ShortensEmptyGreenToMinimumAndCanExtendAgain" time="0.00606832" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.TC_07_ShortensEmptyGreenToMinimumAndCanExtendAgain
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.TC_07_ShortensEmptyGreenToMinimumAndCanExtendAgain
+[       OK ] SignalControllerTest.TC_07_ShortensEmptyGreenToMinimumAndCanExtendAgain (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.TC_07_AdaptiveTimingPreservesConflictAndClearanceSafety" classname="SignalControllerTest.TC_07_AdaptiveTimingPreservesConflictAndClearanceSafety" time="0.00408574" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.TC_07_AdaptiveTimingPreservesConflictAndClearanceSafety
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.TC_07_AdaptiveTimingPreservesConflictAndClearanceSafety
+[       OK ] SignalControllerTest.TC_07_AdaptiveTimingPreservesConflictAndClearanceSafety (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.TC_07_RejectsInvalidAdaptiveLimits" classname="SignalControllerTest.TC_07_RejectsInvalidAdaptiveLimits" time="0.00625511" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.TC_07_RejectsInvalidAdaptiveLimits
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.TC_07_RejectsInvalidAdaptiveLimits
+[       OK ] SignalControllerTest.TC_07_RejectsInvalidAdaptiveLimits (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.TC_08_PrioritySkipsToRequestedPhaseAfterFullClearance" classname="SignalControllerTest.TC_08_PrioritySkipsToRequestedPhaseAfterFullClearance" time="0.00647605" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.TC_08_PrioritySkipsToRequestedPhaseAfterFullClearance
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.TC_08_PrioritySkipsToRequestedPhaseAfterFullClearance
+[       OK ] SignalControllerTest.TC_08_PrioritySkipsToRequestedPhaseAfterFullClearance (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="SignalControllerTest.TC_08_RequestsDuringClearanceRemainSafeAndFifo" classname="SignalControllerTest.TC_08_RequestsDuringClearanceRemainSafeAndFifo" time="0.00511479" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = SignalControllerTest.TC_08_RequestsDuringClearanceRemainSafeAndFifo
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SignalControllerTest
+[ RUN      ] SignalControllerTest.TC_08_RequestsDuringClearanceRemainSafeAndFifo
+[       OK ] SignalControllerTest.TC_08_RequestsDuringClearanceRemainSafeAndFifo (0 ms)
+[----------] 1 test from SignalControllerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.UT_A01_AssignsUniqueIdsAndPreservesAttributes" classname="VehicleInputTest.UT_A01_AssignsUniqueIdsAndPreservesAttributes" time="0.0109771" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.UT_A01_AssignsUniqueIdsAndPreservesAttributes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.UT_A01_AssignsUniqueIdsAndPreservesAttributes
+[       OK ] VehicleInputTest.UT_A01_AssignsUniqueIdsAndPreservesAttributes (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.UT_A03_RejectsUnknownOrEqualEndpointsWithoutAllocatingId" classname="VehicleInputTest.UT_A03_RejectsUnknownOrEqualEndpointsWithoutAllocatingId" time="0.0127292" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.UT_A03_RejectsUnknownOrEqualEndpointsWithoutAllocatingId
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.UT_A03_RejectsUnknownOrEqualEndpointsWithoutAllocatingId
+[       OK ] VehicleInputTest.UT_A03_RejectsUnknownOrEqualEndpointsWithoutAllocatingId (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.RejectsInvalidClassStateAndDisconnectedRoutes" classname="VehicleInputTest.RejectsInvalidClassStateAndDisconnectedRoutes" time="0.00864439" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.RejectsInvalidClassStateAndDisconnectedRoutes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.RejectsInvalidClassStateAndDisconnectedRoutes
+[       OK ] VehicleInputTest.RejectsInvalidClassStateAndDisconnectedRoutes (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.InvalidTopologyReplacementPreservesOriginal" classname="VehicleInputTest.InvalidTopologyReplacementPreservesOriginal" time="0.00846219" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.InvalidTopologyReplacementPreservesOriginal
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.InvalidTopologyReplacementPreservesOriginal
+[       OK ] VehicleInputTest.InvalidTopologyReplacementPreservesOriginal (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.UT_A08_GeneratesExactlyAtScheduledTickAndOnlyOnce" classname="VehicleInputTest.UT_A08_GeneratesExactlyAtScheduledTickAndOnlyOnce" time="0.00677633" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.UT_A08_GeneratesExactlyAtScheduledTickAndOnlyOnce
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.UT_A08_GeneratesExactlyAtScheduledTickAndOnlyOnce
+[       OK ] VehicleInputTest.UT_A08_GeneratesExactlyAtScheduledTickAndOnlyOnce (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.RejectsInvalidScheduleWithoutReplacingValidOne" classname="VehicleInputTest.RejectsInvalidScheduleWithoutReplacingValidOne" time="0.0110859" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.RejectsInvalidScheduleWithoutReplacingValidOne
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.RejectsInvalidScheduleWithoutReplacingValidOne
+[       OK ] VehicleInputTest.RejectsInvalidScheduleWithoutReplacingValidOne (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.UT_A02_A10_SeededStreamsRepeatAfterReset" classname="VehicleInputTest.UT_A02_A10_SeededStreamsRepeatAfterReset" time="0.00761061" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.UT_A02_A10_SeededStreamsRepeatAfterReset
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.UT_A02_A10_SeededStreamsRepeatAfterReset
+[       OK ] VehicleInputTest.UT_A02_A10_SeededStreamsRepeatAfterReset (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.ValidatesProbabilityAndHonorsStreamBounds" classname="VehicleInputTest.ValidatesProbabilityAndHonorsStreamBounds" time="0.0115478" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.ValidatesProbabilityAndHonorsStreamBounds
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.ValidatesProbabilityAndHonorsStreamBounds
+[       OK ] VehicleInputTest.ValidatesProbabilityAndHonorsStreamBounds (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.StreamOrderIsStableRegardlessOfConfigurationOrder" classname="VehicleInputTest.StreamOrderIsStableRegardlessOfConfigurationOrder" time="0.0117716" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.StreamOrderIsStableRegardlessOfConfigurationOrder
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.StreamOrderIsStableRegardlessOfConfigurationOrder
+[       OK ] VehicleInputTest.StreamOrderIsStableRegardlessOfConfigurationOrder (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.UT_A04_A05_A06_RetriesPendingBeforeNewArrivalsWithoutChangingIds" classname="VehicleInputTest.UT_A04_A05_A06_RetriesPendingBeforeNewArrivalsWithoutChangingIds" time="0.0122751" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.UT_A04_A05_A06_RetriesPendingBeforeNewArrivalsWithoutChangingIds
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.UT_A04_A05_A06_RetriesPendingBeforeNewArrivalsWithoutChangingIds
+[       OK ] VehicleInputTest.UT_A04_A05_A06_RetriesPendingBeforeNewArrivalsWithoutChangingIds (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.UT_A09_RequestsCorrectRouteAndHandlesUnavailableRoutes" classname="VehicleInputTest.UT_A09_RequestsCorrectRouteAndHandlesUnavailableRoutes" time="0.00886049" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.UT_A09_RequestsCorrectRouteAndHandlesUnavailableRoutes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.UT_A09_RequestsCorrectRouteAndHandlesUnavailableRoutes
+[       OK ] VehicleInputTest.UT_A09_RequestsCorrectRouteAndHandlesUnavailableRoutes (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FailedRouteProviderDoesNotConsumeArrivals" classname="VehicleInputTest.FailedRouteProviderDoesNotConsumeArrivals" time="0.0103415" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FailedRouteProviderDoesNotConsumeArrivals
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FailedRouteProviderDoesNotConsumeArrivals
+[       OK ] VehicleInputTest.FailedRouteProviderDoesNotConsumeArrivals (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.RejectsLaneMismatchAndUnknownLanesBeforeGeneration" classname="VehicleInputTest.RejectsLaneMismatchAndUnknownLanesBeforeGeneration" time="0.00922485" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.RejectsLaneMismatchAndUnknownLanesBeforeGeneration
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.RejectsLaneMismatchAndUnknownLanesBeforeGeneration
+[       OK ] VehicleInputTest.RejectsLaneMismatchAndUnknownLanesBeforeGeneration (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset" classname="VehicleInputTest.FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset" time="0.00983432" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset
+[       OK ] VehicleInputTest.FR04_PerLaneSnapshotsTrackIndependentFifoRetriesAndReset (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering" classname="VehicleInputTest.FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering" time="0.0124086" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering
+[       OK ] VehicleInputTest.FR02_BatchArrivalsHaveUniqueIdsAndRespectTickOrdering (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules" classname="VehicleInputTest.FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules" time="0.0107031" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules
+[       OK ] VehicleInputTest.FR02_BatchArrivalsDeferThroughExistingCapacityAndFifoRules (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams" classname="VehicleInputTest.FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams" time="0.0131136" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams
+[       OK ] VehicleInputTest.FR02_RejectsInvalidBatchSizeWithoutReplacingValidStreams (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR02_IndependentSeededBatchRunsAreReproducible" classname="VehicleInputTest.FR02_IndependentSeededBatchRunsAreReproducible" time="0.0178894" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR02_IndependentSeededBatchRunsAreReproducible
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR02_IndependentSeededBatchRunsAreReproducible
+[       OK ] VehicleInputTest.FR02_IndependentSeededBatchRunsAreReproducible (4 ms)
+[----------] 1 test from VehicleInputTest (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions" classname="VehicleInputTest.FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions" time="0.0136458" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions
+[       OK ] VehicleInputTest.FR02_BatchSizeDoesNotChangeOtherStreamsRandomDecisions (2 ms)
+[----------] 1 test from VehicleInputTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR03_InvalidProviderRouteDoesNotBlockValidVehiclesAtSameTick" classname="VehicleInputTest.FR03_InvalidProviderRouteDoesNotBlockValidVehiclesAtSameTick" time="0.0102924" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR03_InvalidProviderRouteDoesNotBlockValidVehiclesAtSameTick
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR03_InvalidProviderRouteDoesNotBlockValidVehiclesAtSameTick
+[       OK ] VehicleInputTest.FR03_InvalidProviderRouteDoesNotBlockValidVehiclesAtSameTick (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR03_RejectsDisconnectedIncompleteDisabledAndWrongEntryProviderRoutes" classname="VehicleInputTest.FR03_RejectsDisconnectedIncompleteDisabledAndWrongEntryProviderRoutes" time="0.00955783" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR03_RejectsDisconnectedIncompleteDisabledAndWrongEntryProviderRoutes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR03_RejectsDisconnectedIncompleteDisabledAndWrongEntryProviderRoutes
+[       OK ] VehicleInputTest.FR03_RejectsDisconnectedIncompleteDisabledAndWrongEntryProviderRoutes (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR03_DistinguishesUnavailableRouteAndResetsFailureState" classname="VehicleInputTest.FR03_DistinguishesUnavailableRouteAndResetsFailureState" time="0.00971079" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR03_DistinguishesUnavailableRouteAndResetsFailureState
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR03_DistinguishesUnavailableRouteAndResetsFailureState
+[       OK ] VehicleInputTest.FR03_DistinguishesUnavailableRouteAndResetsFailureState (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR03_ProviderExceptionsRollBackEvenAfterARejectedVehicle" classname="VehicleInputTest.FR03_ProviderExceptionsRollBackEvenAfterARejectedVehicle" time="0.0125821" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR03_ProviderExceptionsRollBackEvenAfterARejectedVehicle
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR03_ProviderExceptionsRollBackEvenAfterARejectedVehicle
+[       OK ] VehicleInputTest.FR03_ProviderExceptionsRollBackEvenAfterARejectedVehicle (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="VehicleInputTest.FR03_NewVehicleCannotCarryAnOldRoutingFailure" classname="VehicleInputTest.FR03_NewVehicleCannotCarryAnOldRoutingFailure" time="0.00796641" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = VehicleInputTest.FR03_NewVehicleCannotCarryAnOldRoutingFailure
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from VehicleInputTest
+[ RUN      ] VehicleInputTest.FR03_NewVehicleCannotCarryAnOldRoutingFailure
+[       OK ] VehicleInputTest.FR03_NewVehicleCannotCarryAnOldRoutingFailure (0 ms)
+[----------] 1 test from VehicleInputTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="LaneQueueTest.UT_A04_A05_A06_EnforcesCapacityAndFifo" classname="LaneQueueTest.UT_A04_A05_A06_EnforcesCapacityAndFifo" time="0.00879167" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = LaneQueueTest.UT_A04_A05_A06_EnforcesCapacityAndFifo
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LaneQueueTest
+[ RUN      ] LaneQueueTest.UT_A04_A05_A06_EnforcesCapacityAndFifo
+[       OK ] LaneQueueTest.UT_A04_A05_A06_EnforcesCapacityAndFifo (0 ms)
+[----------] 1 test from LaneQueueTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="LaneQueueTest.UT_A07_A10_RejectsZeroCapacityAndClearsState" classname="LaneQueueTest.UT_A07_A10_RejectsZeroCapacityAndClearsState" time="0.0094905" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = LaneQueueTest.UT_A07_A10_RejectsZeroCapacityAndClearsState
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LaneQueueTest
+[ RUN      ] LaneQueueTest.UT_A07_A10_RejectsZeroCapacityAndClearsState
+[       OK ] LaneQueueTest.UT_A07_A10_RejectsZeroCapacityAndClearsState (0 ms)
+[----------] 1 test from LaneQueueTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="LaneQueueTest.FR04_RejectsZeroAndDuplicateIdsWithoutUsingCapacity" classname="LaneQueueTest.FR04_RejectsZeroAndDuplicateIdsWithoutUsingCapacity" time="0.0122249" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = LaneQueueTest.FR04_RejectsZeroAndDuplicateIdsWithoutUsingCapacity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LaneQueueTest
+[ RUN      ] LaneQueueTest.FR04_RejectsZeroAndDuplicateIdsWithoutUsingCapacity
+[       OK ] LaneQueueTest.FR04_RejectsZeroAndDuplicateIdsWithoutUsingCapacity (0 ms)
+[----------] 1 test from LaneQueueTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="LaneQueueTest.FR04_SnapshotPreservesOrderWithoutExposingMutableStorage" classname="LaneQueueTest.FR04_SnapshotPreservesOrderWithoutExposingMutableStorage" time="0.00818822" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = LaneQueueTest.FR04_SnapshotPreservesOrderWithoutExposingMutableStorage
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LaneQueueTest
+[ RUN      ] LaneQueueTest.FR04_SnapshotPreservesOrderWithoutExposingMutableStorage
+[       OK ] LaneQueueTest.FR04_SnapshotPreservesOrderWithoutExposingMutableStorage (0 ms)
+[----------] 1 test from LaneQueueTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.TC_01_LoadsForwardReferencesClassesRoutesAndSignals" classname="ScenarioTest.TC_01_LoadsForwardReferencesClassesRoutesAndSignals" time="0.00936137" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.TC_01_LoadsForwardReferencesClassesRoutesAndSignals
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.TC_01_LoadsForwardReferencesClassesRoutesAndSignals
+[       OK ] ScenarioTest.TC_01_LoadsForwardReferencesClassesRoutesAndSignals (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.UT_A07_RejectsNegativeOverflowZeroAndMalformedNumbers" classname="ScenarioTest.UT_A07_RejectsNegativeOverflowZeroAndMalformedNumbers" time="0.0135007" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.UT_A07_RejectsNegativeOverflowZeroAndMalformedNumbers
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.UT_A07_RejectsNegativeOverflowZeroAndMalformedNumbers
+[       OK ] ScenarioTest.UT_A07_RejectsNegativeOverflowZeroAndMalformedNumbers (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.RejectsBadRecordsUnknownReferencesAndDuplicates" classname="ScenarioTest.RejectsBadRecordsUnknownReferencesAndDuplicates" time="0.0148597" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.RejectsBadRecordsUnknownReferencesAndDuplicates
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.RejectsBadRecordsUnknownReferencesAndDuplicates
+[       OK ] ScenarioTest.RejectsBadRecordsUnknownReferencesAndDuplicates (3 ms)
+[----------] 1 test from ScenarioTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.BoundsInputAndPotentialVehicleCounts" classname="ScenarioTest.BoundsInputAndPotentialVehicleCounts" time="0.251307" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.BoundsInputAndPotentialVehicleCounts
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.BoundsInputAndPotentialVehicleCounts
+[       OK ] ScenarioTest.BoundsInputAndPotentialVehicleCounts (240 ms)
+[----------] 1 test from ScenarioTest (241 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (241 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.FailedLoadLeavesPreviouslyLoadedValueUnchanged" classname="ScenarioTest.FailedLoadLeavesPreviouslyLoadedValueUnchanged" time="0.0121389" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.FailedLoadLeavesPreviouslyLoadedValueUnchanged
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.FailedLoadLeavesPreviouslyLoadedValueUnchanged
+[       OK ] ScenarioTest.FailedLoadLeavesPreviouslyLoadedValueUnchanged (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility" classname="ScenarioTest.FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility" time="0.00978849" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility
+[       OK ] ScenarioTest.FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.FR02_RejectsInvalidDuplicateAndUnknownBatchSettings" classname="ScenarioTest.FR02_RejectsInvalidDuplicateAndUnknownBatchSettings" time="0.00920423" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.FR02_RejectsInvalidDuplicateAndUnknownBatchSettings
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.FR02_RejectsInvalidDuplicateAndUnknownBatchSettings
+[       OK ] ScenarioTest.FR02_RejectsInvalidDuplicateAndUnknownBatchSettings (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying" classname="ScenarioTest.FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying" time="0.00769378" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying
+[       OK ] ScenarioTest.FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.TC_07_LoadsAdaptiveSignalPolicy" classname="ScenarioTest.TC_07_LoadsAdaptiveSignalPolicy" time="0.00910785" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.TC_07_LoadsAdaptiveSignalPolicy
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.TC_07_LoadsAdaptiveSignalPolicy
+[       OK ] ScenarioTest.TC_07_LoadsAdaptiveSignalPolicy (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies" classname="ScenarioTest.TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies" time="0.0139519" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies
+[       OK ] ScenarioTest.TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies (1 ms)
+[----------] 1 test from ScenarioTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioTest.RejectsNonexistentOrWrongIntersectionMovements" classname="ScenarioTest.RejectsNonexistentOrWrongIntersectionMovements" time="0.00776597" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioTest.RejectsNonexistentOrWrongIntersectionMovements
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioTest
+[ RUN      ] ScenarioTest.RejectsNonexistentOrWrongIntersectionMovements
+[       OK ] ScenarioTest.RejectsNonexistentOrWrongIntersectionMovements (0 ms)
+[----------] 1 test from ScenarioTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.TC_01_TC_04_LoadsGeneratesAndMovesExplicitRoutes" classname="ScenarioInputIntegrationTest.TC_01_TC_04_LoadsGeneratesAndMovesExplicitRoutes" time="0.0072333" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.TC_01_TC_04_LoadsGeneratesAndMovesExplicitRoutes
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.TC_01_TC_04_LoadsGeneratesAndMovesExplicitRoutes
+[       OK ] ScenarioInputIntegrationTest.TC_01_TC_04_LoadsGeneratesAndMovesExplicitRoutes (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.InvalidReplacementPreservesRunningSimulation" classname="ScenarioInputIntegrationTest.InvalidReplacementPreservesRunningSimulation" time="0.00729478" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.InvalidReplacementPreservesRunningSimulation
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.InvalidReplacementPreservesRunningSimulation
+[       OK ] ScenarioInputIntegrationTest.InvalidReplacementPreservesRunningSimulation (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.TC_18_ResetRepeatsActualSeededArrivalEvents" classname="ScenarioInputIntegrationTest.TC_18_ResetRepeatsActualSeededArrivalEvents" time="0.0420413" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.TC_18_ResetRepeatsActualSeededArrivalEvents
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.TC_18_ResetRepeatsActualSeededArrivalEvents
+[       OK ] ScenarioInputIntegrationTest.TC_18_ResetRepeatsActualSeededArrivalEvents (32 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (32 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (33 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.UsesInjectedRoutesAndProductionRouting" classname="ScenarioInputIntegrationTest.UsesInjectedRoutesAndProductionRouting" time="0.016059" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.UsesInjectedRoutesAndProductionRouting
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.UsesInjectedRoutesAndProductionRouting
+[       OK ] ScenarioInputIntegrationTest.UsesInjectedRoutesAndProductionRouting (2 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.RequiresValidatedScenarioBeforeRunning" classname="ScenarioInputIntegrationTest.RequiresValidatedScenarioBeforeRunning" time="0.00879148" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.RequiresValidatedScenarioBeforeRunning
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.RequiresValidatedScenarioBeforeRunning
+[       OK ] ScenarioInputIntegrationTest.RequiresValidatedScenarioBeforeRunning (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles" classname="ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles" time="0.0139754" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles
+[       OK ] ScenarioInputIntegrationTest.FR03_RunContinuesAfterInvalidRouteAndMovesOtherVehicles (1 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.ParsesAndValidatesScheduledIncidents" classname="ScenarioInputIntegrationTest.ParsesAndValidatesScheduledIncidents" time="0.00921342" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.ParsesAndValidatesScheduledIncidents
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.ParsesAndValidatesScheduledIncidents
+[       OK ] ScenarioInputIntegrationTest.ParsesAndValidatesScheduledIncidents (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.RejectsIncidentWithUnknownRoad" classname="ScenarioInputIntegrationTest.RejectsIncidentWithUnknownRoad" time="0.0111605" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.RejectsIncidentWithUnknownRoad
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.RejectsIncidentWithUnknownRoad
+[       OK ] ScenarioInputIntegrationTest.RejectsIncidentWithUnknownRoad (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.IncidentAwareRoutingUsesAlternativeRoad" classname="ScenarioInputIntegrationTest.IncidentAwareRoutingUsesAlternativeRoad" time="0.00997215" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.IncidentAwareRoutingUsesAlternativeRoad
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.IncidentAwareRoutingUsesAlternativeRoad
+[       OK ] ScenarioInputIntegrationTest.IncidentAwareRoutingUsesAlternativeRoad (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.LaneCapacityPreservesSignalsIncidentsReportsAndReset" classname="ScenarioInputIntegrationTest.LaneCapacityPreservesSignalsIncidentsReportsAndReset" time="0.012085" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.LaneCapacityPreservesSignalsIncidentsReportsAndReset
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.LaneCapacityPreservesSignalsIncidentsReportsAndReset
+[       OK ] ScenarioInputIntegrationTest.LaneCapacityPreservesSignalsIncidentsReportsAndReset (2 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.RoutesThroughPrescribedEntryDespiteCheaperOtherRoad" classname="ScenarioInputIntegrationTest.RoutesThroughPrescribedEntryDespiteCheaperOtherRoad" time="0.00830152" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.RoutesThroughPrescribedEntryDespiteCheaperOtherRoad
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.RoutesThroughPrescribedEntryDespiteCheaperOtherRoad
+[       OK ] ScenarioInputIntegrationTest.RoutesThroughPrescribedEntryDespiteCheaperOtherRoad (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.EmergencyVehicleRequestsSafePhaseWithoutReorderingEntryQueue" classname="ScenarioInputIntegrationTest.EmergencyVehicleRequestsSafePhaseWithoutReorderingEntryQueue" time="0.0137276" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.EmergencyVehicleRequestsSafePhaseWithoutReorderingEntryQueue
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.EmergencyVehicleRequestsSafePhaseWithoutReorderingEntryQueue
+[       OK ] ScenarioInputIntegrationTest.EmergencyVehicleRequestsSafePhaseWithoutReorderingEntryQueue (1 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.TC_15_ReroutesExistingVehicleAfterLateIncidentAndReplays" classname="ScenarioInputIntegrationTest.TC_15_ReroutesExistingVehicleAfterLateIncidentAndReplays" time="0.014139" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.TC_15_ReroutesExistingVehicleAfterLateIncidentAndReplays
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.TC_15_ReroutesExistingVehicleAfterLateIncidentAndReplays
+[       OK ] ScenarioInputIntegrationTest.TC_15_ReroutesExistingVehicleAfterLateIncidentAndReplays (2 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.TC_15_NoAlternativeWaitsSafelyUntilRoadRestores" classname="ScenarioInputIntegrationTest.TC_15_NoAlternativeWaitsSafelyUntilRoadRestores" time="0.0103082" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.TC_15_NoAlternativeWaitsSafelyUntilRoadRestores
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.TC_15_NoAlternativeWaitsSafelyUntilRoadRestores
+[       OK ] ScenarioInputIntegrationTest.TC_15_NoAlternativeWaitsSafelyUntilRoadRestores (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.TC_15_CongestionTriggersAlternativeWithoutIncident" classname="ScenarioInputIntegrationTest.TC_15_CongestionTriggersAlternativeWithoutIncident" time="0.0109264" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.TC_15_CongestionTriggersAlternativeWithoutIncident
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.TC_15_CongestionTriggersAlternativeWithoutIncident
+[       OK ] ScenarioInputIntegrationTest.TC_15_CongestionTriggersAlternativeWithoutIncident (1 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.TC_16_CountsDeferredWaitingAndPeakQueueBeforeMovement" classname="ScenarioInputIntegrationTest.TC_16_CountsDeferredWaitingAndPeakQueueBeforeMovement" time="0.0093783" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.TC_16_CountsDeferredWaitingAndPeakQueueBeforeMovement
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.TC_16_CountsDeferredWaitingAndPeakQueueBeforeMovement
+[       OK ] ScenarioInputIntegrationTest.TC_16_CountsDeferredWaitingAndPeakQueueBeforeMovement (0 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ScenarioInputIntegrationTest.TC_17_FinalCongestionMatchesFinalStateAndStoresSeed" classname="ScenarioInputIntegrationTest.TC_17_FinalCongestionMatchesFinalStateAndStoresSeed" time="0.011255" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ScenarioInputIntegrationTest.TC_17_FinalCongestionMatchesFinalStateAndStoresSeed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ScenarioInputIntegrationTest
+[ RUN      ] ScenarioInputIntegrationTest.TC_17_FinalCongestionMatchesFinalStateAndStoresSeed
+[       OK ] ScenarioInputIntegrationTest.TC_17_FinalCongestionMatchesFinalStateAndStoresSeed (1 ms)
+[----------] 1 test from ScenarioInputIntegrationTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="CongestionDetectorTest.UT_VN01_DetectsRoadAtConfiguredOccupancyThreshold" classname="CongestionDetectorTest.UT_VN01_DetectsRoadAtConfiguredOccupancyThreshold" time="0.00572938" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = CongestionDetectorTest.UT_VN01_DetectsRoadAtConfiguredOccupancyThreshold
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from CongestionDetectorTest
+[ RUN      ] CongestionDetectorTest.UT_VN01_DetectsRoadAtConfiguredOccupancyThreshold
+[       OK ] CongestionDetectorTest.UT_VN01_DetectsRoadAtConfiguredOccupancyThreshold (0 ms)
+[----------] 1 test from CongestionDetectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="CongestionDetectorTest.UT_VN02_DetectsQueueAndHonorsAbsoluteThreshold" classname="CongestionDetectorTest.UT_VN02_DetectsQueueAndHonorsAbsoluteThreshold" time="0.00831769" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = CongestionDetectorTest.UT_VN02_DetectsQueueAndHonorsAbsoluteThreshold
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from CongestionDetectorTest
+[ RUN      ] CongestionDetectorTest.UT_VN02_DetectsQueueAndHonorsAbsoluteThreshold
+[       OK ] CongestionDetectorTest.UT_VN02_DetectsQueueAndHonorsAbsoluteThreshold (0 ms)
+[----------] 1 test from CongestionDetectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="CongestionDetectorTest.UT_VN03_RejectsInvalidThresholdUpdate" classname="CongestionDetectorTest.UT_VN03_RejectsInvalidThresholdUpdate" time="0.00544846" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = CongestionDetectorTest.UT_VN03_RejectsInvalidThresholdUpdate
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from CongestionDetectorTest
+[ RUN      ] CongestionDetectorTest.UT_VN03_RejectsInvalidThresholdUpdate
+[       OK ] CongestionDetectorTest.UT_VN03_RejectsInvalidThresholdUpdate (0 ms)
+[----------] 1 test from CongestionDetectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="CongestionDetectorTest.UT_VN11_RejectsInvalidConstructorThresholds" classname="CongestionDetectorTest.UT_VN11_RejectsInvalidConstructorThresholds" time="0.00520481" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = CongestionDetectorTest.UT_VN11_RejectsInvalidConstructorThresholds
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from CongestionDetectorTest
+[ RUN      ] CongestionDetectorTest.UT_VN11_RejectsInvalidConstructorThresholds
+[       OK ] CongestionDetectorTest.UT_VN11_RejectsInvalidConstructorThresholds (0 ms)
+[----------] 1 test from CongestionDetectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="IncidentManagerTest.UT_VN04_BlocksAndRestoresRoadAtHalfOpenInterval" classname="IncidentManagerTest.UT_VN04_BlocksAndRestoresRoadAtHalfOpenInterval" time="0.00836779" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = IncidentManagerTest.UT_VN04_BlocksAndRestoresRoadAtHalfOpenInterval
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from IncidentManagerTest
+[ RUN      ] IncidentManagerTest.UT_VN04_BlocksAndRestoresRoadAtHalfOpenInterval
+[       OK ] IncidentManagerTest.UT_VN04_BlocksAndRestoresRoadAtHalfOpenInterval (0 ms)
+[----------] 1 test from IncidentManagerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="IncidentManagerTest.UT_VN05_PreservesInitiallyDisabledRoad" classname="IncidentManagerTest.UT_VN05_PreservesInitiallyDisabledRoad" time="0.00943906" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = IncidentManagerTest.UT_VN05_PreservesInitiallyDisabledRoad
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from IncidentManagerTest
+[ RUN      ] IncidentManagerTest.UT_VN05_PreservesInitiallyDisabledRoad
+[       OK ] IncidentManagerTest.UT_VN05_PreservesInitiallyDisabledRoad (0 ms)
+[----------] 1 test from IncidentManagerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="IncidentManagerTest.UT_VN06_RejectsInvalidInterval" classname="IncidentManagerTest.UT_VN06_RejectsInvalidInterval" time="0.00906862" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = IncidentManagerTest.UT_VN06_RejectsInvalidInterval
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from IncidentManagerTest
+[ RUN      ] IncidentManagerTest.UT_VN06_RejectsInvalidInterval
+[       OK ] IncidentManagerTest.UT_VN06_RejectsInvalidInterval (0 ms)
+[----------] 1 test from IncidentManagerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="IncidentManagerTest.UT_VN12_OverlappingIncidentsKeepRoadBlockedUntilBothEnd" classname="IncidentManagerTest.UT_VN12_OverlappingIncidentsKeepRoadBlockedUntilBothEnd" time="0.00618394" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = IncidentManagerTest.UT_VN12_OverlappingIncidentsKeepRoadBlockedUntilBothEnd
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from IncidentManagerTest
+[ RUN      ] IncidentManagerTest.UT_VN12_OverlappingIncidentsKeepRoadBlockedUntilBothEnd
+[       OK ] IncidentManagerTest.UT_VN12_OverlappingIncidentsKeepRoadBlockedUntilBothEnd (0 ms)
+[----------] 1 test from IncidentManagerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="IncidentManagerTest.UT_VN13_RejectsActiveUnknownRoadWithoutPartialChanges" classname="IncidentManagerTest.UT_VN13_RejectsActiveUnknownRoadWithoutPartialChanges" time="0.00569696" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = IncidentManagerTest.UT_VN13_RejectsActiveUnknownRoadWithoutPartialChanges
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from IncidentManagerTest
+[ RUN      ] IncidentManagerTest.UT_VN13_RejectsActiveUnknownRoadWithoutPartialChanges
+[       OK ] IncidentManagerTest.UT_VN13_RejectsActiveUnknownRoadWithoutPartialChanges (0 ms)
+[----------] 1 test from IncidentManagerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="IncidentManagerTest.UT_VN14_ClearRestoresRoadsBlockedByActiveIncidents" classname="IncidentManagerTest.UT_VN14_ClearRestoresRoadsBlockedByActiveIncidents" time="0.00930918" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = IncidentManagerTest.UT_VN14_ClearRestoresRoadsBlockedByActiveIncidents
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from IncidentManagerTest
+[ RUN      ] IncidentManagerTest.UT_VN14_ClearRestoresRoadsBlockedByActiveIncidents
+[       OK ] IncidentManagerTest.UT_VN14_ClearRestoresRoadsBlockedByActiveIncidents (0 ms)
+[----------] 1 test from IncidentManagerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MetricsCollectorTest.TracksGeneratedVehicles" classname="MetricsCollectorTest.TracksGeneratedVehicles" time="0.00754809" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MetricsCollectorTest.TracksGeneratedVehicles
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MetricsCollectorTest
+[ RUN      ] MetricsCollectorTest.TracksGeneratedVehicles
+[       OK ] MetricsCollectorTest.TracksGeneratedVehicles (0 ms)
+[----------] 1 test from MetricsCollectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MetricsCollectorTest.TracksCompletedVehiclesAndWaitingTime" classname="MetricsCollectorTest.TracksCompletedVehiclesAndWaitingTime" time="0.00864713" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MetricsCollectorTest.TracksCompletedVehiclesAndWaitingTime
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MetricsCollectorTest
+[ RUN      ] MetricsCollectorTest.TracksCompletedVehiclesAndWaitingTime
+[       OK ] MetricsCollectorTest.TracksCompletedVehiclesAndWaitingTime (0 ms)
+[----------] 1 test from MetricsCollectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MetricsCollectorTest.TracksMaximumQueueLength" classname="MetricsCollectorTest.TracksMaximumQueueLength" time="0.00543971" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MetricsCollectorTest.TracksMaximumQueueLength
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MetricsCollectorTest
+[ RUN      ] MetricsCollectorTest.TracksMaximumQueueLength
+[       OK ] MetricsCollectorTest.TracksMaximumQueueLength (0 ms)
+[----------] 1 test from MetricsCollectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MetricsCollectorTest.AverageWaitingTimeIsZeroWithoutCompletions" classname="MetricsCollectorTest.AverageWaitingTimeIsZeroWithoutCompletions" time="0.00617722" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MetricsCollectorTest.AverageWaitingTimeIsZeroWithoutCompletions
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MetricsCollectorTest
+[ RUN      ] MetricsCollectorTest.AverageWaitingTimeIsZeroWithoutCompletions
+[       OK ] MetricsCollectorTest.AverageWaitingTimeIsZeroWithoutCompletions (0 ms)
+[----------] 1 test from MetricsCollectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MetricsCollectorTest.WritesCsvOutput" classname="MetricsCollectorTest.WritesCsvOutput" time="0.00860097" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MetricsCollectorTest.WritesCsvOutput
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MetricsCollectorTest
+[ RUN      ] MetricsCollectorTest.WritesCsvOutput
+[       OK ] MetricsCollectorTest.WritesCsvOutput (0 ms)
+[----------] 1 test from MetricsCollectorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ReportWriterTest.WritesCsvHeader" classname="ReportWriterTest.WritesCsvHeader" time="0.00527369" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ReportWriterTest.WritesCsvHeader
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ReportWriterTest
+[ RUN      ] ReportWriterTest.WritesCsvHeader
+[       OK ] ReportWriterTest.WritesCsvHeader (0 ms)
+[----------] 1 test from ReportWriterTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ReportWriterTest.WritesSimulationCounts" classname="ReportWriterTest.WritesSimulationCounts" time="0.00514598" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ReportWriterTest.WritesSimulationCounts
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ReportWriterTest
+[ RUN      ] ReportWriterTest.WritesSimulationCounts
+[       OK ] ReportWriterTest.WritesSimulationCounts (0 ms)
+[----------] 1 test from ReportWriterTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="ReportWriterTest.WritesPerformanceAndIncidentMetrics" classname="ReportWriterTest.WritesPerformanceAndIncidentMetrics" time="0.00850536" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ReportWriterTest.WritesPerformanceAndIncidentMetrics
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ReportWriterTest
+[ RUN      ] ReportWriterTest.WritesPerformanceAndIncidentMetrics
+[       OK ] ReportWriterTest.WritesPerformanceAndIncidentMetrics (0 ms)
+[----------] 1 test from ReportWriterTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="RoadNetworkTest.UT_VA01_RegistersConnectedIntersectionsAndExposesRoadProperties" classname="RoadNetworkTest.UT_VA01_RegistersConnectedIntersectionsAndExposesRoadProperties" time="0.0060463" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RoadNetworkTest.UT_VA01_RegistersConnectedIntersectionsAndExposesRoadProperties
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RoadNetworkTest
+[ RUN      ] RoadNetworkTest.UT_VA01_RegistersConnectedIntersectionsAndExposesRoadProperties
+[       OK ] RoadNetworkTest.UT_VA01_RegistersConnectedIntersectionsAndExposesRoadProperties (0 ms)
+[----------] 1 test from RoadNetworkTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="RoadNetworkTest.UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNetwork" classname="RoadNetworkTest.UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNetwork" time="0.00539609" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RoadNetworkTest.UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNetwork
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RoadNetworkTest
+[ RUN      ] RoadNetworkTest.UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNetwork
+[       OK ] RoadNetworkTest.UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNetwork (0 ms)
+[----------] 1 test from RoadNetworkTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="RoadNetworkTest.UT_VA02_ReturnsConnectedRouteWithMinimumTravelTime" classname="RoadNetworkTest.UT_VA02_ReturnsConnectedRouteWithMinimumTravelTime" time="0.00900871" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RoadNetworkTest.UT_VA02_ReturnsConnectedRouteWithMinimumTravelTime
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RoadNetworkTest
+[ RUN      ] RoadNetworkTest.UT_VA02_ReturnsConnectedRouteWithMinimumTravelTime
+[       OK ] RoadNetworkTest.UT_VA02_ReturnsConnectedRouteWithMinimumTravelTime (0 ms)
+[----------] 1 test from RoadNetworkTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="RoadNetworkTest.UT_VA03_ReturnsEmptyForUnknownOrUnreachableDestinations" classname="RoadNetworkTest.UT_VA03_ReturnsEmptyForUnknownOrUnreachableDestinations" time="0.00877299" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RoadNetworkTest.UT_VA03_ReturnsEmptyForUnknownOrUnreachableDestinations
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RoadNetworkTest
+[ RUN      ] RoadNetworkTest.UT_VA03_ReturnsEmptyForUnknownOrUnreachableDestinations
+[       OK ] RoadNetworkTest.UT_VA03_ReturnsEmptyForUnknownOrUnreachableDestinations (0 ms)
+[----------] 1 test from RoadNetworkTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="RoadNetworkTest.UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies" classname="RoadNetworkTest.UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies" time="0.00962698" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RoadNetworkTest.UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RoadNetworkTest
+[ RUN      ] RoadNetworkTest.UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies
+[       OK ] RoadNetworkTest.UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies (0 ms)
+[----------] 1 test from RoadNetworkTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.UT_VA05_EntersRoadAndCrossesOnlyOnPermittedGreen" classname="MovementEngineTest.UT_VA05_EntersRoadAndCrossesOnlyOnPermittedGreen" time="0.00593001" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.UT_VA05_EntersRoadAndCrossesOnlyOnPermittedGreen
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.UT_VA05_EntersRoadAndCrossesOnlyOnPermittedGreen
+[       OK ] MovementEngineTest.UT_VA05_EntersRoadAndCrossesOnlyOnPermittedGreen (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.UT_VA06_YellowOrUnlistedMovementKeepsVehicleOnItsRouteRoad" classname="MovementEngineTest.UT_VA06_YellowOrUnlistedMovementKeepsVehicleOnItsRouteRoad" time="0.0055956" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.UT_VA06_YellowOrUnlistedMovementKeepsVehicleOnItsRouteRoad
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.UT_VA06_YellowOrUnlistedMovementKeepsVehicleOnItsRouteRoad
+[       OK ] MovementEngineTest.UT_VA06_YellowOrUnlistedMovementKeepsVehicleOnItsRouteRoad (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.UT_VA07_RespectsConfiguredRoadTravelTime" classname="MovementEngineTest.UT_VA07_RespectsConfiguredRoadTravelTime" time="0.00947043" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.UT_VA07_RespectsConfiguredRoadTravelTime
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.UT_VA07_RespectsConfiguredRoadTravelTime
+[       OK ] MovementEngineTest.UT_VA07_RespectsConfiguredRoadTravelTime (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.UT_VA08_DoesNotCrossWhenDownstreamRoadIsFull" classname="MovementEngineTest.UT_VA08_DoesNotCrossWhenDownstreamRoadIsFull" time="0.00664756" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.UT_VA08_DoesNotCrossWhenDownstreamRoadIsFull
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.UT_VA08_DoesNotCrossWhenDownstreamRoadIsFull
+[       OK ] MovementEngineTest.UT_VA08_DoesNotCrossWhenDownstreamRoadIsFull (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.UT_VA13_FR11_NFR02_DoesNotEnterFullDownstreamLane" classname="MovementEngineTest.UT_VA13_FR11_NFR02_DoesNotEnterFullDownstreamLane" time="0.00559529" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.UT_VA13_FR11_NFR02_DoesNotEnterFullDownstreamLane
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.UT_VA13_FR11_NFR02_DoesNotEnterFullDownstreamLane
+[       OK ] MovementEngineTest.UT_VA13_FR11_NFR02_DoesNotEnterFullDownstreamLane (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.UT_VA09_CompletesVehicleAfterTraversingItsPlannedRoute" classname="MovementEngineTest.UT_VA09_CompletesVehicleAfterTraversingItsPlannedRoute" time="0.00822014" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.UT_VA09_CompletesVehicleAfterTraversingItsPlannedRoute
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.UT_VA09_CompletesVehicleAfterTraversingItsPlannedRoute
+[       OK ] MovementEngineTest.UT_VA09_CompletesVehicleAfterTraversingItsPlannedRoute (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.UT_VA10_NFR02_IsDeterministicAndCallableWithoutSimulation" classname="MovementEngineTest.UT_VA10_NFR02_IsDeterministicAndCallableWithoutSimulation" time="0.00761591" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.UT_VA10_NFR02_IsDeterministicAndCallableWithoutSimulation
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.UT_VA10_NFR02_IsDeterministicAndCallableWithoutSimulation
+[       OK ] MovementEngineTest.UT_VA10_NFR02_IsDeterministicAndCallableWithoutSimulation (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.TC_07_CountsOnlyVehiclesReadyToCrossByMovement" classname="MovementEngineTest.TC_07_CountsOnlyVehiclesReadyToCrossByMovement" time="0.00947998" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.TC_07_CountsOnlyVehiclesReadyToCrossByMovement
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.TC_07_CountsOnlyVehiclesReadyToCrossByMovement
+[       OK ] MovementEngineTest.TC_07_CountsOnlyVehiclesReadyToCrossByMovement (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="MovementEngineTest.TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingClearance" classname="MovementEngineTest.TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingClearance" time="0.00723713" status="run">
+		<properties/>
+		<system-out>Running main() from /tmp/se-jackfruit-audit-build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = MovementEngineTest.TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingClearance
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MovementEngineTest
+[ RUN      ] MovementEngineTest.TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingClearance
+[       OK ] MovementEngineTest.TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingClearance (0 ms)
+[----------] 1 test from MovementEngineTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="cli_validate_only" classname="cli_validate_only" time="0.0417047" status="run">
+		<properties/>
+		<system-out>Traffic Management System (Simulation)
+Usage: traffic_sim --scenario &lt;file&gt; [--show-scenario] [--lane-status] [--trace] [--report &lt;output.csv&gt;]
+       traffic_sim --validate &lt;file&gt;
+       traffic_sim --help
+--show-scenario prints the configured network and traffic without running it.
+--trace prints the scenario overview, then each tick's signals, vehicle movement, waits and deferrals.
+--report exports simulation performance metrics as CSV.
+[ERROR][Console] Supply --scenario &lt;file&gt;, --validate &lt;file&gt;, or --help.
+</system-out>
+	</testcase>
+	<testcase name="cli_validate_invalid" classname="cli_validate_invalid" time="0.0128363" status="run">
+		<properties/>
+		<system-out>[ERROR][Scenario] Scenario line 6: Invalid or out-of-range unsigned number: -1
+</system-out>
+	</testcase>
+	<testcase name="cli_validate_missing" classname="cli_validate_missing" time="0.00959523" status="run">
+		<properties/>
+		<system-out>[ERROR][Scenario] Cannot open scenario file
+</system-out>
+	</testcase>
+	<testcase name="cli_lane_status" classname="cli_lane_status" time="0.0688761" status="run">
+		<properties/>
+		<system-out>Traffic Management System (Simulation)
+Usage: traffic_sim --scenario &lt;file&gt; [--show-scenario] [--lane-status] [--trace] [--report &lt;output.csv&gt;]
+       traffic_sim --validate &lt;file&gt;
+       traffic_sim --help
+--show-scenario prints the configured network and traffic without running it.
+--trace prints the scenario overview, then each tick's signals, vehicle movement, waits and deferrals.
+--report exports simulation performance metrics as CSV.
+[ERROR][Console] Supply --scenario &lt;file&gt;, --validate &lt;file&gt;, or --help.
+</system-out>
+	</testcase>
+	<testcase name="cli_batch_arrivals" classname="cli_batch_arrivals" time="0.0251054" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="cli_help" classname="cli_help" time="0.0128786" status="run">
+		<properties/>
+		<system-out>Traffic Management System (Simulation)
+Usage: traffic_sim --scenario &lt;file&gt; [--show-scenario] [--lane-status] [--trace] [--report &lt;output.csv&gt;]
+       traffic_sim --validate &lt;file&gt;
+       traffic_sim --help
+--show-scenario prints the configured network and traffic without running it.
+--trace prints the scenario overview, then each tick's signals, vehicle movement, waits and deferrals.
+--report exports simulation performance metrics as CSV.
+</system-out>
+	</testcase>
+	<testcase name="cli_scheduled_demo" classname="cli_scheduled_demo" time="0.00905235" status="run">
+		<properties/>
+		<system-out>Seed: 42
+Duration (ticks): 6
+
+Generated: 3
+Admitted to entry queues: 3
+Queued: 0
+Deferred: 0
+Reached destination: 1
+In transit: 2
+Unroutable: 0
+
+Performance Metrics:
+Completed: 1
+Unfinished: 2
+Average waiting ticks: 0
+Maximum queue length: 1
+Measurement ticks: 6
+Throughput (completed/tick): 0.166667
+</system-out>
+	</testcase>
+	<testcase name="cli_adaptive_signal_demo" classname="cli_adaptive_signal_demo" time="0.0110232" status="run">
+		<properties/>
+		<system-out>Scenario: traffic_demo_scenario.txt
+Seed: 2026 | Duration: 20 ticks
+Network: 4 intersections, 4 roads
+  Roads:
+    AB: A -&gt; B (capacity 2, travel 1 tick(s))
+    AC: A -&gt; C (capacity 2, travel 1 tick(s))
+    BC: B -&gt; C (capacity 2, travel 1 tick(s))
+    CD: C -&gt; D (capacity 2, travel 1 tick(s))
+  Entry lanes:
+    local -&gt; road AB (queue capacity 1)
+    bypass -&gt; road AC (queue capacity 1)
+  Scheduled arrivals: 0
+  Arrival streams:
+    local: lane local, ticks [0,3), 100.0% per tick, batch 1, destination D, route AB -&gt; BC -&gt; CD
+    bypass: lane bypass, ticks [0,3), 100.0% per tick, batch 1, destination D, route AC -&gt; CD
+  Signal plans:
+    B:
+      phase 1 (green 1, yellow 1, all-red 1): AB-to-BC
+      adaptive green: min 1, max 3, extend when queue &gt;= 2, adjustment 1 tick(s); shorten by the same step when empty
+    C:
+      phase 1 (green 1, yellow 1, all-red 1): BC-to-CD
+      phase 2 (green 1, yellow 1, all-red 1): AC-to-CD
+      adaptive green: min 1, max 3, extend when queue &gt;= 2, adjustment 1 tick(s); sho...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="cli_seeded_demo" classname="cli_seeded_demo" time="0.0290782" status="run">
+		<properties/>
+		<system-out>Seed: 496
+Duration (ticks): 100
+
+Generated: 53
+Admitted to entry queues: 53
+Queued: 0
+Deferred: 0
+Reached destination: 53
+In transit: 0
+Unroutable: 0
+
+Performance Metrics:
+Completed: 53
+Unfinished: 0
+Average waiting ticks: 0.566038
+Maximum queue length: 1
+Measurement ticks: 100
+Throughput (completed/tick): 0.53
+</system-out>
+	</testcase>
+	<testcase name="cli_missing_file" classname="cli_missing_file" time="0.0133604" status="run">
+		<properties/>
+		<system-out>[ERROR][Scenario] Cannot open scenario file
+</system-out>
+	</testcase>
+	<testcase name="cli_bad_arguments" classname="cli_bad_arguments" time="0.00904751" status="run">
+		<properties/>
+		<system-out>Traffic Management System (Simulation)
+Usage: traffic_sim --scenario &lt;file&gt; [--show-scenario] [--lane-status] [--trace] [--report &lt;output.csv&gt;]
+       traffic_sim --validate &lt;file&gt;
+       traffic_sim --help
+--show-scenario prints the configured network and traffic without running it.
+--trace prints the scenario overview, then each tick's signals, vehicle movement, waits and deferrals.
+--report exports simulation performance metrics as CSV.
+[ERROR][Console] Supply --scenario &lt;file&gt;, --validate &lt;file&gt;, or --help.
+</system-out>
+	</testcase>
+	<testcase name="cli_report_open_failure" classname="cli_report_open_failure" time="0.0317347" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="cli_report_write_failure" classname="cli_report_write_failure" time="0.0301217" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+</testsuite>
