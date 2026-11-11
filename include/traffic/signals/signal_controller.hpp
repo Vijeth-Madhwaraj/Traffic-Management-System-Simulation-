@@ -2,11 +2,11 @@
 
 #include "traffic/types.hpp"
 
-#include <optional>
 #include <cstddef>
+#include <optional>
 #include <string>
-#include <utility>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace traffic {
@@ -42,30 +42,29 @@ struct SignalStatus {
 };
 
 class SignalController {
-public:
+  public:
     // Configure once before the simulation starts. The network/intersection
     // owner must provide every conflicting movement pair for this intersection.
     // Invalid or unsafe plans throw std::invalid_argument; an invalid plan does
     // not replace a previously configured plan.
-    void configure(const IntersectionId& intersection,
-                   std::vector<SignalPhase> phases,
-                   const std::vector<MovementConflict>& conflicts,
+    void configure(const IntersectionId &intersection, std::vector<SignalPhase> phases,
+                   const std::vector<MovementConflict> &conflicts,
                    std::optional<AdaptiveSignalPolicy> adaptivePolicy = std::nullopt);
 
     // Call with non-decreasing simulation ticks. The no-queue overload treats
     // adaptive phase queues as empty. Large time jumps apply each elapsed transition.
     void advance(Tick now);
-    void advance(Tick now, const MovementQueueCounts& queues);
+    void advance(Tick now, const MovementQueueCounts &queues);
 
     // MovementEngine must check this immediately before moving a vehicle. It
     // returns true only during Green; Yellow and Red always deny movement.
     // FIFO phase requests are served at the next green boundary, after the
     // existing green, yellow and all-red durations. Invalid movements are rejected.
-    bool requestPriority(const IntersectionId& intersection, const MovementId& movement);
-    bool permits(const IntersectionId& intersection, const MovementId& movement) const;
-    std::optional<SignalStatus> status(const IntersectionId& intersection, Tick now) const;
+    bool requestPriority(const IntersectionId &intersection, const MovementId &movement);
+    bool permits(const IntersectionId &intersection, const MovementId &movement) const;
+    std::optional<SignalStatus> status(const IntersectionId &intersection, Tick now) const;
 
-private:
+  private:
     struct State {
         std::vector<SignalPhase> phases;
         std::size_t activePhase{};
@@ -80,4 +79,4 @@ private:
     std::unordered_map<IntersectionId, State> states_;
 };
 
-}  // namespace traffic
+} // namespace traffic

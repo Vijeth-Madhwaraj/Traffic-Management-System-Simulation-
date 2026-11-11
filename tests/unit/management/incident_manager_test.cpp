@@ -46,10 +46,7 @@ TEST(IncidentManagerTest, UT_VN05_PreservesInitiallyDisabledRoad) {
 TEST(IncidentManagerTest, UT_VN06_RejectsInvalidInterval) {
     IncidentManager manager;
 
-    EXPECT_THROW(
-        manager.schedule({"r1", 3, 3}),
-        std::invalid_argument
-    );
+    EXPECT_THROW(manager.schedule({"r1", 3, 3}), std::invalid_argument);
 }
 
 TEST(IncidentManagerTest, UT_VN12_OverlappingIncidentsKeepRoadBlockedUntilBothEnd) {
@@ -90,10 +87,7 @@ TEST(IncidentManagerTest, UT_VN13_RejectsActiveUnknownRoadWithoutPartialChanges)
     manager.schedule({"r1", 1, 3});
     manager.schedule({"missing", 1, 3});
 
-    EXPECT_THROW(
-        manager.advance(1, network),
-        std::invalid_argument
-    );
+    EXPECT_THROW(manager.advance(1, network), std::invalid_argument);
 
     EXPECT_TRUE(network.findRoad("r1")->enabled);
     EXPECT_FALSE(manager.isRoadBlocked("r1"));

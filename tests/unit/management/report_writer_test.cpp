@@ -14,10 +14,7 @@ TEST(ReportWriterTest, WritesCsvHeader) {
 
     ReportWriter::writeCsv(output, report);
 
-    EXPECT_NE(
-        output.str().find("metric,value"),
-        std::string::npos
-    );
+    EXPECT_NE(output.str().find("metric,value"), std::string::npos);
 }
 
 TEST(ReportWriterTest, WritesSimulationCounts) {
@@ -69,4 +66,4 @@ TEST(ReportWriterTest, WritesPerformanceAndIncidentMetrics) {
     EXPECT_NE(csv.find("active_incidents,3"), std::string::npos);
 }
 
-}  // namespace traffic
+} // namespace traffic

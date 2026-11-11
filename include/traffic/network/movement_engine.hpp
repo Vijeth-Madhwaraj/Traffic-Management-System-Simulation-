@@ -10,10 +10,10 @@
 namespace traffic {
 
 class MovementEngine {
-public:
+  public:
     // Ready-to-cross queues used by adaptive signal timing.
-    MovementQueueCounts readyMovementQueues(
-        Tick now, const RoadNetwork& network, const VehicleManager& vehicles) const;
+    MovementQueueCounts readyMovementQueues(Tick now, const RoadNetwork &network,
+                                            const VehicleManager &vehicles) const;
 
     // Entry-lane vehicles start on their first route road. At an intersection,
     // a crossing requires the matching `<incoming-road>-to-<outgoing-road>`
@@ -22,11 +22,12 @@ public:
     // Integration dependency (FR-06): use the exact MovementId values from
     // each intersection's SignalPhase plan. Check permits() immediately before
     // crossing; it denies unknown movements and all Yellow/Red states.
-    void requestEmergencyPriority(Tick now, const RoadNetwork& network,
-                                  SignalController& signals, const VehicleManager& vehicles) const;
-    void advance(Tick now, RoadNetwork& network, SignalController& signals, VehicleManager& vehicles);
+    void requestEmergencyPriority(Tick now, const RoadNetwork &network, SignalController &signals,
+                                  const VehicleManager &vehicles) const;
+    void advance(Tick now, RoadNetwork &network, SignalController &signals,
+                 VehicleManager &vehicles);
 
-private:
+  private:
     struct TransitState {
         RoadId road;
         std::string lane;
@@ -38,4 +39,4 @@ private:
     std::optional<Tick> lastAdvanced_;
 };
 
-}  // namespace traffic
+} // namespace traffic

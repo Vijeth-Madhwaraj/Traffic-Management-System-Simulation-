@@ -13,18 +13,17 @@ void IncidentManager::schedule(Incident incident) {
     }
 
     if (incident.startsAt >= incident.endsAt) {
-        throw std::invalid_argument(
-            "Incident startsAt must be strictly less than endsAt");
+        throw std::invalid_argument("Incident startsAt must be strictly less than endsAt");
     }
 
     incidents_.push_back(std::move(incident));
 }
 
-void IncidentManager::advance(Tick now, RoadNetwork& network) {
+void IncidentManager::advance(Tick now, RoadNetwork &network) {
     std::unordered_set<RoadId> desiredBlocked;
 
     // Determine which incidents should be active at this tick.
-    for (const auto& incident : incidents_) {
+    for (const auto &incident : incidents_) {
         if (incident.startsAt <= now && now < incident.endsAt) {
             desiredBlocked.insert(incident.roadId);
         }
@@ -33,17 +32,16 @@ void IncidentManager::advance(Tick now, RoadNetwork& network) {
     // Validate every active incident before modifying any road.
     // This prevents partial changes if an incident references
     // a road that does not exist in the network.
-    for (const auto& roadId : desiredBlocked) {
+    for (const auto &roadId : desiredBlocked) {
         if (network.findRoad(roadId) == nullptr) {
-            throw std::invalid_argument(
-                "Active incident references unknown road: " + roadId);
+            throw std::invalid_argument("Active incident references unknown road: " + roadId);
         }
     }
 
     // Restore roads whose incidents have expired.
-    for (const auto& roadId : currentlyBlockedRoads_) {
+    for (const auto &roadId : currentlyBlockedRoads_) {
         if (desiredBlocked.find(roadId) == desiredBlocked.end()) {
-            if (auto* road = network.findRoad(roadId)) {
+            if (auto *road = network.findRoad(roadId)) {
                 const auto original = originalRoadState_.find(roadId);
 
                 if (original != originalRoadState_.end()) {
@@ -56,11 +54,10 @@ void IncidentManager::advance(Tick now, RoadNetwork& network) {
     }
 
     // Block roads for newly active incidents.
-    for (const auto& roadId : desiredBlocked) {
-        auto* road = network.findRoad(roadId);
+    for (const auto &roadId : desiredBlocked) {
+        auto *road = network.findRoad(roadId);
 
-        if (currentlyBlockedRoads_.find(roadId) ==
-            currentlyBlockedRoads_.end()) {
+        if (currentlyBlockedRoads_.find(roadId) == currentlyBlockedRoads_.end()) {
             originalRoadState_.emplace(roadId, road->enabled);
             road->enabled = false;
         }
@@ -69,15 +66,12 @@ void IncidentManager::advance(Tick now, RoadNetwork& network) {
     currentlyBlockedRoads_ = std::move(desiredBlocked);
 }
 
-bool IncidentManager::isRoadBlocked(const RoadId& roadId) const noexcept {
-    return currentlyBlockedRoads_.find(roadId) !=
-           currentlyBlockedRoads_.end();
+bool IncidentManager::isRoadBlocked(const RoadId &roadId) const noexcept {
+    return currentlyBlockedRoads_.find(roadId) != currentlyBlockedRoads_.end();
 }
 
 std::vector<RoadId> IncidentManager::activeBlockedRoads() const {
-    std::vector<RoadId> result(
-        currentlyBlockedRoads_.begin(),
-        currentlyBlockedRoads_.end());
+    std::vector<RoadId> result(currentlyBlockedRoads_.begin(), currentlyBlockedRoads_.end());
 
     std::sort(result.begin(), result.end());
 
@@ -87,7 +81,7 @@ std::vector<RoadId> IncidentManager::activeBlockedRoads() const {
 std::size_t IncidentManager::activeIncidentCount(Tick now) const noexcept {
     std::size_t count = 0;
 
-    for (const auto& incident : incidents_) {
+    for (const auto &incident : incidents_) {
         if (incident.startsAt <= now && now < incident.endsAt) {
             ++count;
         }
@@ -105,9 +99,9 @@ void IncidentManager::clear() noexcept {
 }
 
 // Restore every affected road to its original enabled state.
-void IncidentManager::clear(RoadNetwork& network) {
-    for (const auto& [roadId, wasEnabled] : originalRoadState_) {
-        if (auto* road = network.findRoad(roadId)) {
+void IncidentManager::clear(RoadNetwork &network) {
+    for (const auto &[roadId, wasEnabled] : originalRoadState_) {
+        if (auto *road = network.findRoad(roadId)) {
             road->enabled = wasEnabled;
         }
     }
@@ -117,4 +111,4 @@ void IncidentManager::clear(RoadNetwork& network) {
     currentlyBlockedRoads_.clear();
 }
 
-}  // namespace traffic
+} // namespace traffic

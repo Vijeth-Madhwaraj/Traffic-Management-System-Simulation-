@@ -18,18 +18,18 @@ struct MetricsSnapshot {
 };
 
 class MetricsCollector {
-public:
+  public:
     void recordGenerated();
     void recordCompleted(Tick waitingTicks);
     void observeQueue(std::size_t queueLength);
     MetricsSnapshot snapshot(std::size_t unfinished, Tick measurementTicks = 0) const;
-    void writeCsv(std::ostream& output, std::size_t unfinished) const;
+    void writeCsv(std::ostream &output, std::size_t unfinished) const;
 
-private:
+  private:
     std::size_t generated_{};
     std::size_t completed_{};
     Tick totalWaitingTicks_{};
     std::size_t maximumQueueLength_{};
 };
 
-}  // namespace traffic
+} // namespace traffic

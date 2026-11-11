@@ -16,7 +16,7 @@ TEST(RoadNetworkTest, UT_VA01_RegistersConnectedIntersectionsAndExposesRoadPrope
     EXPECT_FALSE(network.hasIntersection("unknown"));
     ASSERT_TRUE(network.addRoad({"north-south", "north", "south", 8, 5, 0, true}));
 
-    const auto* road = network.findRoad("north-south");
+    const auto *road = network.findRoad("north-south");
     ASSERT_NE(road, nullptr);
     EXPECT_EQ(road->from, "north");
     EXPECT_EQ(road->to, "south");
@@ -47,7 +47,7 @@ TEST(RoadNetworkTest, UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNet
     EXPECT_FALSE(network.addRoad({"over-capacity", "north", "south", 1, 1, 2, true}));
     EXPECT_FALSE(network.addRoad({"north-south", "north", "south", 3, 4, 0, false}));
 
-    const auto* road = network.findRoad("north-south");
+    const auto *road = network.findRoad("north-south");
     ASSERT_NE(road, nullptr);
     EXPECT_EQ(road->capacity, 8U);
     EXPECT_EQ(road->travelTime, 5U);
@@ -58,7 +58,7 @@ TEST(RoadNetworkTest, UT_VA11_RejectsInvalidOrUnconnectedRoadsWithoutChangingNet
 
 TEST(RoadNetworkTest, UT_VA02_ReturnsConnectedRouteWithMinimumTravelTime) {
     RoadNetwork network;
-    for (const auto& intersection : {"A", "B", "C", "D"})
+    for (const auto &intersection : {"A", "B", "C", "D"})
         ASSERT_TRUE(network.addIntersection(intersection));
     ASSERT_TRUE(network.addRoad({"AB", "A", "B", 4, 4, 0, true}));
     ASSERT_TRUE(network.addRoad({"BD", "B", "D", 4, 4, 0, true}));
@@ -84,7 +84,7 @@ TEST(RoadNetworkTest, UT_VA03_ReturnsEmptyForUnknownOrUnreachableDestinations) {
 
 TEST(RoadNetworkTest, UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies) {
     RoadNetwork network;
-    for (const auto& intersection : {"A", "B", "C", "D"})
+    for (const auto &intersection : {"A", "B", "C", "D"})
         ASSERT_TRUE(network.addIntersection(intersection));
     ASSERT_TRUE(network.addRoad({"AA", "A", "B", 2, 1, 0, false}));
     ASSERT_TRUE(network.addRoad({"AB", "A", "B", 2, 2, 0, true}));
@@ -98,5 +98,5 @@ TEST(RoadNetworkTest, UT_VA04_ExcludesDisabledRoadsAndKeepsDeterministicTies) {
     EXPECT_TRUE(network.shortestRoute("D", "A").empty());
 }
 
-}  // namespace
-}  // namespace traffic
+} // namespace
+} // namespace traffic

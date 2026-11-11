@@ -32,27 +32,15 @@ TEST(CongestionDetectorTest, UT_VN02_DetectsQueueAndHonorsAbsoluteThreshold) {
 TEST(CongestionDetectorTest, UT_VN03_RejectsInvalidThresholdUpdate) {
     CongestionDetector detector;
 
-    EXPECT_THROW(
-        detector.setThresholds({1.1, 0.8, 0}),
-        std::invalid_argument
-    );
+    EXPECT_THROW(detector.setThresholds({1.1, 0.8, 0}), std::invalid_argument);
 }
 
 TEST(CongestionDetectorTest, UT_VN11_RejectsInvalidConstructorThresholds) {
-    EXPECT_THROW(
-        CongestionDetector(CongestionThresholds{1.1, 0.8, 0}),
-        std::invalid_argument
-    );
+    EXPECT_THROW(CongestionDetector(CongestionThresholds{1.1, 0.8, 0}), std::invalid_argument);
+
+    EXPECT_THROW(CongestionDetector(CongestionThresholds{0.8, -0.1, 0}), std::invalid_argument);
 
     EXPECT_THROW(
-        CongestionDetector(CongestionThresholds{0.8, -0.1, 0}),
-        std::invalid_argument
-    );
-
-    EXPECT_THROW(
-        CongestionDetector(CongestionThresholds{
-            0.8, std::numeric_limits<double>::infinity(), 0
-        }),
-        std::invalid_argument
-    );
+        CongestionDetector(CongestionThresholds{0.8, std::numeric_limits<double>::infinity(), 0}),
+        std::invalid_argument);
 }

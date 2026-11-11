@@ -10,7 +10,7 @@ namespace traffic {
 namespace {
 
 class MovementEngineTest : public ::testing::Test {
-protected:
+  protected:
     RoadNetwork network;
     SignalController signals;
     VehicleManager vehicles{42};
@@ -28,12 +28,12 @@ protected:
         configureSignal("AB-to-BC", 10);
     }
 
-    void configureSignal(const MovementId& movement, Tick greenDuration) {
+    void configureSignal(const MovementId &movement, Tick greenDuration) {
         signals.configure("B", {{{movement}, greenDuration, 2, 1}}, {});
     }
 
     VehicleId enqueueRoute(std::vector<RoadId> route = {"AB", "BC"},
-                          const IntersectionId& destination = "C") {
+                           const IntersectionId &destination = "C") {
         Vehicle vehicle;
         vehicle.source = "A";
         vehicle.destination = destination;
@@ -70,12 +70,12 @@ TEST_F(MovementEngineTest, UT_VA06_YellowOrUnlistedMovementKeepsVehicleOnItsRout
     configureSignal("different-movement", 1);
 
     advance(0);
-    advance(1);  // Green expires; Yellow cannot permit a crossing.
-    advance(2);  // The vehicle continues waiting during Yellow.
-    advance(3);  // Red also denies the crossing.
+    advance(1); // Green expires; Yellow cannot permit a crossing.
+    advance(2); // The vehicle continues waiting during Yellow.
+    advance(3); // Red also denies the crossing.
 
     configureSignal("different-movement", 10);
-    advance(4);  // A Green phase without this movement still denies it.
+    advance(4); // A Green phase without this movement still denies it.
 
     ASSERT_NE(vehicles.find(id), nullptr);
     EXPECT_EQ(vehicles.find(id)->state, VehicleState::InTransit);
@@ -174,9 +174,11 @@ TEST_F(MovementEngineTest, UT_VA10_NFR02_IsDeterministicAndCallableWithoutSimula
         for (Tick tick = 0; tick < 3; ++tick) {
             signals.advance(tick);
             engine.advance(tick, network, signals, vehicles);
-            if (tick == 0) engine.advance(tick, network, signals, vehicles);
+            if (tick == 0)
+                engine.advance(tick, network, signals, vehicles);
             states.emplace_back(vehicles.find(id)->state, vehicles.find(id)->routeIndex,
-                                network.findRoad("AB")->occupancy, network.findRoad("BC")->occupancy);
+                                network.findRoad("AB")->occupancy,
+                                network.findRoad("BC")->occupancy);
         }
         return states;
     };
@@ -217,5 +219,5 @@ TEST_F(MovementEngineTest, TC_07_ReadyQueueExtendsTheNextGreenWithoutSkippingCle
     EXPECT_FALSE(adaptiveSignals.permits("B", "unconfigured-movement"));
 }
 
-}  // namespace
-}  // namespace traffic
+} // namespace
+} // namespace traffic

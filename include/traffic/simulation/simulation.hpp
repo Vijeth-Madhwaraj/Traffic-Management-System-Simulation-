@@ -29,32 +29,28 @@ struct InputSummary {
 };
 
 class Simulation {
-public:
+  public:
     explicit Simulation(SimulationConfig config);
 
-    void configureScenario(const Scenario& scenario);
+    void configureScenario(const Scenario &scenario);
     void setRouteProvider(RouteProvider provider);
 
-    bool requestPriority(const IntersectionId& intersection, const MovementId& movement);
+    bool requestPriority(const IntersectionId &intersection, const MovementId &movement);
     AdmissionBatch step();
     void run();
     void reset();
 
     InputSummary inputSummary() const noexcept;
 
-    const VehicleManager& vehicles() const noexcept;
+    const VehicleManager &vehicles() const noexcept;
 
     Tick currentTick() const noexcept;
 
-    std::vector<std::pair<IntersectionId, SignalStatus>>
-    signalSnapshots(Tick tick) const;
+    std::vector<std::pair<IntersectionId, SignalStatus>> signalSnapshots(Tick tick) const;
 
-    void configureSignals(
-        const IntersectionId& intersection,
-        std::vector<SignalPhase> phases,
-        const std::vector<MovementConflict>& conflicts,
-        std::optional<AdaptiveSignalPolicy> adaptivePolicy = std::nullopt
-    );
+    void configureSignals(const IntersectionId &intersection, std::vector<SignalPhase> phases,
+                          const std::vector<MovementConflict> &conflicts,
+                          std::optional<AdaptiveSignalPolicy> adaptivePolicy = std::nullopt);
 
     // FR-16: Performance metrics.
     MetricsSnapshot metricsSnapshot() const noexcept;
@@ -62,7 +58,7 @@ public:
     // FR-17: Report generation.
     SimulationReport createReport() const noexcept;
 
-private:
+  private:
     void respondToTraffic();
     SimulationConfig config_;
 
@@ -98,4 +94,4 @@ private:
     std::unordered_set<VehicleId> recordedCompletions_;
 };
 
-}  // namespace traffic
+} // namespace traffic

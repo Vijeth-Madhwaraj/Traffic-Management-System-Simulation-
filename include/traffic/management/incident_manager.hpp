@@ -18,15 +18,15 @@ struct Incident {
 };
 
 class IncidentManager {
-public:
+  public:
     // Schedule an incident that blocks a road during a time interval.
     void schedule(Incident incident);
 
     // Activate or clear road blockages for the current simulation tick.
-    void advance(Tick now, RoadNetwork& network);
+    void advance(Tick now, RoadNetwork &network);
 
     // Query currently active road blockages.
-    bool isRoadBlocked(const RoadId& roadId) const noexcept;
+    bool isRoadBlocked(const RoadId &roadId) const noexcept;
 
     std::vector<RoadId> activeBlockedRoads() const;
 
@@ -34,17 +34,15 @@ public:
     std::size_t activeIncidentCount(Tick now) const noexcept;
 
     // Read scheduled incidents.
-    const std::vector<Incident>& incidents() const noexcept {
-        return incidents_;
-    }
+    const std::vector<Incident> &incidents() const noexcept { return incidents_; }
 
     // Clear incident state without accessing a road network.
     void clear() noexcept;
 
     // Restore affected roads and clear all scheduled and active incidents.
-    void clear(RoadNetwork& network);
+    void clear(RoadNetwork &network);
 
-private:
+  private:
     std::vector<Incident> incidents_;
 
     // Preserve each road's original enabled state for restoration.
@@ -54,4 +52,4 @@ private:
     std::unordered_set<RoadId> currentlyBlockedRoads_;
 };
 
-}  // namespace traffic
+} // namespace traffic

@@ -27,11 +27,8 @@ struct SimulationReport {
 };
 
 class ReportWriter {
-public:
-    static void writeCsv(
-        std::ostream& output,
-        const SimulationReport& report
-    );
+  public:
+    static void writeCsv(std::ostream &output, const SimulationReport &report);
 };
 
-}  // namespace traffic
+} // namespace traffic
