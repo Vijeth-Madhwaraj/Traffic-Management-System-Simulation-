@@ -1,4 +1,4 @@
-# Starter architecture
+# Simulation architecture
 
 ## Boundaries
 
@@ -7,7 +7,7 @@
 - `RoadNetwork` owns road data and provides enabled-edge routing weighted by travel time.
 - `SignalController` owns per-intersection phases and safety decisions.
 - `MovementEngine` coordinates vehicles, signals, and road capacity.
-- `IncidentManager` schedules road restrictions and later requests management responses.
+- `IncidentManager` schedules road restrictions; `Simulation` invokes the management response.
 - `MetricsCollector` records counters and exports a summary.
 - `main` is the console entry point; parsing and user interaction should stay outside domain modules.
 
@@ -45,11 +45,12 @@
 - `lane(id)` exposes front/pop for movement integration. Reacquire lane/vehicle pointers
   after `advanceArrivals`, reset, or reconfiguration; those operations may replace storage.
   After removing an ID, the movement owner updates its registry state and road occupancy.
-- `Simulation::step()` applies incidents, generates/admit arrivals, measures congestion,
-  counts ready-to-cross vehicles by signal movement, advances signals with those queues, calls
-  movement, records newly completed vehicles and observes queues, then increments the tick.
-  Reports include completed/unfinished counts, average waiting ticks and maximum queue length;
-  travel-time metrics remain separate work.
+- `Simulation::step()` applies incidents, generates/admit arrivals, evaluates congestion,
+  responds by suffix rerouting, counts ready movement queues, requests priority and advances
+  signals. It samples queues before movement, advances movement, counts end-of-tick waiting,
+  records completions, samples final queues/congestion, then increments the tick.
+  Reports include completed/unfinished counts, completed-only average wait, peak individual
+  queue and throughput per processed tick. Travel-time metrics are not required by FR-16.
 - `run()` continues from the current tick; repeated calls at completion do nothing. `reset()`
   reloads the original scenario and restores seeded input state while retaining an injected
   route provider. Loading another scenario clears an injected provider.
@@ -60,7 +61,7 @@
 Scenario grammar, bounds, and examples are in [`../config/README.md`](../config/README.md).
 Signal movement IDs and complete conflict tables remain the intersection owner's contract;
 FR-07 adaptive timing uses the optional scenario policy and does not change phase movements or
-clearance intervals. Safe emergency-priority behavior remains separate work.
+clearance intervals. Safe emergency priority uses FIFO configured-phase requests and full clearance.
 
 ## Signal module integration contract (FR-05 / FR-06 / FR-07)
 
@@ -70,7 +71,7 @@ clearance intervals. Safe emergency-priority behavior remains separate work.
 - When an `adaptive` policy is configured, a Green phase extends by its adjustment step when its permitted movements' ready queue reaches the configured threshold, and shortens by one step when that queue is empty. Each phase's green duration remains within the configured minimum and maximum. Yellow and all-red durations and the phase's permitted movements do not change.
 - `MovementEngine` must call `permits(intersection, movement)` immediately before crossing. Only movements in the current Green phase are allowed; Yellow and Red deny movement.
 - A phase cannot contain both sides of any declared conflict pair. The controller validates the supplied table; the intersection owner is responsible for making that table complete and correct.
-- Emergency priority is separate work (FR-08). Its owner must request safe priority through the signal module and must not bypass phase or conflict checks.
+- FR-08 requests choose a configured target phase after the current green, full yellow and all-red. Requests are FIFO and deduplicated; normal cycling resumes when pending requests drain. `MovementEngine::requestEmergencyPriority` requests only ready emergency movements; downstream checks remain mandatory.
 
 ## Movement contract (FR-10 / NFR-02)
 
@@ -92,3 +93,20 @@ FR-11 downstream lane occupancy is tracked by `MovementEngine` separately from a
 ## First integration milestone
 
 Use a fixed seed and schedule: create one vehicle, enqueue it, permit its movement under a green phase, traverse a connected route, mark it complete, and increment throughput. Keep each step callable without running the full simulation so module behavior remains testable.
+
+## Management and metric definitions
+
+`Simulation::respondToTraffic` preserves the source entry road for waiting vehicles and
+preserves the current road/index for vehicles in transit. Blocked or congested remaining
+segments trigger a new enabled suffix. Congestion exclusions fall back to an enabled path
+when no uncongested alternative exists; no enabled alternative means safe waiting.
+Source routing uses an entry-aware callback; the existing two-endpoint injected provider
+remains supported and invalid provider output retains its isolated failure semantics.
+
+At each processed tick, every vehicle still Waiting (queue or deferred) accrues one tick.
+MovementEngine counts ready-to-cross in-transit waits. Completed-only average waiting,
+completed/unfinished totals, peak individual queue and completed-per-processed-tick
+throughput are reported. Queue peaks are sampled before and after movement; final
+congestion is recomputed after movement. Reports include the seed and close errors are
+checked before success is printed. `reset` replaces every mutable subsystem, including
+lane occupancy, priority queues, incidents, counters, RNG and clock.

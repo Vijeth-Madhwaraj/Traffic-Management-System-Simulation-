@@ -3,12 +3,12 @@
 #include "traffic/types.hpp"
 #include "traffic/vehicle/lane_queue.hpp"
 
-#include <optional>
 #include <functional>
 #include <map>
+#include <optional>
 #include <random>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace traffic {
 
@@ -23,7 +23,7 @@ struct ArrivalStream {
     std::string id;
     std::string lane;
     Tick firstTick{};
-    Tick endTick{}; // exclusive
+    Tick endTick{};       // exclusive
     double probability{}; // one probability decision per active tick
     Vehicle vehicle;
     std::size_t vehiclesPerArrival{1}; // vehicles created when that decision succeeds
@@ -48,7 +48,8 @@ struct EntryLaneSnapshot {
     std::vector<VehicleId> pending;
 };
 
-using RouteProvider = std::function<std::vector<RoadId>(const IntersectionId&, const IntersectionId&)>;
+using RouteProvider =
+    std::function<std::vector<RoadId>(const IntersectionId &, const IntersectionId &)>;
 
 struct AdmissionBatch {
     std::vector<VehicleId> generated;
@@ -57,16 +58,19 @@ struct AdmissionBatch {
 };
 
 class VehicleManager {
-public:
+  public:
     explicit VehicleManager(std::uint64_t seed);
     void configureTopology(std::vector<IntersectionId> intersections, std::vector<Road> roads);
-    void validateVehicle(const Vehicle& vehicle) const;
+    void validateVehicle(const Vehicle &vehicle) const;
     void configureLanes(std::vector<EntryLane> lanes);
     // Invalid provider routes reject only that vehicle; thrown provider errors roll back the tick.
-    AdmissionBatch advanceArrivals(Tick now, const RouteProvider& routes);
+    AdmissionBatch
+    advanceArrivals(Tick now, const RouteProvider &routes,
+                    const std::function<std::vector<RoadId>(const EntryLane &, const Vehicle &)>
+                        &entryRoutes = {});
     std::vector<EntryLane> entryLanes() const;
-    LaneQueue* lane(const std::string& id) noexcept;
-    const LaneQueue* lane(const std::string& id) const noexcept;
+    LaneQueue *lane(const std::string &id) noexcept;
+    const LaneQueue *lane(const std::string &id) const noexcept;
     // Independent value snapshots, sorted by lane ID; reading does not advance traffic.
     std::vector<EntryLaneSnapshot> laneSnapshots() const;
     std::size_t pendingCount() const noexcept;
@@ -77,18 +81,18 @@ public:
     std::uint64_t seed() const noexcept;
     std::vector<GeneratedArrival> generate(Tick now);
     VehicleId addVehicle(Vehicle vehicle);
-    const Vehicle* find(VehicleId id) const noexcept;
-    Vehicle* find(VehicleId id) noexcept;
+    const Vehicle *find(VehicleId id) const noexcept;
+    Vehicle *find(VehicleId id) noexcept;
     std::vector<Vehicle> vehicleSnapshots() const;
     std::size_t size() const noexcept;
 
-private:
+  private:
     struct LaneState {
         EntryLane spec;
         LaneQueue queue;
         std::deque<VehicleId> pending;
     };
-    void validateEntry(const Vehicle& vehicle, const std::string& lane) const;
+    void validateEntry(const Vehicle &vehicle, const std::string &lane) const;
     std::map<std::string, LaneState> lanes_;
     std::optional<Tick> lastAdmission_;
     std::unordered_set<IntersectionId> intersections_;
@@ -103,4 +107,4 @@ private:
     std::unordered_map<VehicleId, Vehicle> vehicles_;
 };
 
-}  // namespace traffic
+} // namespace traffic

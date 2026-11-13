@@ -40,6 +40,13 @@ jobs:
         run: cmake --build build --parallel 2
       - name: Run unit, integration, and CLI tests
         run: ctest --test-dir build --output-on-failure
+      - name: Run measured system acceptance
+        run: python3 scripts/validate.py --executable build/traffic_sim --output-dir build/system-reports
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: system-validation
+          path: build/system-reports/
 
   static-analysis:
     name: Clang static analysis (Linux)
@@ -47,15 +54,47 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Check pinned C++ formatting
+        run: |
+          python3 -m venv .format-env
+          .format-env/bin/pip install clang-format==18.1.8
+          python3 scripts/format.py --formatter .format-env/bin/clang-format
       - name: Configure Clang analyzer
         run: cmake -S . -B build-analysis -DBUILD_TESTING=OFF -DTRAFFIC_ENABLE_ANALYZER=ON -DCMAKE_CXX_COMPILER=g++
       - name: Analyze project sources and fail on warnings
         run: cmake --build build-analysis --parallel 2
 
+  coverage:
+    name: Code and branch coverage (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Measure project coverage
+        run: python3 scripts/coverage.py --output-dir build/reports
+      - name: Verify requirement source and executed tests
+        run: python3 scripts/check_traceability.py --junit build/reports/tests.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-and-test-reports
+          path: build/reports/
+
+  container:
+    name: Container smoke test (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build runtime image
+        run: docker build -t traffic-sim:ci .
+      - name: Run acceptance scenario as non-root
+        run: docker run --rm traffic-sim:ci --scenario config/acceptance_scenario.txt
+
   checks:
     # Preserve the status name required by the repository's branch protection.
     name: Basic CI Check
-    needs: [signal-tests, linux-tests, static-analysis]
+    needs: [signal-tests, linux-tests, static-analysis, coverage, container]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -64,8 +103,12 @@ jobs:
         env:
           WINDOWS_RESULT: ${{ needs.signal-tests.result }}
           LINUX_RESULT: ${{ needs.linux-tests.result }}
+          COVERAGE_RESULT: ${{ needs.coverage.result }}
+          CONTAINER_RESULT: ${{ needs.container.result }}
           ANALYSIS_RESULT: ${{ needs.static-analysis.result }}
         run: |
           test "$WINDOWS_RESULT" = success
           test "$LINUX_RESULT" = success
           test "$ANALYSIS_RESULT" = success
+          test "$COVERAGE_RESULT" = success
+          test "$CONTAINER_RESULT" = success

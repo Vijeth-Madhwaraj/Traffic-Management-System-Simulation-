@@ -12,3 +12,7 @@
 *.log
 *.user
 *.swp
+
+__pycache__/
+!docs/reports/**/*.csv
+!docs/reports/*.csv

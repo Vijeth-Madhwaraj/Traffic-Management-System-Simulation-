@@ -11,6 +11,7 @@ namespace traffic {
 
 struct SimulationReport {
     Tick finalTick{};
+    std::uint64_t seed{};
 
     std::size_t generated{};
     std::size_t admitted{};
@@ -26,11 +27,8 @@ struct SimulationReport {
 };
 
 class ReportWriter {
-public:
-    static void writeCsv(
-        std::ostream& output,
-        const SimulationReport& report
-    );
+  public:
+    static void writeCsv(std::ostream &output, const SimulationReport &report);
 };
 
-}  // namespace traffic
+} // namespace traffic

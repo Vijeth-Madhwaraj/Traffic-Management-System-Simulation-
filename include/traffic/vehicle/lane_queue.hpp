@@ -10,7 +10,7 @@
 namespace traffic {
 
 class LaneQueue {
-public:
+  public:
     explicit LaneQueue(std::size_t capacity);
     // Reject zero IDs, IDs already in this queue, and arrivals beyond capacity.
     bool enqueue(VehicleId vehicleId);
@@ -23,9 +23,9 @@ public:
     std::size_t size() const noexcept;
     std::size_t capacity() const noexcept;
 
-private:
+  private:
     std::size_t capacity_;
     std::deque<VehicleId> vehicles_;
 };
 
-}  // namespace traffic
+} // namespace traffic

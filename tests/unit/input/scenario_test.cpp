@@ -6,22 +6,22 @@
 
 namespace traffic {
 namespace {
-const std::string base =
-    "scenario 1\nseed 42\nduration 5\n"
-    "intersection A\nintersection B\nintersection C\n"
-    "road AB A B 2 1\nroad BC B C 2 1\nlane entry AB 1\n";
+const std::string base = "scenario 1\nseed 42\nduration 5\n"
+                         "intersection A\nintersection B\nintersection C\n"
+                         "road AB A B 2 1\nroad BC B C 2 1\nlane entry AB 1\n";
 
-Scenario parse(const std::string& text) {
+Scenario parse(const std::string &text) {
     std::istringstream input(text);
     return ScenarioLoader::load(input);
 }
 
 TEST(ScenarioTest, TC_01_LoadsForwardReferencesClassesRoutesAndSignals) {
-    const auto scenario = parse("# comment\nscenario 1\narrival 0 entry C emergency AB BC\n"
-        "stream random entry C standard 1 5 0.5 -\n"
-        "phase B 3 1 1 straight\n"
-        "seed 42\nduration 5\nintersection A\nintersection B\nintersection C\n"
-        "road AB A B 2 1\nroad BC B C 2 1\nlane entry AB 1\n");
+    const auto scenario =
+        parse("# comment\nscenario 1\narrival 0 entry C emergency AB BC\n"
+              "stream random entry C standard 1 5 0.5 -\n"
+              "phase B 3 1 1 AB-to-BC\n"
+              "seed 42\nduration 5\nintersection A\nintersection B\nintersection C\n"
+              "road AB A B 2 1\nroad BC B C 2 1\nlane entry AB 1\n");
     EXPECT_EQ(scenario.config.seed, 42U);
     ASSERT_EQ(scenario.arrivals.size(), 1U);
     EXPECT_EQ(scenario.arrivals[0].vehicle.source, "A");
@@ -35,9 +35,9 @@ TEST(ScenarioTest, TC_01_LoadsForwardReferencesClassesRoutesAndSignals) {
 }
 
 TEST(ScenarioTest, UT_A07_RejectsNegativeOverflowZeroAndMalformedNumbers) {
-    for (const auto& value : {"-1", "0", "18446744073709551616", "2x", "1.5"}) {
+    for (const auto &value : {"-1", "0", "18446744073709551616", "2x", "1.5"}) {
         const auto text = "scenario 1\nseed 1\nduration " + std::string(value) +
-            "\nintersection A\nintersection B\nroad AB A B 1 1\nlane entry AB 1\n";
+                          "\nintersection A\nintersection B\nroad AB A B 1 1\nlane entry AB 1\n";
         EXPECT_THROW(parse(text), std::invalid_argument) << value;
     }
     EXPECT_THROW(parse(base + "road bad A B -1 1\n"), std::invalid_argument);
@@ -46,16 +46,27 @@ TEST(ScenarioTest, UT_A07_RejectsNegativeOverflowZeroAndMalformedNumbers) {
 }
 
 TEST(ScenarioTest, RejectsBadRecordsUnknownReferencesAndDuplicates) {
-    for (const auto& tail : {
-        "unknown value\n", "seed 2\n", "duration 2\n", "intersection A\n",
-        "road AB A B 2 1\n", "road bad A missing 2 1\n", "lane entry AB 1\n",
-        "lane bad missing 1\n", "lane too-large AB 3\n", "arrival 0 missing C standard -\n",
-        "arrival 0 entry missing standard -\n", "arrival 0 entry C flying -\n",
-        "arrival 0 entry C standard BC\n", "arrival 5 entry C standard -\n",
-        "arrival 0 entry C standard - AB\n", "stream x entry C standard 0 6 0.5 -\n",
-        "stream x entry C standard 0 2 nan -\n", "stream x entry C standard 0 2 1.1 -\n",
-        "phase missing 3 1 1 go\n", "phase B 0 1 1 go\n",
-        "phase B 3 1 1 one two\nconflict B one two\n"}) {
+    for (const auto &tail : {"unknown value\n",
+                             "seed 2\n",
+                             "duration 2\n",
+                             "intersection A\n",
+                             "road AB A B 2 1\n",
+                             "road bad A missing 2 1\n",
+                             "lane entry AB 1\n",
+                             "lane bad missing 1\n",
+                             "lane too-large AB 3\n",
+                             "arrival 0 missing C standard -\n",
+                             "arrival 0 entry missing standard -\n",
+                             "arrival 0 entry C flying -\n",
+                             "arrival 0 entry C standard BC\n",
+                             "arrival 5 entry C standard -\n",
+                             "arrival 0 entry C standard - AB\n",
+                             "stream x entry C standard 0 6 0.5 -\n",
+                             "stream x entry C standard 0 2 nan -\n",
+                             "stream x entry C standard 0 2 1.1 -\n",
+                             "phase missing 3 1 1 go\n",
+                             "phase B 0 1 1 go\n",
+                             "phase B 3 1 1 one two\nconflict B one two\n"}) {
         EXPECT_THROW(parse(base + tail), std::invalid_argument) << tail;
     }
     EXPECT_THROW(parse("scenario 2\n"), std::invalid_argument);
@@ -68,7 +79,9 @@ TEST(ScenarioTest, BoundsInputAndPotentialVehicleCounts) {
     EXPECT_THROW(parse(base + std::string(1024 * 1024, '\n')), std::invalid_argument);
     auto scenario = parse(base);
     scenario.config.duration = 100000;
-    Vehicle v; v.source = "A"; v.destination = "C";
+    Vehicle v;
+    v.source = "A";
+    v.destination = "C";
     scenario.streams = {{"one", "entry", 0, 100000, 1, v}, {"two", "entry", 0, 1, 1, v}};
     EXPECT_THROW(ScenarioLoader::validate(scenario), std::invalid_argument);
 }
@@ -78,7 +91,7 @@ TEST(ScenarioTest, FailedLoadLeavesPreviouslyLoadedValueUnchanged) {
     try {
         scenario = parse(base + "lane bad missing 1\n");
         FAIL() << "Invalid scenario was accepted";
-    } catch (const std::invalid_argument&) {
+    } catch (const std::invalid_argument &) {
         EXPECT_EQ(scenario.config.seed, 42U);
         ASSERT_EQ(scenario.lanes.size(), 1U);
         EXPECT_EQ(scenario.lanes[0].id, "entry");
@@ -90,18 +103,19 @@ TEST(ScenarioTest, FailedLoadLeavesPreviouslyLoadedValueUnchanged) {
 }
 TEST(ScenarioTest, FR02_LoadsBatchSettingsWithForwardReferencesAndDefaultCompatibility) {
     const auto scenario = parse(base + "batch traffic 3\n"
-        "stream traffic entry C standard 0 5 1 AB BC\n"
-        "stream single entry C standard 0 5 1 AB BC\n");
+                                       "stream traffic entry C standard 0 5 1 AB BC\n"
+                                       "stream single entry C standard 0 5 1 AB BC\n");
     ASSERT_EQ(scenario.streams.size(), 2U);
     EXPECT_EQ(scenario.streams[0].vehiclesPerArrival, 3U);
     EXPECT_EQ(scenario.streams[1].vehiclesPerArrival, 1U);
 }
 TEST(ScenarioTest, FR02_RejectsInvalidDuplicateAndUnknownBatchSettings) {
     const std::string stream = "stream traffic entry C standard 0 5 1 AB BC\n";
-    for (const auto& count : {"0", "-1", "1001", "18446744073709551616", "1.5"}) {
+    for (const auto &count : {"0", "-1", "1001", "18446744073709551616", "1.5"}) {
         EXPECT_THROW(parse(base + stream + "batch traffic " + count + "\n"), std::invalid_argument);
     }
-    EXPECT_THROW(parse(base + stream + "batch traffic 2\nbatch traffic 3\n"), std::invalid_argument);
+    EXPECT_THROW(parse(base + stream + "batch traffic 2\nbatch traffic 3\n"),
+                 std::invalid_argument);
     EXPECT_THROW(parse(base + "batch missing 2\n"), std::invalid_argument);
 }
 TEST(ScenarioTest, FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying) {
@@ -121,7 +135,7 @@ TEST(ScenarioTest, FR02_CountsBatchVehiclesAgainstScenarioLimitBeforeMultiplying
 
 TEST(ScenarioTest, TC_07_LoadsAdaptiveSignalPolicy) {
     const auto scenario = parse(base + "adaptive B 2 5 3 1\n"
-        "phase B 3 1 1 AB-to-BC\n");
+                                       "phase B 3 1 1 AB-to-BC\n");
     ASSERT_EQ(scenario.signals.size(), 1U);
     ASSERT_TRUE(scenario.signals[0].adaptivePolicy.has_value());
     EXPECT_EQ(scenario.signals[0].adaptivePolicy->minimumGreenDuration, 2U);
@@ -132,13 +146,19 @@ TEST(ScenarioTest, TC_07_LoadsAdaptiveSignalPolicy) {
 
 TEST(ScenarioTest, TC_07_RejectsInvalidOrDuplicateAdaptiveSignalPolicies) {
     const std::string phase = "phase B 2 1 1 AB-to-BC\n";
-    for (const auto& policy : {"adaptive B 0 4 2 1\n", "adaptive B 1 4 0 1\n",
-                               "adaptive B 1 4 2 0\n", "adaptive B 3 2 2 1\n",
-                               "adaptive B 3 4 2 1\n", "adaptive B 1 1 2 1\n"}) {
+    for (const auto &policy :
+         {"adaptive B 0 4 2 1\n", "adaptive B 1 4 0 1\n", "adaptive B 1 4 2 0\n",
+          "adaptive B 3 2 2 1\n", "adaptive B 3 4 2 1\n", "adaptive B 1 1 2 1\n"}) {
         EXPECT_THROW(parse(base + phase + policy), std::invalid_argument) << policy;
     }
     EXPECT_THROW(parse(base + phase + "adaptive B 1 4 2 1\nadaptive B 1 5 2 1\n"),
                  std::invalid_argument);
 }
-}  // namespace
-}  // namespace traffic
+TEST(ScenarioTest, RejectsNonexistentOrWrongIntersectionMovements) {
+    EXPECT_THROW(parse(base + "phase B 2 1 1 nonexistent\n"), std::invalid_argument);
+    EXPECT_THROW(parse(base + "phase A 2 1 1 AB-to-BC\n"), std::invalid_argument);
+    EXPECT_NO_THROW(parse(base + "phase B 2 1 1 AB-to-BC\n"));
+}
+
+} // namespace
+} // namespace traffic

@@ -65,14 +65,8 @@ TEST(MetricsCollectorTest, WritesCsvOutput) {
     std::ostringstream output;
     metrics.writeCsv(output, 1);
 
-    EXPECT_NE(
-        output.str().find("generated,completed,unfinished"),
-        std::string::npos
-    );
-    EXPECT_NE(
-        output.str().find("1,0,1"),
-        std::string::npos
-    );
+    EXPECT_NE(output.str().find("generated,completed,unfinished"), std::string::npos);
+    EXPECT_NE(output.str().find("1,0,1"), std::string::npos);
 }
 
-}  // namespace traffic
+} // namespace traffic

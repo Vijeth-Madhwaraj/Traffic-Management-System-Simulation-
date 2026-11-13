@@ -69,6 +69,17 @@ if(TRAFFIC_ENABLE_ANALYZER)
     endforeach()
 endif()
 
+option(TRAFFIC_ENABLE_COVERAGE "Instrument project code with GCC gcov coverage" OFF)
+if(TRAFFIC_ENABLE_COVERAGE)
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message(FATAL_ERROR "Coverage reporting requires matching GCC and gcov versions")
+    endif()
+    foreach(target traffic_core traffic_sim)
+        target_compile_options(${target} PRIVATE --coverage -O0 -g)
+    endforeach()
+    target_link_options(traffic_core INTERFACE --coverage)
+endif()
+
 include(CTest)
 
 if(BUILD_TESTING)
@@ -192,4 +203,16 @@ if(BUILD_TESTING)
 
     add_test(NAME cli_bad_arguments COMMAND traffic_sim --unknown)
     set_tests_properties(cli_bad_arguments PROPERTIES WILL_FAIL TRUE)
+    add_test(NAME cli_report_open_failure COMMAND ${CMAKE_COMMAND}
+        -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+        -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+        -DREPORT_PATH=${CMAKE_CURRENT_BINARY_DIR}/missing-directory/report.csv
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/report_failure_test.cmake)
+    if(UNIX AND EXISTS "/dev/full")
+        add_test(NAME cli_report_write_failure COMMAND ${CMAKE_COMMAND}
+            -DTRAFFIC_SIM=$<TARGET_FILE:traffic_sim>
+            -DSCENARIO=${CMAKE_CURRENT_SOURCE_DIR}/config/demo_scenario.txt
+            -DREPORT_PATH=/dev/full
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli/report_failure_test.cmake)
+    endif()
 endif()

@@ -1,60 +1,50 @@
 
 #include "traffic/simulation/simulation.hpp"
 
+#include <algorithm>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
 namespace traffic {
 
-Simulation::Simulation(SimulationConfig config)
-    : config_(config), vehicles_(config.seed) {}
+Simulation::Simulation(SimulationConfig config) : config_(config), vehicles_(config.seed) {}
 
-void Simulation::configureScenario(const Scenario& scenario) {
+void Simulation::configureScenario(const Scenario &scenario) {
     ScenarioLoader::validate(scenario);
 
     Simulation replacement(scenario.config);
 
     // Configure vehicle topology and arrival schedules.
-    replacement.vehicles_.configureTopology(
-        scenario.intersections,
-        scenario.roads
-    );
+    replacement.vehicles_.configureTopology(scenario.intersections, scenario.roads);
 
     replacement.vehicles_.configureLanes(scenario.lanes);
     replacement.vehicles_.setSchedule(scenario.arrivals);
     replacement.vehicles_.setStreams(scenario.streams);
 
     // Add intersections to the road network.
-    for (const auto& intersection : scenario.intersections) {
+    for (const auto &intersection : scenario.intersections) {
         if (!replacement.network_.addIntersection(intersection)) {
-            throw std::invalid_argument(
-                "Invalid scenario intersection"
-            );
+            throw std::invalid_argument("Invalid scenario intersection");
         }
     }
 
     // Add roads to the road network.
-    for (const auto& road : scenario.roads) {
+    for (const auto &road : scenario.roads) {
         if (!replacement.network_.addRoad(road)) {
-            throw std::invalid_argument(
-                "Invalid scenario road"
-            );
+            throw std::invalid_argument("Invalid scenario road");
         }
     }
 
     // FR-14: Register scheduled incidents.
-    for (const auto& incident : scenario.incidents) {
+    for (const auto &incident : scenario.incidents) {
         replacement.incidents_.schedule(incident);
     }
 
     // Configure traffic signals, including adaptive policies.
-    for (const auto& plan : scenario.signals) {
-        replacement.configureSignals(
-            plan.intersection,
-            plan.phases,
-            plan.conflicts,
-            plan.adaptivePolicy
-        );
+    for (const auto &plan : scenario.signals) {
+        replacement.configureSignals(plan.intersection, plan.phases, plan.conflicts,
+                                     plan.adaptivePolicy);
     }
 
     replacement.scenario_ = scenario;
@@ -65,39 +55,72 @@ void Simulation::configureScenario(const Scenario& scenario) {
 
 void Simulation::setRouteProvider(RouteProvider provider) {
     if (currentTick_ != 0) {
-        throw std::logic_error(
-            "Set route provider before starting simulation"
-        );
+        throw std::logic_error("Set route provider before starting simulation");
     }
 
     routeProvider_ = std::move(provider);
 }
 
-void Simulation::configureSignals(
-    const IntersectionId& intersection,
-    std::vector<SignalPhase> phases,
-    const std::vector<MovementConflict>& conflicts,
-    std::optional<AdaptiveSignalPolicy> adaptivePolicy
-) {
+void Simulation::configureSignals(const IntersectionId &intersection,
+                                  std::vector<SignalPhase> phases,
+                                  const std::vector<MovementConflict> &conflicts,
+                                  std::optional<AdaptiveSignalPolicy> adaptivePolicy) {
     if (currentTick_ != 0) {
-        throw std::logic_error(
-            "Configure signals before starting simulation"
-        );
+        throw std::logic_error("Configure signals before starting simulation");
     }
 
-    signals_.configure(
-        intersection,
-        std::move(phases),
-        conflicts,
-        adaptivePolicy
-    );
+    signals_.configure(intersection, std::move(phases), conflicts, adaptivePolicy);
+}
+
+bool Simulation::requestPriority(const IntersectionId &intersection, const MovementId &movement) {
+    return scenario_ && signals_.requestPriority(intersection, movement);
+}
+
+void Simulation::respondToTraffic() {
+    auto excluded = lastCongestionReport_.congestedRoads;
+    for (const auto &lane : scenario_->lanes) {
+        if (std::find(lastCongestionReport_.congestedLanes.begin(),
+                      lastCongestionReport_.congestedLanes.end(),
+                      lane.id) != lastCongestionReport_.congestedLanes.end())
+            excluded.push_back(lane.road);
+    }
+    for (const auto &snapshot : vehicles_.vehicleSnapshots()) {
+        if ((snapshot.state != VehicleState::Waiting &&
+             snapshot.state != VehicleState::InTransit) ||
+            snapshot.route.empty() || snapshot.routeIndex >= snapshot.route.size())
+            continue;
+        const auto index = snapshot.state == VehicleState::Waiting ? 0 : snapshot.routeIndex;
+        const auto *current = network_.findRoad(snapshot.route[index]);
+        if (!current)
+            continue;
+        bool triggered = false;
+        for (std::size_t i = index + 1; i < snapshot.route.size(); ++i) {
+            const auto *road = network_.findRoad(snapshot.route[i]);
+            if (!road || !road->enabled ||
+                std::find(excluded.begin(), excluded.end(), snapshot.route[i]) != excluded.end()) {
+                triggered = true;
+                break;
+            }
+        }
+        if (!triggered)
+            continue;
+        auto suffix = network_.shortestRoute(current->to, snapshot.destination, excluded);
+        // If congestion exclusions remove every alternative, still avoid an incident
+        // when an enabled (but congested) path exists. Otherwise retain the old route
+        // and wait safely for restoration; no teleportation or invalid movement.
+        if (suffix.empty() && current->to != snapshot.destination)
+            suffix = network_.shortestRoute(current->to, snapshot.destination);
+        if (suffix.empty() && current->to != snapshot.destination)
+            continue;
+        auto *vehicle = vehicles_.find(snapshot.id);
+        vehicle->route.resize(index + 1);
+        vehicle->route.insert(vehicle->route.end(), suffix.begin(), suffix.end());
+    }
 }
 
 AdmissionBatch Simulation::step() {
     if (!scenario_) {
-        throw std::logic_error(
-            "Load a scenario before running simulation"
-        );
+        throw std::logic_error("Load a scenario before running simulation");
     }
 
     if (currentTick_ >= config_.duration) {
@@ -110,24 +133,26 @@ AdmissionBatch Simulation::step() {
     // FR-15: Use injected routing or shortest-path routing
     // that avoids disabled roads.
     const RouteProvider routes = routeProvider_
-        ? *routeProvider_
-        : RouteProvider{
-              [this](
-                  const IntersectionId& source,
-                  const IntersectionId& destination
-              ) {
-                  return network_.shortestRoute(
-                      source,
-                      destination
-                  );
-              }
-          };
+                                     ? *routeProvider_
+                                     : RouteProvider{[this](const IntersectionId &source,
+                                                            const IntersectionId &destination) {
+                                           return network_.shortestRoute(source, destination);
+                                       }};
 
     // Generate and admit vehicles.
     auto arrivals = vehicles_.advanceArrivals(
-        currentTick_,
-        routes
-    );
+        currentTick_, routes,
+        routeProvider_ ? std::function<std::vector<RoadId>(const EntryLane &, const Vehicle &)>{}
+                       : [this](const EntryLane &lane, const Vehicle &vehicle) {
+                             const auto *first = network_.findRoad(lane.road);
+                             if (!first || !first->enabled)
+                                 return std::vector<RoadId>{};
+                             auto suffix = network_.shortestRoute(first->to, vehicle.destination);
+                             if (first->to != vehicle.destination && suffix.empty())
+                                 return suffix;
+                             suffix.insert(suffix.begin(), first->id);
+                             return suffix;
+                         });
 
     admitted_ += arrivals.admitted.size();
     unroutable_ += arrivals.unroutable.size();
@@ -139,35 +164,38 @@ AdmissionBatch Simulation::step() {
     }
 
     // FR-13: Evaluate road and lane congestion.
-    lastCongestionReport_ = congestionDetector_.evaluate(
-        network_,
-        vehicles_,
-        scenario_->lanes
-    );
+    lastCongestionReport_ = congestionDetector_.evaluate(network_, vehicles_, scenario_->lanes);
+
+    respondToTraffic();
 
     // Master feature: Update signals using movement-aware queues.
-    const auto movementQueues = movement_.readyMovementQueues(
-        currentTick_,
-        network_,
-        vehicles_
-    );
+    const auto movementQueues = movement_.readyMovementQueues(currentTick_, network_, vehicles_);
 
+    movement_.requestEmergencyPriority(currentTick_, network_, signals_, vehicles_);
     signals_.advance(currentTick_, movementQueues);
 
+    // Observe admitted queues before movement can drain them.
+    for (const auto &lane : scenario_->lanes)
+        metrics_.observeQueue(vehicles_.lane(lane.id)->size());
+
     // Advance vehicle movement.
-    movement_.advance(
-        currentTick_,
-        network_,
-        signals_,
-        vehicles_
-    );
+    movement_.advance(currentTick_, network_, signals_, vehicles_);
+
+    // One waiting tick for every generated vehicle still waiting at tick end,
+    // including deferred arrivals and all positions in the FIFO queue. In-transit
+    // signal/capacity waits are counted by MovementEngine, never twice here.
+    for (const auto &snapshot : vehicles_.vehicleSnapshots()) {
+        if (snapshot.state == VehicleState::Waiting &&
+            snapshot.waitingTicks < std::numeric_limits<Tick>::max())
+            ++vehicles_.find(snapshot.id)->waitingTicks;
+    }
+    lastCongestionReport_ = congestionDetector_.evaluate(network_, vehicles_, scenario_->lanes);
 
     // FR-16: Record completed vehicles and waiting times.
     for (const auto vehicleId : trackedVehicles_) {
-        const Vehicle* vehicle = vehicles_.find(vehicleId);
+        const Vehicle *vehicle = vehicles_.find(vehicleId);
 
-        if (vehicle != nullptr &&
-            vehicle->state == VehicleState::Completed &&
+        if (vehicle != nullptr && vehicle->state == VehicleState::Completed &&
             recordedCompletions_.insert(vehicleId).second) {
 
             metrics_.recordCompleted(vehicle->waitingTicks);
@@ -175,8 +203,8 @@ AdmissionBatch Simulation::step() {
     }
 
     // FR-16: Record queue lengths safely.
-    for (const auto& lane : scenario_->lanes) {
-        const auto* queue = vehicles_.lane(lane.id);
+    for (const auto &lane : scenario_->lanes) {
+        const auto *queue = vehicles_.lane(lane.id);
 
         if (queue != nullptr) {
             metrics_.observeQueue(queue->size());
@@ -190,9 +218,7 @@ AdmissionBatch Simulation::step() {
 
 void Simulation::run() {
     if (!scenario_) {
-        throw std::logic_error(
-            "Load a scenario before running simulation"
-        );
+        throw std::logic_error("Load a scenario before running simulation");
     }
 
     while (currentTick_ < config_.duration) {
@@ -202,9 +228,7 @@ void Simulation::run() {
 
 void Simulation::reset() {
     if (!scenario_) {
-        throw std::logic_error(
-            "Load a scenario before resetting simulation"
-        );
+        throw std::logic_error("Load a scenario before resetting simulation");
     }
 
     const auto scenario = *scenario_;
@@ -216,22 +240,13 @@ void Simulation::reset() {
 }
 
 InputSummary Simulation::inputSummary() const noexcept {
-    return {
-        vehicles_.size(),
-        admitted_,
-        vehicles_.queuedCount(),
-        vehicles_.pendingCount(),
-        unroutable_
-    };
+    return {vehicles_.size(), admitted_, vehicles_.queuedCount(), vehicles_.pendingCount(),
+            unroutable_};
 }
 
-const VehicleManager& Simulation::vehicles() const noexcept {
-    return vehicles_;
-}
+const VehicleManager &Simulation::vehicles() const noexcept { return vehicles_; }
 
-Tick Simulation::currentTick() const noexcept {
-    return currentTick_;
-}
+Tick Simulation::currentTick() const noexcept { return currentTick_; }
 
 // FR-16: Return simulation performance metrics.
 MetricsSnapshot Simulation::metricsSnapshot() const noexcept {
@@ -239,12 +254,9 @@ MetricsSnapshot Simulation::metricsSnapshot() const noexcept {
 
     const auto completed = metrics_.snapshot(0).completed;
 
-    const auto unfinished =
-        summary.generated > completed
-            ? summary.generated - completed
-            : 0;
+    const auto unfinished = summary.generated > completed ? summary.generated - completed : 0;
 
-    return metrics_.snapshot(unfinished);
+    return metrics_.snapshot(unfinished, currentTick_);
 }
 
 // FR-17: Prepare the final simulation report.
@@ -252,12 +264,12 @@ SimulationReport Simulation::createReport() const noexcept {
     const auto summary = inputSummary();
     const auto metrics = metricsSnapshot();
 
-    const Tick finalProcessedTick =
-        currentTick_ == 0 ? 0 : currentTick_ - 1;
+    const Tick finalProcessedTick = currentTick_ == 0 ? 0 : currentTick_ - 1;
 
     SimulationReport report;
 
     report.finalTick = currentTick_;
+    report.seed = config_.seed;
     report.generated = summary.generated;
     report.admitted = summary.admitted;
     report.queued = summary.queued;
@@ -266,23 +278,18 @@ SimulationReport Simulation::createReport() const noexcept {
 
     report.metrics = metrics;
 
-    report.congestedRoads =
-        lastCongestionReport_.congestedRoads.size();
+    report.congestedRoads = lastCongestionReport_.congestedRoads.size();
 
-    report.congestedLanes =
-        lastCongestionReport_.congestedLanes.size();
+    report.congestedLanes = lastCongestionReport_.congestedLanes.size();
 
     report.activeIncidents =
-        currentTick_ == 0
-            ? 0
-            : incidents_.activeIncidentCount(finalProcessedTick);
+        currentTick_ == 0 ? 0 : incidents_.activeIncidentCount(finalProcessedTick);
 
     return report;
 }
 
 // Master feature: Return signal status snapshots.
-std::vector<std::pair<IntersectionId, SignalStatus>>
-Simulation::signalSnapshots(Tick tick) const {
+std::vector<std::pair<IntersectionId, SignalStatus>> Simulation::signalSnapshots(Tick tick) const {
     std::vector<std::pair<IntersectionId, SignalStatus>> result;
 
     if (!scenario_) {
@@ -291,11 +298,8 @@ Simulation::signalSnapshots(Tick tick) const {
 
     result.reserve(scenario_->signals.size());
 
-    for (const auto& plan : scenario_->signals) {
-        const auto status = signals_.status(
-            plan.intersection,
-            tick
-        );
+    for (const auto &plan : scenario_->signals) {
+        const auto status = signals_.status(plan.intersection, tick);
 
         if (status) {
             result.emplace_back(plan.intersection, *status);
@@ -305,4 +309,4 @@ Simulation::signalSnapshots(Tick tick) const {
     return result;
 }
 
-}  // namespace traffic
+} // namespace traffic

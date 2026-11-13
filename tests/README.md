@@ -84,7 +84,7 @@ Linux tests, and static analysis all succeed; each job has a unique display name
 See [`../docs/vijeth-test-matrix.md`](../docs/vijeth-test-matrix.md) for the
 UT-VI01 to UT-VI10 status. FR-07 queue-adaptive green timing now has controller,
 movement-queue, scenario-policy, bound, and safety coverage. FR-08 emergency
-priority remains blocked on implementation/API work and is not represented as passing.
+priority now has controller and integrated emergency-arrival coverage on the final branch.
 
 
 Linux unit/integration/CLI and Clang static-analysis jobs are configured alongside Windows.
@@ -96,3 +96,20 @@ PR #69 integration (31 October 2026): 63/63 CTest cases passed locally on Linux,
 including management and explicit-route movement tests. `cli_lane_status` verifies
 both a draining demo and the slow-road fixture in `tests/fixtures/blocked_entry_scenario.txt`.
 Remote workflow results are recorded separately after pushing the integration commit.
+
+## Final requirement suite
+
+The final branch passes 115 CTest cases, including FR-08 emergency phase requests,
+FR-15 incident/congestion response and FR-16/17 metric/output regressions. Historical
+blocked rows above are superseded by docs/traceability.md. Run:
+
+```sh
+python3 scripts/validate.py --executable build/traffic_sim
+python3 scripts/coverage.py
+python3 scripts/format.py
+```
+
+Coverage requires matching GCC/gcov, Python 3 and CTest 3.21+. Use --gtest-source with a
+cached GoogleTest tree for offline coverage builds. Branch counts include compiler
+exception paths; no exclusions hide uncovered decisions. Human usability review and
+external Docker/Jenkins acceptance remain separately tracked.

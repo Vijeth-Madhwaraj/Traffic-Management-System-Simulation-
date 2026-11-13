@@ -34,10 +34,10 @@ struct Scenario {
 };
 
 class ScenarioLoader {
-public:
-    static Scenario load(std::istream& input);
-    static Scenario loadFile(const std::string& path);
-    static void validate(const Scenario& scenario);
+  public:
+    static Scenario load(std::istream &input);
+    static Scenario loadFile(const std::string &path);
+    static void validate(const Scenario &scenario);
 };
 
-}  // namespace traffic
+} // namespace traffic

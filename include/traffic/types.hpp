@@ -44,4 +44,4 @@ struct SimulationConfig {
     std::uint64_t seed{1};
 };
 
-}  // namespace traffic
+} // namespace traffic

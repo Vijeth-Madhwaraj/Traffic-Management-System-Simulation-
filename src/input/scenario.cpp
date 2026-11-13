@@ -22,51 +22,34 @@ constexpr std::uint64_t maxDuration = 100000;
 constexpr std::uint64_t maxValue = 1000000;
 constexpr std::size_t maxVehicles = 100000;
 
-std::uint64_t number(
-    const std::string& text,
-    std::uint64_t maximum,
-    bool positive = false
-) {
+std::uint64_t number(const std::string &text, std::uint64_t maximum, bool positive = false) {
     std::uint64_t value{};
 
-    const auto result = std::from_chars(
-        text.data(),
-        text.data() + text.size(),
-        value
-    );
+    const auto result = std::from_chars(text.data(), text.data() + text.size(), value);
 
-    if (result.ec != std::errc{} ||
-        result.ptr != text.data() + text.size() ||
-        value > maximum ||
+    if (result.ec != std::errc{} || result.ptr != text.data() + text.size() || value > maximum ||
         (positive && value == 0)) {
-        throw std::invalid_argument(
-            "Invalid or out-of-range unsigned number: " + text
-        );
+        throw std::invalid_argument("Invalid or out-of-range unsigned number: " + text);
     }
 
     return value;
 }
 
-double probability(const std::string& text) {
+double probability(const std::string &text) {
     std::istringstream input(text);
     input.imbue(std::locale::classic());
 
     double value{};
 
-    if (!(input >> value) ||
-        input.peek() != std::char_traits<char>::eof() ||
-        !std::isfinite(value) ||
-        value < 0 ||
-        value > 1) {
-        throw std::invalid_argument(
-            "Probability must be between 0 and 1"
-        );
+    if (!(input >> value) || input.peek() != std::char_traits<char>::eof() ||
+        !std::isfinite(value) || value < 0 || value > 1) {
+        throw std::invalid_argument("Probability must be between 0 and 1");
     }
 
     return value;
 }
 
-VehicleClass vehicleClass(const std::string& text) {
+VehicleClass vehicleClass(const std::string &text) {
     if (text == "standard") {
         return VehicleClass::Standard;
     }
@@ -75,20 +58,12 @@ VehicleClass vehicleClass(const std::string& text) {
         return VehicleClass::Emergency;
     }
 
-    throw std::invalid_argument(
-        "Class must be standard or emergency"
-    );
+    throw std::invalid_argument("Class must be standard or emergency");
 }
 
-void fields(
-    const std::vector<std::string>& words,
-    std::size_t count,
-    bool atLeast = false
-) {
+void fields(const std::vector<std::string> &words, std::size_t count, bool atLeast = false) {
     if (atLeast ? words.size() < count : words.size() != count) {
-        throw std::invalid_argument(
-            "Wrong number of fields for " + words.front()
-        );
+        throw std::invalid_argument("Wrong number of fields for " + words.front());
     }
 }
 
@@ -97,18 +72,13 @@ struct Record {
     std::size_t line{};
 };
 
-std::invalid_argument lineError(
-    std::size_t line,
-    const std::string& message
-) {
-    return std::invalid_argument(
-        "Scenario line " + std::to_string(line) + ": " + message
-    );
+std::invalid_argument lineError(std::size_t line, const std::string &message) {
+    return std::invalid_argument("Scenario line " + std::to_string(line) + ": " + message);
 }
 
-}  // namespace
+} // namespace
 
-Scenario ScenarioLoader::load(std::istream& input) {
+Scenario ScenarioLoader::load(std::istream &input) {
     Scenario scenario;
 
     bool header = false;
@@ -120,10 +90,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
 
     std::vector<Record> arrivals;
 
-    std::map<
-        std::string,
-        std::pair<std::size_t, std::size_t>
-    > batches;
+    std::map<std::string, std::pair<std::size_t, std::size_t>> batches;
 
     std::map<IntersectionId, ScenarioSignals> signals;
 
@@ -136,9 +103,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
 
         while (input.get(character)) {
             if (++bytes > maxBytes) {
-                throw std::invalid_argument(
-                    "Scenario exceeds 1 MiB"
-                );
+                throw std::invalid_argument("Scenario exceeds 1 MiB");
             }
 
             if (character == '\n') {
@@ -146,9 +111,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
             }
 
             if (line.size() == maxLine) {
-                throw std::invalid_argument(
-                    "Scenario line exceeds 4096 bytes"
-                );
+                throw std::invalid_argument("Scenario line exceeds 4096 bytes");
             }
 
             line.push_back(character);
@@ -184,15 +147,13 @@ Scenario ScenarioLoader::load(std::istream& input) {
         }
 
         try {
-            const auto& kind = words.front();
+            const auto &kind = words.front();
 
             if (!header) {
                 fields(words, 2);
 
                 if (kind != "scenario" || words[1] != "1") {
-                    throw std::invalid_argument(
-                        "First record must be scenario 1"
-                    );
+                    throw std::invalid_argument("First record must be scenario 1");
                 }
 
                 header = true;
@@ -201,13 +162,10 @@ Scenario ScenarioLoader::load(std::istream& input) {
                 fields(words, 2);
 
                 if (duration) {
-                    throw std::invalid_argument(
-                        "Duplicate duration"
-                    );
+                    throw std::invalid_argument("Duplicate duration");
                 }
 
-                scenario.config.duration =
-                    number(words[1], maxDuration, true);
+                scenario.config.duration = number(words[1], maxDuration, true);
 
                 duration = true;
 
@@ -218,10 +176,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
                     throw std::invalid_argument("Duplicate seed");
                 }
 
-                scenario.config.seed = number(
-                    words[1],
-                    std::numeric_limits<std::uint64_t>::max()
-                );
+                scenario.config.seed = number(words[1], std::numeric_limits<std::uint64_t>::max());
 
                 seed = true;
 
@@ -233,168 +188,111 @@ Scenario ScenarioLoader::load(std::istream& input) {
             } else if (kind == "road") {
                 fields(words, 6);
 
-                scenario.roads.push_back({
-                    words[1],
-                    words[2],
-                    words[3],
-                    static_cast<std::size_t>(
-                        number(words[4], maxValue, true)
-                    ),
-                    number(words[5], maxValue, true)
-                });
+                scenario.roads.push_back(
+                    {words[1], words[2], words[3],
+                     static_cast<std::size_t>(number(words[4], maxValue, true)),
+                     number(words[5], maxValue, true)});
 
             } else if (kind == "lane") {
                 fields(words, 4);
 
-                scenario.lanes.push_back({
-                    words[1],
-                    words[2],
-                    static_cast<std::size_t>(
-                        number(words[3], maxValue, true)
-                    )
-                });
+                scenario.lanes.push_back(
+                    {words[1], words[2],
+                     static_cast<std::size_t>(number(words[3], maxValue, true))});
 
             } else if (kind == "phase") {
                 fields(words, 6, true);
 
-                auto& plan = signals[words[1]];
+                auto &plan = signals[words[1]];
                 plan.intersection = words[1];
 
-                plan.phases.push_back({
-                    {words.begin() + 5, words.end()},
-                    number(words[2], maxValue, true),
-                    number(words[3], maxValue, true),
-                    number(words[4], maxValue, true)
-                });
+                plan.phases.push_back({{words.begin() + 5, words.end()},
+                                       number(words[2], maxValue, true),
+                                       number(words[3], maxValue, true),
+                                       number(words[4], maxValue, true)});
 
             } else if (kind == "conflict") {
                 fields(words, 4);
 
-                auto& plan = signals[words[1]];
+                auto &plan = signals[words[1]];
                 plan.intersection = words[1];
 
-                plan.conflicts.emplace_back(
-                    words[2],
-                    words[3]
-                );
+                plan.conflicts.emplace_back(words[2], words[3]);
 
             } else if (kind == "incident") {
                 // FR-14: incident ROAD_ID START_TICK END_TICK
                 fields(words, 4);
 
-                scenario.incidents.push_back({
-                    words[1],
-                    number(words[2], maxDuration),
-                    number(words[3], maxDuration)
-                });
+                scenario.incidents.push_back(
+                    {words[1], number(words[2], maxDuration), number(words[3], maxDuration)});
 
             } else if (kind == "adaptive") {
                 fields(words, 6);
 
-                auto& plan = signals[words[1]];
+                auto &plan = signals[words[1]];
                 plan.intersection = words[1];
 
                 if (plan.adaptivePolicy) {
-                    throw std::invalid_argument(
-                        "Duplicate adaptive signal policy"
-                    );
+                    throw std::invalid_argument("Duplicate adaptive signal policy");
                 }
 
                 plan.adaptivePolicy = AdaptiveSignalPolicy{
-                    number(words[2], maxValue, true),
-                    number(words[3], maxValue, true),
-                    static_cast<std::size_t>(
-                        number(words[4], maxValue, true)
-                    ),
-                    number(words[5], maxValue, true)
-                };
+                    number(words[2], maxValue, true), number(words[3], maxValue, true),
+                    static_cast<std::size_t>(number(words[4], maxValue, true)),
+                    number(words[5], maxValue, true)};
 
             } else if (kind == "batch") {
                 fields(words, 3);
 
                 const auto count = static_cast<std::size_t>(
-                    number(
-                        words[2],
-                        ArrivalStream::maxVehiclesPerArrival,
-                        true
-                    )
-                );
+                    number(words[2], ArrivalStream::maxVehiclesPerArrival, true));
 
-                if (!batches.emplace(
-                    words[1],
-                    std::make_pair(count, lineNumber)
-                ).second) {
-                    throw std::invalid_argument(
-                        "Duplicate batch setting for stream: " + words[1]
-                    );
+                if (!batches.emplace(words[1], std::make_pair(count, lineNumber)).second) {
+                    throw std::invalid_argument("Duplicate batch setting for stream: " + words[1]);
                 }
 
             } else if (kind == "arrival" || kind == "stream") {
-                fields(
-                    words,
-                    kind == "arrival" ? 6 : 9,
-                    true
-                );
+                fields(words, kind == "arrival" ? 6 : 9, true);
 
-                arrivals.push_back({
-                    std::move(words),
-                    lineNumber
-                });
+                arrivals.push_back({std::move(words), lineNumber});
 
             } else {
-                throw std::invalid_argument(
-                    "Unknown record: " + kind
-                );
+                throw std::invalid_argument("Unknown record: " + kind);
             }
 
-        } catch (const std::invalid_argument& error) {
+        } catch (const std::invalid_argument &error) {
             throw lineError(lineNumber, error.what());
         }
     }
 
     if (!header || !duration || !seed) {
-        throw std::invalid_argument(
-            "Scenario requires version, duration, and seed"
-        );
+        throw std::invalid_argument("Scenario requires version, duration, and seed");
     }
 
-    for (auto& entry : signals) {
+    for (auto &entry : signals) {
         scenario.signals.push_back(std::move(entry.second));
     }
 
-    for (const auto& record : arrivals) {
+    for (const auto &record : arrivals) {
         try {
-            const auto& words = record.words;
+            const auto &words = record.words;
             const bool stream = words[0] == "stream";
 
-            const auto& laneId = words[2];
+            const auto &laneId = words[2];
 
-            const auto lane = std::find_if(
-                scenario.lanes.begin(),
-                scenario.lanes.end(),
-                [&](const auto& value) {
-                    return value.id == laneId;
-                }
-            );
+            const auto lane = std::find_if(scenario.lanes.begin(), scenario.lanes.end(),
+                                           [&](const auto &value) { return value.id == laneId; });
 
             if (lane == scenario.lanes.end()) {
-                throw std::invalid_argument(
-                    "Unknown entry lane: " + laneId
-                );
+                throw std::invalid_argument("Unknown entry lane: " + laneId);
             }
 
-            const auto road = std::find_if(
-                scenario.roads.begin(),
-                scenario.roads.end(),
-                [&](const auto& value) {
-                    return value.id == lane->road;
-                }
-            );
+            const auto road =
+                std::find_if(scenario.roads.begin(), scenario.roads.end(),
+                             [&](const auto &value) { return value.id == lane->road; });
 
             if (road == scenario.roads.end()) {
-                throw std::invalid_argument(
-                    "Entry lane references unknown road"
-                );
+                throw std::invalid_argument("Entry lane references unknown road");
             }
 
             Vehicle vehicle;
@@ -408,50 +306,32 @@ Scenario ScenarioLoader::load(std::istream& input) {
             if (words[routeStart] == "-") {
                 fields(words, routeStart + 1);
             } else {
-                vehicle.route.assign(
-                    words.begin() +
-                        static_cast<std::ptrdiff_t>(routeStart),
-                    words.end()
-                );
+                vehicle.route.assign(words.begin() + static_cast<std::ptrdiff_t>(routeStart),
+                                     words.end());
             }
 
             if (stream) {
-                scenario.streams.push_back({
-                    words[1],
-                    laneId,
-                    number(words[5], maxDuration),
-                    number(words[6], maxDuration),
-                    probability(words[7]),
-                    std::move(vehicle)
-                });
+                scenario.streams.push_back({words[1], laneId, number(words[5], maxDuration),
+                                            number(words[6], maxDuration), probability(words[7]),
+                                            std::move(vehicle)});
             } else {
-                scenario.arrivals.push_back({
-                    number(words[1], maxDuration),
-                    laneId,
-                    std::move(vehicle)
-                });
+                scenario.arrivals.push_back(
+                    {number(words[1], maxDuration), laneId, std::move(vehicle)});
             }
 
-        } catch (const std::invalid_argument& error) {
+        } catch (const std::invalid_argument &error) {
             throw lineError(record.line, error.what());
         }
     }
 
     // Apply batch settings after all streams have been parsed.
-    for (const auto& batch : batches) {
-        const auto stream = std::find_if(
-            scenario.streams.begin(),
-            scenario.streams.end(),
-            [&](const auto& value) {
-                return value.id == batch.first;
-            }
-        );
+    for (const auto &batch : batches) {
+        const auto stream =
+            std::find_if(scenario.streams.begin(), scenario.streams.end(),
+                         [&](const auto &value) { return value.id == batch.first; });
 
         if (stream == scenario.streams.end()) {
-            throw lineError(
-                batch.second.second,
-                "Batch references unknown stream: " + batch.first
-            );
+            throw lineError(batch.second.second, "Batch references unknown stream: " + batch.first);
         }
 
         stream->vehiclesPerArrival = batch.second.first;
@@ -462,7 +342,7 @@ Scenario ScenarioLoader::load(std::istream& input) {
     return scenario;
 }
 
-Scenario ScenarioLoader::loadFile(const std::string& path) {
+Scenario ScenarioLoader::loadFile(const std::string &path) {
     std::ifstream input(path);
 
     if (!input) {
@@ -472,153 +352,124 @@ Scenario ScenarioLoader::loadFile(const std::string& path) {
     return load(input);
 }
 
-void ScenarioLoader::validate(const Scenario& scenario) {
-    if (scenario.config.duration == 0 ||
-        scenario.config.duration > maxDuration ||
-        scenario.intersections.size() < 2 ||
-        scenario.intersections.size() > 1024 ||
-        scenario.roads.empty() ||
-        scenario.roads.size() > 4096 ||
-        scenario.lanes.empty() ||
-        scenario.lanes.size() > 4096 ||
-        scenario.streams.size() > 128 ||
+void ScenarioLoader::validate(const Scenario &scenario) {
+    if (scenario.config.duration == 0 || scenario.config.duration > maxDuration ||
+        scenario.intersections.size() < 2 || scenario.intersections.size() > 1024 ||
+        scenario.roads.empty() || scenario.roads.size() > 4096 || scenario.lanes.empty() ||
+        scenario.lanes.size() > 4096 || scenario.streams.size() > 128 ||
         scenario.arrivals.size() > maxVehicles) {
-        throw std::invalid_argument(
-            "Scenario size or duration is outside supported bounds"
-        );
+        throw std::invalid_argument("Scenario size or duration is outside supported bounds");
     }
 
-    for (const auto& road : scenario.roads) {
-        if (road.capacity > maxValue ||
-            road.travelTime > maxValue ||
-            road.occupancy != 0) {
+    for (const auto &road : scenario.roads) {
+        if (road.capacity > maxValue || road.travelTime > maxValue || road.occupancy != 0) {
             throw std::invalid_argument(
-                "Road must have bounded capacity/travel time and start empty"
-            );
+                "Road must have bounded capacity/travel time and start empty");
         }
     }
 
-    for (const auto& lane : scenario.lanes) {
+    for (const auto &lane : scenario.lanes) {
         if (lane.capacity > maxValue) {
-            throw std::invalid_argument(
-                "Lane capacity exceeds supported bound"
-            );
+            throw std::invalid_argument("Lane capacity exceeds supported bound");
         }
     }
 
     // FR-14: Validate incident intervals and road references.
-    for (const auto& incident : scenario.incidents) {
-        if (incident.roadId.empty() ||
-            incident.startsAt >= incident.endsAt ||
+    for (const auto &incident : scenario.incidents) {
+        if (incident.roadId.empty() || incident.startsAt >= incident.endsAt ||
             incident.endsAt > scenario.config.duration) {
-            throw std::invalid_argument(
-                "Invalid incident interval or duration"
-            );
+            throw std::invalid_argument("Invalid incident interval or duration");
         }
 
-        const auto road = std::find_if(
-            scenario.roads.begin(),
-            scenario.roads.end(),
-            [&](const Road& value) {
-                return value.id == incident.roadId;
-            }
-        );
+        const auto road =
+            std::find_if(scenario.roads.begin(), scenario.roads.end(),
+                         [&](const Road &value) { return value.id == incident.roadId; });
 
         if (road == scenario.roads.end()) {
-            throw std::invalid_argument(
-                "Incident references unknown road: " +
-                incident.roadId
-            );
+            throw std::invalid_argument("Incident references unknown road: " + incident.roadId);
         }
     }
 
     std::size_t potentialVehicles = scenario.arrivals.size();
 
-    for (const auto& arrival : scenario.arrivals) {
+    for (const auto &arrival : scenario.arrivals) {
         if (arrival.tick >= scenario.config.duration) {
-            throw std::invalid_argument(
-                "Arrival tick is outside run duration"
-            );
+            throw std::invalid_argument("Arrival tick is outside run duration");
         }
     }
 
-    for (const auto& stream : scenario.streams) {
-        if (stream.endTick > scenario.config.duration ||
-            stream.firstTick >= stream.endTick) {
-            throw std::invalid_argument(
-                "Stream interval is outside run duration"
-            );
+    for (const auto &stream : scenario.streams) {
+        if (stream.endTick > scenario.config.duration || stream.firstTick >= stream.endTick) {
+            throw std::invalid_argument("Stream interval is outside run duration");
         }
 
         if (stream.vehiclesPerArrival == 0 ||
-            stream.vehiclesPerArrival >
-                ArrivalStream::maxVehiclesPerArrival) {
-            throw std::invalid_argument(
-                "Stream batch size must be between 1 and 1000"
-            );
+            stream.vehiclesPerArrival > ArrivalStream::maxVehiclesPerArrival) {
+            throw std::invalid_argument("Stream batch size must be between 1 and 1000");
         }
 
         const auto ticks = stream.endTick - stream.firstTick;
 
         // Divide before multiplying to prevent integer overflow.
-        if (ticks >
-            (maxVehicles - potentialVehicles) /
-                stream.vehiclesPerArrival) {
-            throw std::invalid_argument(
-                "Scenario could exceed 100000 vehicles"
-            );
+        if (ticks > (maxVehicles - potentialVehicles) / stream.vehiclesPerArrival) {
+            throw std::invalid_argument("Scenario could exceed 100000 vehicles");
         }
 
-        potentialVehicles +=
-            static_cast<std::size_t>(ticks) *
-            stream.vehiclesPerArrival;
+        potentialVehicles += static_cast<std::size_t>(ticks) * stream.vehiclesPerArrival;
     }
 
     VehicleManager validator(scenario.config.seed);
 
-    validator.configureTopology(
-        scenario.intersections,
-        scenario.roads
-    );
+    validator.configureTopology(scenario.intersections, scenario.roads);
 
     validator.configureLanes(scenario.lanes);
     validator.setSchedule(scenario.arrivals);
     validator.setStreams(scenario.streams);
 
-    const std::unordered_set<IntersectionId> nodes(
-        scenario.intersections.begin(),
-        scenario.intersections.end()
-    );
+    const std::unordered_set<IntersectionId> nodes(scenario.intersections.begin(),
+                                                   scenario.intersections.end());
 
     std::unordered_set<IntersectionId> controlled;
 
     SignalController signals;
 
-    for (const auto& plan : scenario.signals) {
-        if (!nodes.count(plan.intersection) ||
-            !controlled.insert(plan.intersection).second) {
-            throw std::invalid_argument(
-                "Unknown or duplicate controlled intersection"
-            );
+    for (const auto &plan : scenario.signals) {
+        if (!nodes.count(plan.intersection) || !controlled.insert(plan.intersection).second) {
+            throw std::invalid_argument("Unknown or duplicate controlled intersection");
         }
 
-        for (const auto& phase : plan.phases) {
-            if (phase.greenDuration > maxValue ||
-                phase.yellowDuration > maxValue ||
+        for (const auto &phase : plan.phases) {
+            if (phase.greenDuration > maxValue || phase.yellowDuration > maxValue ||
                 phase.allRedDuration > maxValue) {
-                throw std::invalid_argument(
-                    "Signal timing exceeds supported bound"
-                );
+                throw std::invalid_argument("Signal timing exceeds supported bound");
             }
         }
 
-        signals.configure(
-            plan.intersection,
-            plan.phases,
-            plan.conflicts,
-            plan.adaptivePolicy
-        );
+        // Resolve the complete movement against actual connected road IDs. This
+        // also rejects ambiguous IDs containing the movement separator.
+        for (const auto &phase : plan.phases) {
+            for (const auto &movement : phase.permittedMovements) {
+                std::size_t matches = 0;
+                for (const auto &incoming : scenario.roads) {
+                    if (incoming.to != plan.intersection)
+                        continue;
+                    const auto prefix = incoming.id + "-to-";
+                    if (movement.compare(0, prefix.size(), prefix) != 0)
+                        continue;
+                    const auto outgoingId = movement.substr(prefix.size());
+                    for (const auto &outgoing : scenario.roads) {
+                        if (outgoing.id == outgoingId && outgoing.from == plan.intersection)
+                            ++matches;
+                    }
+                }
+                if (matches != 1)
+                    throw std::invalid_argument(
+                        "Unknown, disconnected or ambiguous signal movement: " + movement);
+            }
+        }
+
+        signals.configure(plan.intersection, plan.phases, plan.conflicts, plan.adaptivePolicy);
     }
 }
 
-}  // namespace traffic
+} // namespace traffic

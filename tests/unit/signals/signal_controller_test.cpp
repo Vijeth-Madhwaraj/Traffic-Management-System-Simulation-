@@ -9,9 +9,7 @@
 namespace traffic {
 namespace {
 
-SignalPhase makePhase(std::vector<MovementId> movements,
-                      Tick green = 3,
-                      Tick yellow = 2,
+SignalPhase makePhase(std::vector<MovementId> movements, Tick green = 3, Tick yellow = 2,
                       Tick allRed = 1) {
     return {std::move(movements), green, yellow, allRed};
 }
@@ -20,8 +18,7 @@ const std::vector<MovementConflict> kConflicts{{"north-south", "east-west"}};
 
 TEST(SignalControllerTest, UT_VI01_StartsEachIntersectionInItsConfiguredInitialPhase) {
     SignalController signals;
-    signals.configure("junction-a",
-                      {makePhase({"north-south"}), makePhase({"east-west"})},
+    signals.configure("junction-a", {makePhase({"north-south"}), makePhase({"east-west"})},
                       kConflicts);
     signals.configure("junction-b", {makePhase({"left-turn"})}, {});
 
@@ -42,7 +39,8 @@ TEST(SignalControllerTest, UT_VI01_StartsEachIntersectionInItsConfiguredInitialP
 
 TEST(SignalControllerTest, UT_VI02_ChangesFromGreenAtTheConfiguredBoundary) {
     SignalController signals;
-    signals.configure("junction", {makePhase({"north-south"}), makePhase({"east-west"})}, kConflicts);
+    signals.configure("junction", {makePhase({"north-south"}), makePhase({"east-west"})},
+                      kConflicts);
 
     signals.advance(2);
     const auto beforeBoundary = signals.status("junction", 2);
@@ -60,7 +58,8 @@ TEST(SignalControllerTest, UT_VI02_ChangesFromGreenAtTheConfiguredBoundary) {
 
 TEST(SignalControllerTest, UT_VI03_UsesYellowAndAllRedClearanceBeforeNextGreen) {
     SignalController signals;
-    signals.configure("junction", {makePhase({"north-south"}), makePhase({"east-west"})}, kConflicts);
+    signals.configure("junction", {makePhase({"north-south"}), makePhase({"east-west"})},
+                      kConflicts);
 
     signals.advance(3);
     auto state = signals.status("junction", 3);
@@ -86,8 +85,7 @@ TEST(SignalControllerTest, UT_VI03_UsesYellowAndAllRedClearanceBeforeNextGreen) 
 
 TEST(SignalControllerTest, UT_VI04_NeverPermitsConflictingMovementsAtTheSameTime) {
     SignalController signals;
-    signals.configure("junction",
-                      {makePhase({"north-south"}), makePhase({"east-west"})},
+    signals.configure("junction", {makePhase({"north-south"}), makePhase({"east-west"})},
                       kConflicts);
 
     for (Tick tick = 0; tick <= 18; ++tick) {
@@ -98,10 +96,9 @@ TEST(SignalControllerTest, UT_VI04_NeverPermitsConflictingMovementsAtTheSameTime
     }
 
     SignalController invalidPlan;
-    EXPECT_THROW(invalidPlan.configure("junction",
-                                       {makePhase({"north-south", "east-west"})},
-                                       kConflicts),
-                 std::invalid_argument);
+    EXPECT_THROW(
+        invalidPlan.configure("junction", {makePhase({"north-south", "east-west"})}, kConflicts),
+        std::invalid_argument);
 }
 
 TEST(SignalControllerTest, UT_VI08_RejectsEmptyOrInvalidSignalPlans) {
@@ -121,8 +118,9 @@ TEST(SignalControllerTest, UT_VI08_RejectsEmptyOrInvalidSignalPlans) {
                  std::invalid_argument);
     EXPECT_THROW(signals.configure("junction", {makePhase({"north-south"})}, {{"north-south", ""}}),
                  std::invalid_argument);
-    EXPECT_THROW(signals.configure("junction", {makePhase({"north-south"})}, {{"north-south", "missing"}}),
-                 std::invalid_argument);
+    EXPECT_THROW(
+        signals.configure("junction", {makePhase({"north-south"})}, {{"north-south", "missing"}}),
+        std::invalid_argument);
 }
 
 TEST(SignalControllerTest, UT_VI08_RejectsBackwardTicksWithoutChangingSignalState) {
@@ -149,7 +147,8 @@ TEST(SignalControllerTest, UT_VI08_InvalidReconfigurationLeavesTheValidPlanIntac
 
 TEST(SignalControllerTest, UT_VI08_AdvancesAcrossSkippedTicksDeterministically) {
     SignalController signals;
-    signals.configure("junction", {makePhase({"north-south"}), makePhase({"east-west"})}, kConflicts);
+    signals.configure("junction", {makePhase({"north-south"}), makePhase({"east-west"})},
+                      kConflicts);
 
     signals.advance(12);
     const auto state = signals.status("junction", 12);
@@ -172,7 +171,7 @@ TEST(SignalControllerTest, TC_07_ExtendsGreenForLongQueuesUpToMaximum) {
     EXPECT_EQ(state->greenDuration, 3U);
     EXPECT_TRUE(signals.permits("junction", "north-south"));
 
-    signals.advance(5, queues);  // The next green starts after yellow and all-red.
+    signals.advance(5, queues); // The next green starts after yellow and all-red.
     state = signals.status("junction", 5);
     ASSERT_TRUE(state.has_value());
     EXPECT_EQ(state->color, SignalColor::Green);
@@ -208,8 +207,8 @@ TEST(SignalControllerTest, TC_07_AdaptiveTimingPreservesConflictAndClearanceSafe
     SignalController signals;
     const AdaptiveSignalPolicy policy{1, 3, 1, 1};
     signals.configure("junction",
-        {makePhase({"north-south"}, 1, 1, 1), makePhase({"east-west"}, 1, 1, 1)},
-        kConflicts, policy);
+                      {makePhase({"north-south"}, 1, 1, 1), makePhase({"east-west"}, 1, 1, 1)},
+                      kConflicts, policy);
     MovementQueueCounts queues{{"junction", {{"north-south", 4}, {"east-west", 4}}}};
 
     for (Tick tick = 0; tick <= 24; ++tick) {
@@ -242,5 +241,45 @@ TEST(SignalControllerTest, TC_07_RejectsInvalidAdaptiveLimits) {
                  std::invalid_argument);
 }
 
-}  // namespace
-}  // namespace traffic
+TEST(SignalControllerTest, TC_08_PrioritySkipsToRequestedPhaseAfterFullClearance) {
+    SignalController signals;
+    signals.configure("B",
+                      {makePhase({"AB-to-BC"}, 2, 2, 1), makePhase({"AB-to-BD"}, 2, 2, 1),
+                       makePhase({"AB-to-BE"}, 2, 2, 1)},
+                      {});
+    EXPECT_FALSE(signals.requestPriority("missing", "AB-to-BE"));
+    EXPECT_FALSE(signals.requestPriority("B", "missing"));
+    EXPECT_TRUE(signals.requestPriority("B", "AB-to-BE"));
+    EXPECT_TRUE(signals.requestPriority("B", "AB-to-BE"));
+    signals.advance(1);
+    EXPECT_TRUE(signals.permits("B", "AB-to-BC"));
+    signals.advance(2);
+    EXPECT_EQ(signals.status("B", 2)->color, SignalColor::Yellow);
+    EXPECT_FALSE(signals.permits("B", "AB-to-BE"));
+    signals.advance(4);
+    EXPECT_EQ(signals.status("B", 4)->color, SignalColor::Red);
+    signals.advance(5);
+    EXPECT_TRUE(signals.permits("B", "AB-to-BE"));
+    EXPECT_FALSE(signals.permits("B", "AB-to-BC"));
+    signals.advance(10);
+    EXPECT_TRUE(signals.permits("B", "AB-to-BC"));
+}
+
+TEST(SignalControllerTest, TC_08_RequestsDuringClearanceRemainSafeAndFifo) {
+    SignalController signals;
+    signals.configure(
+        "J", {makePhase({"a"}, 1, 1, 1), makePhase({"b"}, 1, 1, 1), makePhase({"c"}, 1, 1, 1)},
+        {{"a", "b"}, {"a", "c"}, {"b", "c"}});
+    signals.advance(1);
+    EXPECT_TRUE(signals.requestPriority("J", "c"));
+    EXPECT_TRUE(signals.requestPriority("J", "b"));
+    signals.advance(3);
+    EXPECT_TRUE(signals.permits("J", "c"));
+    signals.advance(6);
+    EXPECT_TRUE(signals.permits("J", "b"));
+    signals.advance(9);
+    EXPECT_TRUE(signals.permits("J", "c")); // Normal cycle resumes.
+}
+
+} // namespace
+} // namespace traffic

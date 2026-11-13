@@ -1,0 +1,17 @@
+metric,value
+seed,496
+final_tick,500
+generated,500
+admitted,500
+queued,0
+pending,0
+unroutable,0
+completed,497
+unfinished,3
+average_waiting_ticks,0.69
+measurement_ticks,500
+throughput_per_tick,0.994000
+maximum_queue_length,1
+congested_roads,0
+congested_lanes,0
+active_incidents,0
